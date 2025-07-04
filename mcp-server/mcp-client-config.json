@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "estimate-service": {
+      "command": "node",
+      "args": [
+        "dist/index.js"
+      ],
+      "cwd": "/workspaces/estimate-service/mcp-server",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "description": "AI-assisted development tools for Estimate Service project",
+      "capabilities": {
+        "tools": true,
+        "resources": false
+      }
+    }
+  }
+}

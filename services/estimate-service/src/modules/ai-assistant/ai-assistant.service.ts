@@ -1,21 +1,22 @@
+import { AiAssistantResponse, ConfidenceLevel, GrandSmetaItem } from '../../types/shared-contracts';
 import { Injectable, Logger } from '@nestjs/common';
+import { DeepSeekAiProvider } from './providers/deepseek-ai.provider';
 import { RuleEngineService } from './rule-engine.service';
-import { AiAssistantResponse, ConfidenceLevel, GrandSmetaItem } from '@ez-eco/shared-contracts';
-import { YandexAiProvider } from './providers/yandex-ai.provider';
 
 @Injectable()
 export class AiAssistantService {
   private readonly logger = new Logger(AiAssistantService.name);
 
-  private readonly aiProvider: YandexAiProvider;
+  private readonly aiProvider: DeepSeekAiProvider;
 
   constructor(private readonly ruleEngineService: RuleEngineService) {
-    this.aiProvider = new YandexAiProvider();
+    this.aiProvider = new DeepSeekAiProvider();
     this.aiProvider.initialize({
-      provider: 'yandex-gpt',
-      apiKey: process.env['YANDEX_CLOUD_API_KEY'] ?? '',
-      model: process.env['YANDEX_GPT_MODEL'] ?? 'yandexgpt',
-      maxTokens: Number(process.env['OPENAI_MAX_TOKENS']) || 4000,
+      provider: 'deepseek-r1',
+      apiKey: process.env['DEEPSEEK_API_KEY'] ?? '',
+      model: process.env['DEEPSEEK_MODEL'] ?? 'deepseek-r1',
+      baseUrl: process.env['DEEPSEEK_BASE_URL'] ?? 'https://api.deepseek.com/v1',
+      maxTokens: Number(process.env['DEEPSEEK_MAX_TOKENS']) || 4000,
       temperature: Number(process.env['AI_TEMPERATURE']) || 0.3,
     });
   }
@@ -114,7 +115,7 @@ export class AiAssistantService {
 Проанализируй следующую позицию сметы:
 
 Наименование: ${item.name}
-Единица измерения: ${item.unit?.name} (${item.unit?.code})
+Единица измерения: ${typeof item.unit === 'string' ? item.unit : item.unit?.name || 'не указана'} ${typeof item.unit === 'object' && item.unit?.code ? `(${item.unit.code})` : ''}
 Количество: ${item.quantity}
 Цена за единицу: ${item.unitPrice} руб.
 Общая стоимость: ${item.totalPrice || (item.quantity || 0) * (item.unitPrice || 0)} руб.

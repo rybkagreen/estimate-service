@@ -84,16 +84,22 @@ POST   /api/fsbts/sync         // Синхронизация данных
 ```
 
 ### 3. AI Assistant Service
-**Назначение:** ИИ-помощник для работы со сметами
+**Назначение:** ИИ-помощник для работы со сметами на базе DeepSeek R1
 **Порт:** 3003
 **База данных:** Vector DB (ChromaDB) + PostgreSQL
 
 #### Функции:
-- Чат с пользователем
-- Автосоставление смет
-- Анализ технических заданий
-- Рекомендации по оптимизации
+- Чат с пользователем с использованием DeepSeek R1
+- Автосоставление смет с ИИ-анализом
+- Анализ технических заданий и документов
+- Рекомендации по оптимизации на основе ИИ
 - Обучение на данных пользователей
+
+#### AI Модель:
+- **Провайдер:** DeepSeek R1
+- **Модель:** deepseek-r1 (по умолчанию)
+- **API:** DeepSeek API v1
+- **Возможности:** Рассуждения, анализ, генерация текста
 
 #### API Endpoints:
 ```typescript
@@ -334,7 +340,7 @@ export class FSBTSClient {
         params: { q: query },
       })
       .toPromise();
-    
+
     return data;
   }
 }
@@ -351,13 +357,13 @@ export class EstimateService {
 
   async create(data: CreateEstimateData): Promise<Estimate> {
     const estimate = await this.repository.create(data);
-    
+
     // Отправляем событие о создании сметы
     await this.queue.add('estimate.created', {
       estimateId: estimate.id,
       userId: data.userId,
     });
-    
+
     return estimate;
   }
 }
@@ -384,16 +390,16 @@ export class RateLimitingGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const userId = request.user?.id;
-    
+
     if (!userId) return false;
-    
+
     const key = `rate_limit:${userId}`;
     const current = await this.redis.incr(key);
-    
+
     if (current === 1) {
       await this.redis.expire(key, 60); // 1 минута
     }
-    
+
     return current <= 100; // 100 запросов в минуту
   }
 }
@@ -416,11 +422,11 @@ export class ValidationPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
     const schema = this.getSchema(metadata.metatype);
     const result = schema.safeParse(value);
-    
+
     if (!result.success) {
       throw new BadRequestException(result.error.errors);
     }
-    
+
     return result.data;
   }
 }

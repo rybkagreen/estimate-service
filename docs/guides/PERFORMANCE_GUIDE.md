@@ -519,7 +519,7 @@ export class AIService {
 
     try {
       const prompts = batch.map(item => item.prompt);
-      const responses = await this.openaiService.batchProcess(prompts);
+      const responses = await this.deepseekService.batchProcess(prompts);
 
       batch.forEach((item, index) => {
         item.resolve(responses[index]);

@@ -8,7 +8,7 @@ Estimate Service - это микросервисная система для с�
 - PostgreSQL база данных
 - Redis для кэширования
 - Vector DB для ИИ-компонентов
-- ИИ-сервисы (OpenAI, локальные модели)
+- ИИ-сервисы (DeepSeek R1, локальные модели)
 
 ## Архитектура развертывания
 
@@ -94,9 +94,10 @@ JWT_REFRESH_SECRET=your-super-secret-refresh-key-256-bit
 JWT_EXPIRES_IN=3600
 JWT_REFRESH_EXPIRES_IN=2592000
 
-# OpenAI
-OPENAI_API_KEY=sk-your-openai-api-key
-OPENAI_MODEL=gpt-4
+# DeepSeek R1
+DEEPSEEK_API_KEY=sk-your-deepseek-api-key
+DEEPSEEK_MODEL=deepseek-r1
+DEEPSEEK_BASE_URL=https://api.deepseek.com/v1
 
 # Vector Database
 CHROMA_URL=http://chroma:8000
@@ -165,7 +166,7 @@ kubectl create namespace estimate-service
 kubectl create secret generic estimate-secrets \
   --from-literal=database-url="postgresql://user:pass@postgres:5432/db" \
   --from-literal=jwt-secret="your-jwt-secret" \
-  --from-literal=openai-api-key="sk-your-key" \
+  --from-literal=deepseek-api-key="sk-your-key" \
   -n estimate-service
 ```
 
@@ -291,11 +292,11 @@ spec:
             secretKeyRef:
               name: estimate-secrets
               key: jwt-secret
-        - name: OPENAI_API_KEY
+        - name: DEEPSEEK_API_KEY
           valueFrom:
             secretKeyRef:
               name: estimate-secrets
-              key: openai-api-key
+              key: deepseek-api-key
         envFrom:
         - configMapRef:
             name: estimate-config
