@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "displayName": "NestJS Services TypeScript Configuration",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    // Core NestJS requirements - переопределяем базовые настройки
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2020"],
+    
+    // Decorator support (критично для NestJS) - должны быть true
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useDefineForClassFields": false,
+    
+    // Type system для NestJS
+    "types": ["node", "jest"],
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "exactOptionalPropertyTypes": false,
+    
+    // Output configuration для сервисов
+    "declaration": true,
+    "declarationMap": false,
+    "removeComments": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "noEmit": false,
+    
+    // Optimization для разработки
+    "incremental": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    
+    // Module resolution для CommonJS
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "baseUrl": "./",
+    
+    // Consistency
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    
+    // Service-specific paths
+    "paths": {
+      "@app/*": ["src/*"],
+      "@prisma/client": ["node_modules/.prisma/client"],
+      "@ez-eco/shared-contracts": ["../../libs/shared-contracts/src/index.ts"],
+      "@ez-eco/shared-logger": ["../../libs/shared-logger/src/index.ts"],
+      "@ez-eco/shared-config": ["../../libs/shared-config/src/index.ts"],
+      "@ez-eco/shared-security": ["../../libs/shared-security/src/index.ts"],
+      "@ez-eco/monitoring": ["../../libs/monitoring/src/index.ts"],
+      "@ez-eco/construction-ui": ["../../libs/construction-ui/src/index.ts"],
+      "@ez-eco/ai-integration": ["../../libs/api-integration/src/index.ts"],
+      "@ez-eco/shared-auth": ["../../packages/backend/shared-auth/src/index.ts"],
+      "@ez-eco/shared-database": ["../../packages/backend/shared-database/src/index.ts"],
+      "@ez-eco/shared-middleware": ["../../packages/backend/shared-middleware/src/index.ts"],
+      "@ez-eco/shared-events": ["../../packages/common/shared-events/src/index.ts"],
+      "@ez-eco/shared-types": ["../../packages/common/shared-types/src"],
+      "@ez-eco/utils": ["../../packages/common/utils/src"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
+}
