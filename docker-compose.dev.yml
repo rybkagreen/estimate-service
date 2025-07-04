@@ -1,0 +1,266 @@
+# ========================================
+# Docker Compose Development Override
+# ========================================
+
+version: '3.8'
+
+services:
+  # ========================================
+  # DEVELOPMENT OVERRIDES
+  # ========================================
+
+  # PostgreSQL с volume mapping для разработки
+  postgres:
+    volumes:
+      - ./scripts/db-init:/docker-entrypoint-initdb.d
+      - ./scripts/db-migrations:/migrations
+    environment:
+      - POSTGRES_LOG_STATEMENT=all
+      - POSTGRES_LOG_MIN_DURATION_STATEMENT=0
+
+  # Redis с конфигурацией для разработки
+  redis:
+    command: redis-server --appendonly yes --appendfsync everysec
+
+  # API Gateway с hot reload
+  api-gateway:
+    volumes:
+      - ./services/api-gateway:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    command: npm run dev
+
+  # Auth Service с hot reload
+  auth-service:
+    volumes:
+      - ./services/auth-service:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - ./logs:/app/logs
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    command: npm run dev
+
+  # User Profile Service с hot reload
+  user-profile-service:
+    volumes:
+      - ./services/user-profile-service:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+    command: npm run dev
+
+  # Construction Objects Service с hot reload
+  construction-objects-service:
+    volumes:
+      - ./services/construction-objects-service:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - ./logs:/app/logs
+    command: npm run dev
+
+  # Contracts Management Service с hot reload
+  contracts-management-service:
+    volumes:
+      - ./services/contracts-management-service:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - ./logs:/app/logs
+      - ./storage:/app/storage
+      - ./templates:/app/templates
+    command: npm run dev
+
+  # Document Management Service с hot reload
+  document-management-service:
+    volumes:
+      - ./services/document-management-service:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - ./logs:/app/logs
+      - ./storage:/app/storage
+      - ./uploads:/app/uploads
+    command: npm run dev
+
+  # Notification Service с hot reload
+  notification-service:
+    volumes:
+      - ./services/notification-service:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - ./logs:/app/logs
+    command: npm run dev
+
+  # Reporting & Analytics Service с hot reload
+  reporting-analytics-service:
+    volumes:
+      - ./services/reporting-analytics-service:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - ./logs:/app/logs
+      - ./storage:/app/storage
+      - ./templates:/app/templates
+    command: npm run dev
+
+  # Monitoring & Compliance Service с hot reload
+  monitoring-compliance-service:
+    volumes:
+      - ./services/monitoring-compliance-service:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - ./logs:/app/logs
+      - ./rules:/app/rules
+      - ./config:/app/config
+    command: npm run dev
+
+  # AI Operator Service с hot reload
+  ai-operator-service:
+    volumes:
+      - ./services/ai-operator-service:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - ./logs:/app/logs
+      - ./prompts:/app/prompts
+      - ./models:/app/models
+    command: npm run dev
+
+  # Vector DB Service с hot reload
+  vector-db-service:
+    volumes:
+      - ./services/vector-db-service:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - ./logs:/app/logs
+    command: npm run dev
+
+  # Control Hub UI с hot reload
+  control-hub-ui-ui:
+    volumes:
+      - ./services/control-hub-ui-ui:/app
+      - ./libs:/app/libs
+      - ./packages:/app/packages
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    command: npm run dev
+
+  # ========================================
+  # DEVELOPMENT TOOLS (всегда включены в dev)
+  # ========================================
+
+  # pgAdmin для управления PostgreSQL
+  pgadmin:
+    profiles: []
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./scripts/pgadmin:/pgadmin4/config
+
+  # Redis Insight для управления Redis
+  redis-insight:
+    profiles: []
+    volumes:
+      - redis_insight_data:/db
+
+  # Elasticsearch Head для управления Elasticsearch
+  elasticsearch-head:
+    image: mobz/elasticsearch-head:5
+    container_name: ai-constr-elasticsearch-head
+    ports:
+      - '9100:9100'
+    depends_on:
+      - elasticsearch
+    networks:
+      - ai-constr-network
+
+  # Qdrant Web UI
+  qdrant-web:
+    image: qdrant/qdrant-web-ui:latest
+    container_name: ai-constr-qdrant-web
+    ports:
+      - '6334:80'
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+    depends_on:
+      - qdrant
+    networks:
+      - ai-constr-network
+
+  # ========================================
+  # MONITORING & OBSERVABILITY
+  # ========================================
+
+  # Prometheus для метрик
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ai-constr-prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./config/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - ai-constr-network
+
+  # Grafana для визуализации
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ai-constr-grafana
+    ports:
+      - '3012:3000'
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+    networks:
+      - ai-constr-network
+
+  # Jaeger для трейсинга
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: ai-constr-jaeger
+    ports:
+      - '16686:16686'
+      - '14250:14250'
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - ai-constr-network
+
+volumes:
+  pgadmin_data:
+  redis_insight_data:
+  prometheus_data:
+  grafana_data:
+

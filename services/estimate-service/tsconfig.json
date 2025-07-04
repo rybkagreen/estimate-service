@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.nestjs-services.json",
+  "compilerOptions": {
+    "composite": true,
+    "paths": {
+      "@app/*": ["src/*"],
+      "@ez-eco/shared-contracts": ["../../libs/shared-contracts/src/index.ts"]
+    }
+  }
+}
