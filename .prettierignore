@@ -1,0 +1,48 @@
+# Игнорировать генерируемые файлы
+dist/
+build/
+coverage/
+.nx/
+
+# Игнорировать конфигурационные файлы
+*.config.js
+*.config.mjs
+*.config.ts
+
+# Игнорировать типы
+*.d.ts
+
+# Игнорировать зависимости
+node_modules/
+package-lock.json
+yarn.lock
+
+# Игнорировать логи
+*.log
+
+# Игнорировать временные файлы
+*.tmp
+*.temp
+
+# Игнорировать файлы базы данных
+prisma/migrations/
+*.db
+*.sqlite
+
+# Игнорировать файлы Docker
+Dockerfile*
+docker-compose*.yml
+
+# Игнорировать статические файлы
+public/
+assets/static/
+
+# Игнорировать файлы сборки
+webpack.config.js
+vite.config.ts
+rollup.config.js
+
+# Игнорировать некоторые JSON файлы
+tsconfig*.json
+jest.config.ts
+playwright.config.ts
