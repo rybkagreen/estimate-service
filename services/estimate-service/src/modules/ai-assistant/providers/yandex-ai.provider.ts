@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { AiProvider, AiProviderConfig, AiRequest, AiResponse } from './ai-provider.interface';
-import { ConfidenceLevel } from '@ez-eco/shared-contracts';
+import { ConfidenceLevel } from '../../../types/shared-contracts';
 
 /**
  * Yandex Cloud AI провайдер для работы с YandexGPT

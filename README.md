@@ -114,7 +114,7 @@ estimate-service/
 |------------|----------|--------------|
 | `PORT` | Порт сервиса | `3022` |
 | `DATABASE_URL` | Строка подключения к БД | - |
-| `YANDEX_API_KEY` | Ключ API Yandex Cloud | - |
+| `DEEPSEEK_API_KEY` | Ключ API DeepSeek R1 | - |
 | `NODE_ENV` | Окружение | `development` |
 
 Полная конфигурация: [📖 docs/guides/DEPLOYMENT_GUIDE.md](docs/guides/DEPLOYMENT_GUIDE.md)
@@ -240,7 +240,7 @@ docs/
 |-----------|------------|
 | **Backend** | NestJS, TypeScript, Node.js |
 | **База данных** | PostgreSQL, Prisma ORM |
-| **ИИ** | Yandex Cloud AI |
+| **ИИ** | DeepSeek R1 |
 | **Тестирование** | Jest, Supertest |
 | **Документация** | Swagger/OpenAPI |
 | **DevOps** | Docker, Docker Compose |

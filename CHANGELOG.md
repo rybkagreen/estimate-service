@@ -31,7 +31,7 @@
 - Инициальная версия Estimate Service (standalone)
 - Извлечение из монорепозитория AI Construction Ecosystem
 - Базовая функциональность ИИ-ассистента для составления смет
-- Интеграция с Yandex Cloud AI
+- Интеграция с DeepSeek R1
 - Поддержка Гранд Смета формата
 - REST API с документацией Swagger
 - Prisma ORM для работы с базой данных

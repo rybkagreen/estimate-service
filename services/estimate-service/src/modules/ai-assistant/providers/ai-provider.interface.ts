@@ -1,9 +1,10 @@
-import { ConfidenceLevel } from '@ez-eco/shared-contracts';
+import { ConfidenceLevel } from '../../../types/shared-contracts';
 
 export interface AiProviderConfig {
-  provider: 'yandex-gpt' | 'openai' | 'anthropic' | 'local';
+  provider: 'deepseek-r1' | 'anthropic' | 'local';
   apiKey?: string;
   model: string;
+  baseUrl?: string;
   maxTokens?: number;
   temperature?: number;
   timeout?: number;

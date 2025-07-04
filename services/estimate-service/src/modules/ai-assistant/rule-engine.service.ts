@@ -5,7 +5,7 @@ import {
   GrandSmetaItem,
   GrandSmetaWorkCategory,
   PriceSource,
-} from '@ez-eco/shared-contracts';
+} from '../../types/shared-contracts';
 
 interface EstimateRule {
   id: string;

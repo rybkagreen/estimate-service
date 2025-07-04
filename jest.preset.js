@@ -1,11 +1,8 @@
 const nxPreset = require('@nx/jest/preset').default;
 
-module.exports = { 
+module.exports = {
   ...nxPreset,
-  setupFilesAfterEnv: ['<rootDir>/../../../jest.setup.js'],
-  moduleNameMapping: {
-    '^canvas$': '<rootDir>/../../../jest-mocks/canvas.js',
-  },
+  setupFilesAfterEnv: ['<rootDir>/../../jest.setup.js'],
   testPathIgnorePatterns: [
     '/node_modules/',
     '/archive/',

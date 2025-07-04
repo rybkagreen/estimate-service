@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AiAssistantService } from './ai-assistant.service';
-import { AiAssistantResponse, GrandSmetaItem } from '@ez-eco/shared-contracts';
+import { AiAssistantResponse, GrandSmetaItem } from '../../types/shared-contracts';
 
 @Controller('ai-assistant')
 export class AiAssistantController {
