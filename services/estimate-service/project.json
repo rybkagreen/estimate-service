@@ -3,11 +3,16 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "services/estimate-service/src",
   "projectType": "application",
-  "tags": ["scope:services", "type:application"],
+  "tags": [
+    "scope:services",
+    "type:application"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "defaultConfiguration": "production",
       "options": {
         "target": "node",
@@ -15,7 +20,9 @@
         "outputPath": "dist/services/estimate-service",
         "main": "services/estimate-service/src/main.ts",
         "tsConfig": "services/estimate-service/tsconfig.app.json",
-        "assets": ["services/estimate-service/src/assets"],
+        "assets": [
+          "services/estimate-service/src/assets"
+        ],
         "isolatedConfig": true,
         "webpackConfig": "services/estimate-service/webpack.config.js"
       },
@@ -41,7 +48,9 @@
     "serve": {
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "options": {
         "buildTarget": "estimate-service:build",
         "runBuildTargetDependencies": false
@@ -56,11 +65,21 @@
       }
     },
     "lint": {
-      "executor": "@nx/eslint:lint"
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "services/estimate-service/**/*.{ts,tsx,js,jsx}"
+        ]
+      }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
       "options": {
         "jestConfig": "services/estimate-service/jest.config.ts"
       }

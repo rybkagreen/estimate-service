@@ -22,6 +22,7 @@ describe('AiAssistantService', () => {
     validateEstimate: jest.fn(),
     validateEstimateItem: jest.fn(),
     calculateOptimizations: jest.fn(),
+    getRulesStatistics: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -65,6 +66,8 @@ describe('AiAssistantService', () => {
         suggestions: ['Test rule suggestion'],
         issues: [],
         isValid: true,
+        warnings: [],
+        requiresAiAssistance: true,
       };
 
       const mockAiResponse = {
@@ -79,24 +82,43 @@ describe('AiAssistantService', () => {
         },
       };
 
+      // Устанавливаем spy на приватный метод
+      const provideAiSuggestionsSpy = jest.spyOn(service as any, 'provideAiSuggestions').mockResolvedValue({
+        recommendation: 'Рекомендация от ИИ',
+        confidence: ConfidenceLevel.HIGH,
+        explanation: 'ИИ-анализ выполнен',
+        alternatives: ['Альтернатива 1'],
+        uncertaintyAreas: [],
+      });
+
       mockRuleEngineService.processItem.mockResolvedValue(mockRuleResult);
-      mockAiProvider.generateResponse.mockResolvedValue(mockAiResponse);
 
       const result = await service.getSuggestions(mockItem);
 
       expect(result).toBeDefined();
+      expect(result.success).toBe(true);
+      expect(result.action).toBe('SUGGEST');
       expect(mockRuleEngineService.processItem).toHaveBeenCalledWith(mockItem);
-      expect(mockAiProvider.generateResponse).toHaveBeenCalled();
+      expect(provideAiSuggestionsSpy).toHaveBeenCalledWith(mockItem);
     });
   });
 
   describe('getRulesStatistics', () => {
     it('should return rules statistics', async () => {
+      const mockStats = {
+        totalRules: 5,
+        activeRules: 4,
+        categories: ['pricing', 'quality'],
+      };
+
+      mockRuleEngineService.getRulesStatistics.mockReturnValue(mockStats);
+
       const stats = await service.getRulesStatistics();
 
       expect(stats).toBeDefined();
-      expect(stats.totalRules).toBeDefined();
-      expect(stats.rulesStats).toBeDefined();
+      expect(stats.totalRules).toBe(5);
+      expect(stats.rulesStats).toEqual(mockStats);
+      expect(mockRuleEngineService.getRulesStatistics).toHaveBeenCalled();
     });
   });
 });
