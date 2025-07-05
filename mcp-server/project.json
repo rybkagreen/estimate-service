@@ -1,0 +1,44 @@
+{
+  "name": "mcp-server",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "mcp-server/src",
+  "projectType": "application",
+  "tags": [
+    "scope:mcp",
+    "type:application"
+  ],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "mcp-server/dist",
+        "main": "mcp-server/src/index.ts",
+        "tsConfig": "mcp-server/tsconfig.json"
+      }
+    },
+    "start": {
+      "executor": "@nx/js:node",
+      "dependsOn": [
+        "build"
+      ],
+      "options": {
+        "buildTarget": "mcp-server:build",
+        "runBuildTargetDependencies": false
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": [
+        "{options.outputFile}"
+      ],
+      "options": {
+        "lintFilePatterns": [
+          "mcp-server/**/*.{ts,tsx,js,jsx}"
+        ]
+      }
+    }
+  }
+}
