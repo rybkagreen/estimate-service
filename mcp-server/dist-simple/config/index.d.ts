@@ -47,6 +47,7 @@ declare const configSchema: z.ZodObject<{
             maxTokens: z.ZodDefault<z.ZodNumber>;
             temperature: z.ZodDefault<z.ZodNumber>;
             timeout: z.ZodDefault<z.ZodNumber>;
+            mockMode: z.ZodDefault<z.ZodBoolean>;
         }, "strip", z.ZodTypeAny, {
             apiKey: string;
             model: string;
@@ -54,6 +55,7 @@ declare const configSchema: z.ZodObject<{
             maxTokens: number;
             temperature: number;
             timeout: number;
+            mockMode: boolean;
         }, {
             apiKey: string;
             model?: string | undefined;
@@ -61,6 +63,7 @@ declare const configSchema: z.ZodObject<{
             maxTokens?: number | undefined;
             temperature?: number | undefined;
             timeout?: number | undefined;
+            mockMode?: boolean | undefined;
         }>;
     }, "strip", z.ZodTypeAny, {
         deepseek: {
@@ -70,6 +73,7 @@ declare const configSchema: z.ZodObject<{
             maxTokens: number;
             temperature: number;
             timeout: number;
+            mockMode: boolean;
         };
     }, {
         deepseek: {
@@ -79,6 +83,7 @@ declare const configSchema: z.ZodObject<{
             maxTokens?: number | undefined;
             temperature?: number | undefined;
             timeout?: number | undefined;
+            mockMode?: boolean | undefined;
         };
     }>;
     external: z.ZodObject<{
@@ -140,6 +145,7 @@ declare const configSchema: z.ZodObject<{
             maxTokens: number;
             temperature: number;
             timeout: number;
+            mockMode: boolean;
         };
     };
     external: {
@@ -177,6 +183,7 @@ declare const configSchema: z.ZodObject<{
             maxTokens?: number | undefined;
             temperature?: number | undefined;
             timeout?: number | undefined;
+            mockMode?: boolean | undefined;
         };
     };
     external: {

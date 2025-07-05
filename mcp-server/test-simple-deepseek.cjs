@@ -5,6 +5,22 @@
  * Простой тест MCP сервера с DeepSeek R1
  */
 
+// Обработка ошибок записи в stdout (например, при использовании head)
+process.stdout.on('error', (error) => {
+  if (error.code === 'EPIPE') {
+    // Это ожидаемо, когда получатель (как head) закрывает поток раньше времени.
+    // Мы просто завершаем процесс без ошибки.
+    process.exit(0);
+  }
+});
+
+// Также обработаем stderr на всякий случай
+process.stderr.on('error', (error) => {
+  if (error.code === 'EPIPE') {
+    process.exit(0);
+  }
+});
+
 const { spawn } = require('child_process');
 const readline = require('readline');
 
@@ -20,11 +36,12 @@ async function testMCPServer() {
       ...process.env,
       NODE_ENV: 'development',
       DEEPSEEK_API_KEY: 'sk-aeaf60f610ee429892a113b1f4e20960',
-      DEEPSEEK_MODEL: 'deepseek-r1',
+      DEEPSEEK_MODEL: 'deepseek-chat',
       DEEPSEEK_BASE_URL: 'https://api.deepseek.com/v1',
       DEEPSEEK_MAX_TOKENS: '4000',
       DEEPSEEK_TEMPERATURE: '0.3',
       DEEPSEEK_TIMEOUT: '30000',
+      DEEPSEEK_MOCK_MODE: 'false',
       PROJECT_ROOT_PATH: '/workspaces/estimate-service',
       LOG_LEVEL: 'debug'
     }

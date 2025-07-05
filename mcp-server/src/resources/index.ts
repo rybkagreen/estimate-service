@@ -96,6 +96,20 @@ class ResourceRegistry {
   hasResource(uri: string): boolean {
     return this.resources.has(uri);
   }
+
+  listResources(): Resource[] {
+    return Array.from(this.resources.values());
+  }
 }
 
 export const resourceRegistry = new ResourceRegistry();
+
+/**
+ * Функция настройки ресурсов для MCP сервера
+ */
+export function setupResources() {
+  logger.info('📚 Resources registered:', {
+    count: resourceRegistry.listResources().length,
+  });
+  return resourceRegistry;
+}
