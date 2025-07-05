@@ -35,6 +35,7 @@ const configSchema = z.object({
       baseUrl: z.string().default('https://api.deepseek.com/v1'),
       maxTokens: z.number().default(4000),
       temperature: z.number().default(0.3),
+      timeout: z.number().default(30000),
     }),
   }),
 
@@ -76,10 +77,11 @@ const rawConfig = {
   ai: {
     deepseek: {
       apiKey: process.env.DEEPSEEK_API_KEY || '',
-      model: process.env.DEEPSEEK_MODEL || 'deepseek-r1',
+      model: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
       baseUrl: process.env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com/v1',
       maxTokens: parseInt(process.env.DEEPSEEK_MAX_TOKENS || '4000'),
       temperature: parseFloat(process.env.AI_TEMPERATURE || '0.3'),
+      timeout: parseInt(process.env.DEEPSEEK_TIMEOUT || '30000'),
     },
   },
   external: {
