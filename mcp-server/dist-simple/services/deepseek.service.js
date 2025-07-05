@@ -1,74 +1,111 @@
 /**
  * DeepSeek R1 AI Service for MCP Server
- * Интеграция с DeepSeek R1 для помощи в разработке
+ * Интеграция с DeepSeek R1 через прямые HTTP-запросы
  */
-import axios from 'axios';
 import { config } from '../config/index.js';
 import { logger } from '../utils/logger.js';
 /**
- * Сервис для работы с DeepSeek R1 API
+ * Сервис для работы с DeepSeek R1 API через прямые HTTP-запросы
  */
 export class DeepSeekService {
-    client;
     apiKey;
     model;
     baseUrl;
+    mockMode;
     constructor() {
         this.apiKey = config.ai.deepseek.apiKey;
         this.model = config.ai.deepseek.model;
         this.baseUrl = config.ai.deepseek.baseUrl;
-        if (!this.apiKey) {
-            throw new Error('DeepSeek API key is required');
+        this.mockMode = config.ai.deepseek.mockMode;
+        if (!this.mockMode && !this.apiKey) {
+            throw new Error('DeepSeek API key is required when not in mock mode');
         }
-        this.client = axios.create({
-            baseURL: this.baseUrl,
-            headers: {
-                'Authorization': `Bearer ${this.apiKey}`,
-                'Content-Type': 'application/json',
-            },
-            timeout: config.ai.deepseek.timeout || 30000,
+        logger.info(`🤖 DeepSeek R1 service initialized ${this.mockMode ? '(Mock Mode)' : 'with HTTP API'}`);
+        logger.debug('🔧 DeepSeek config:', {
+            model: this.model,
+            baseUrl: this.baseUrl,
+            mockMode: this.mockMode,
+            configModel: config.ai.deepseek.model,
+            envModel: process.env.DEEPSEEK_MODEL
         });
-        logger.info('🤖 DeepSeek R1 service initialized');
     }
     /**
-     * Отправка запроса к DeepSeek R1
+     * Отправка запроса к DeepSeek R1 через прямые HTTP-запросы или мок-ответ
      */
     async chat(messages, options = {}) {
         try {
-            const request = {
+            logger.debug('🚀 Sending request to DeepSeek R1:', {
                 model: this.model,
-                messages,
+                messagesCount: messages.length,
+                temperature: options.temperature ?? config.ai.deepseek.temperature,
+                mockMode: this.mockMode,
+            });
+            // Мок-режим для тестирования
+            if (this.mockMode) {
+                return this.generateMockResponse(messages);
+            }
+            // Подготовка запроса к DeepSeek API
+            const requestBody = {
+                model: this.model,
+                messages: messages,
                 temperature: options.temperature ?? config.ai.deepseek.temperature,
                 max_tokens: options.maxTokens ?? config.ai.deepseek.maxTokens,
+                stream: false,
             };
-            logger.debug('🚀 Sending request to DeepSeek R1:', {
-                model: request.model,
-                messagesCount: messages.length,
-                temperature: request.temperature,
+            // Отправка HTTP-запроса к DeepSeek API
+            const response = await fetch(`${this.baseUrl}/chat/completions`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.apiKey}`,
+                },
+                body: JSON.stringify(requestBody),
             });
-            const response = await this.client.post('/chat/completions', request);
-            if (!response.data.choices || response.data.choices.length === 0) {
+            if (!response.ok) {
+                const errorData = await response.text();
+                logger.error('❌ DeepSeek API HTTP error:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorData,
+                });
+                // Специфичные ошибки DeepSeek
+                if (response.status === 401) {
+                    throw new Error('Invalid DeepSeek API key (401 Unauthorized)');
+                }
+                if (response.status === 429) {
+                    throw new Error('DeepSeek API rate limit exceeded (429)');
+                }
+                if (response.status === 402) {
+                    throw new Error('Insufficient balance on DeepSeek account (402)');
+                }
+                if (response.status >= 500) {
+                    throw new Error(`DeepSeek API server error (${response.status})`);
+                }
+                throw new Error(`DeepSeek API error: ${response.status} ${response.statusText}`);
+            }
+            const data = await response.json();
+            if (!data.choices || data.choices.length === 0) {
                 throw new Error('No response from DeepSeek R1');
             }
-            const content = response.data.choices[0].message.content;
+            const content = data.choices[0].message.content;
+            if (!content) {
+                throw new Error('Empty response from DeepSeek R1');
+            }
             logger.debug('✅ DeepSeek R1 response received:', {
-                tokensUsed: response.data.usage?.total_tokens || 0,
+                tokensUsed: data.usage?.total_tokens || 0,
                 responseLength: content.length,
             });
             return content;
         }
         catch (error) {
             logger.error('❌ DeepSeek R1 API error:', error);
-            if (axios.isAxiosError(error)) {
-                if (error.response?.status === 401) {
-                    throw new Error('Invalid DeepSeek API key');
-                }
-                if (error.response?.status === 429) {
-                    throw new Error('DeepSeek API rate limit exceeded');
-                }
-                if (error.response?.status === 500) {
-                    throw new Error('DeepSeek API server error');
-                }
+            // Передаем уже обработанные ошибки как есть
+            if (error instanceof Error && error.message.includes('DeepSeek')) {
+                throw error;
+            }
+            // Обработка сетевых ошибок
+            if (error instanceof TypeError && error.message.includes('fetch')) {
+                throw new Error('Network error: Unable to connect to DeepSeek API');
             }
             throw new Error(`DeepSeek API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -253,6 +290,80 @@ ${description}${constraintsText}
                 message: error instanceof Error ? error.message : 'Unknown error'
             };
         }
+    }
+    /**
+     * Генерация мок-ответа для тестирования
+     */
+    generateMockResponse(messages) {
+        const lastMessage = messages[messages.length - 1];
+        // Определяем тип запроса и генерируем соответствующий мок-ответ
+        const userContent = lastMessage.content.toLowerCase();
+        if (userContent.includes('анализ') || userContent.includes('analyze')) {
+            return `# 🔍 Мок-анализ кода
+
+Это демонстрационный ответ анализа кода в мок-режиме.
+
+## Обнаруженные паттерны:
+- ✅ Хорошая структура кода
+- ✅ Соответствие TypeScript best practices
+- ⚠️ Можно улучшить error handling
+
+## Рекомендации:
+1. Добавить более детальную обработку ошибок
+2. Использовать строгую типизацию
+3. Добавить unit-тесты
+
+*Примечание: Это мок-ответ для демонстрации. В production используйте реальный API.*`;
+        }
+        if (userContent.includes('документац') || userContent.includes('documentation')) {
+            return `# 📚 Мок-генерация документации
+
+\`\`\`typescript
+/**
+ * Демонстрационная функция
+ * @param input - Входные данные
+ * @returns Обработанный результат
+ * @example
+ * const result = demoFunction('test');
+ */
+function demoFunction(input: string): string {
+  return \`Processed: \${input}\`;
+}
+\`\`\`
+
+*Примечание: Это мок-ответ для демонстрации.*`;
+        }
+        if (userContent.includes('тест') || userContent.includes('test')) {
+            return `# 🧪 Мок-генерация тестов
+
+\`\`\`typescript
+import { describe, it, expect } from '@jest/globals';
+
+describe('Demo Test Suite', () => {
+  it('should work correctly', () => {
+    const result = demoFunction('test');
+    expect(result).toBe('Processed: test');
+  });
+});
+\`\`\`
+
+*Примечание: Это мок-ответ для демонстрации.*`;
+        }
+        if (userContent.includes('api is working') || userContent.includes('health')) {
+            return 'API is working correctly in mock mode';
+        }
+        // Общий мок-ответ
+        return `# 🤖 DeepSeek R1 Мок-режим
+
+Это демонстрационный ответ от DeepSeek R1 в мок-режиме.
+
+Ваш запрос: "${lastMessage.content.slice(0, 100)}..."
+
+В production режиме здесь был бы реальный ответ от DeepSeek R1 AI.
+
+**Время:** ${new Date().toISOString()}
+**Модель:** ${this.model} (мок)
+**Сообщений:** ${messages.length}`;
     }
 }
 export const deepSeekService = new DeepSeekService();

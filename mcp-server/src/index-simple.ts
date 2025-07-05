@@ -106,6 +106,67 @@ const DEEPSEEK_TOOLS = [
 ];
 
 /**
+ * Frontend integration tools definitions
+ */
+const FRONTEND_TOOLS = [
+  {
+    name: 'deepseek_generate_react_component',
+    description: 'Generate React components with TypeScript, Tailwind CSS, and tests',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        componentName: { type: 'string', description: 'Name of the React component to generate' },
+        description: { type: 'string', description: 'Description of component functionality' },
+        props: { type: 'array', items: { type: 'string' }, description: 'Component props' },
+        styling: { type: 'string', enum: ['tailwind', 'css-modules'], description: 'Styling approach' },
+        includeTests: { type: 'boolean', description: 'Include unit tests' }
+      },
+      required: ['componentName', 'description']
+    }
+  },
+  {
+    name: 'deepseek_generate_api_route',
+    description: 'Generate API routes for Next.js with validation and documentation',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        routePath: { type: 'string', description: 'API route path' },
+        method: { type: 'string', enum: ['GET', 'POST', 'PUT', 'DELETE'], description: 'HTTP method' },
+        description: { type: 'string', description: 'API functionality description' },
+        framework: { type: 'string', enum: ['nextjs', 'express'], description: 'Backend framework' }
+      },
+      required: ['routePath', 'description']
+    }
+  },
+  {
+    name: 'deepseek_create_ui_design_system',
+    description: 'Create design system components with variants and documentation',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        componentType: { type: 'string', description: 'Type of UI component' },
+        variants: { type: 'array', items: { type: 'string' }, description: 'Component variants' },
+        theme: { type: 'string', enum: ['replit', 'material', 'custom'], description: 'Design theme' }
+      },
+      required: ['componentType']
+    }
+  },
+  {
+    name: 'deepseek_optimize_frontend_performance',
+    description: 'Optimize frontend code for better Core Web Vitals and performance',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        code: { type: 'string', description: 'Frontend code to optimize' },
+        focusArea: { type: 'string', enum: ['general', 'loading', 'runtime', 'bundle-size'], description: 'Optimization focus' },
+        targetMetrics: { type: 'array', items: { type: 'string' }, description: 'Target metrics' }
+      },
+      required: ['code']
+    }
+  }
+];
+
+/**
  * Tool handlers
  */
 async function handleAnalyzeCode(args: any) {
@@ -322,6 +383,140 @@ async function handleHealthCheck(args: any) {
 }
 
 /**
+ * Universal handler for frontend tools
+ */
+async function handleFrontendTool(toolType: string, args: any) {
+  try {
+    let prompt = '';
+    let result = '';
+
+    switch (toolType) {
+      case 'generate_react_component':
+        const { componentName, description, props = [], styling = 'tailwind', includeTests = true } = args;
+        if (!componentName || !description) {
+          throw new Error('Component name and description are required');
+        }
+
+        logger.info(`🎨 Generating React component: ${componentName}`);
+
+        prompt = `Создай React компонент "${componentName}":
+Описание: ${description}
+Props: ${props.join(', ') || 'без дополнительных props'}
+Стилизация: ${styling}
+${includeTests ? 'Включи unit тесты' : ''}
+
+Требования:
+- TypeScript с строгой типизацией
+- Tailwind CSS классы
+- React функциональные компоненты
+- Accessibility (a11y)
+- JSDoc документация
+${includeTests ? '- Unit тесты с React Testing Library' : ''}`;
+        break;
+
+      case 'generate_api_route':
+        const { routePath, method = 'POST', description: apiDescription, framework = 'nextjs' } = args;
+        if (!routePath || !apiDescription) {
+          throw new Error('Route path and description are required');
+        }
+
+        logger.info(`🔗 Generating API route: ${method} ${routePath}`);
+
+        prompt = `Создай API route для ${framework}:
+Путь: ${routePath}
+Метод: ${method}
+Описание: ${apiDescription}
+
+Требования:
+- TypeScript типизация
+- Error handling
+- Валидация входных данных
+- Proper HTTP status codes
+- Security best practices`;
+        break;
+
+      case 'create_ui_design_system':
+        const { componentType = 'button', variants = ['primary', 'secondary'], theme = 'replit' } = args;
+
+        logger.info(`🎨 Creating UI design system: ${componentType}`);
+
+        prompt = `Создай дизайн-систему компонент "${componentType}" в стиле ${theme}:
+Варианты: ${variants.join(', ')}
+
+Требования:
+- TypeScript интерфейсы
+- Tailwind CSS классы
+- Accessibility compliance
+- Hover, focus, active состояния
+- Responsive design
+- JSDoc документация`;
+        break;
+
+      case 'optimize_frontend_performance':
+        const { code, focusArea = 'general', targetMetrics = ['LCP', 'FID', 'CLS'] } = args;
+        if (!code) {
+          throw new Error('Code is required for performance optimization');
+        }
+
+        logger.info(`⚡ Optimizing frontend performance: ${focusArea}`);
+
+        prompt = `Оптимизируй этот код для лучшей производительности:
+
+Фокус: ${focusArea}
+Целевые метрики: ${targetMetrics.join(', ')}
+
+\`\`\`typescript
+${code}
+\`\`\`
+
+Предложи оптимизации с объяснениями:
+- Code splitting и lazy loading
+- Мемоизация (React.memo, useMemo, useCallback)
+- Bundle size optimization
+- Image optimization
+- Core Web Vitals улучшения`;
+        break;
+
+      default:
+        throw new Error(`Unknown frontend tool: ${toolType}`);
+    }
+
+    const messages = [
+      {
+        role: 'system' as const,
+        content: 'Ты - эксперт фронтенд разработчик для React/TypeScript/Next.js приложений. Создавай production-ready код с лучшими практиками.'
+      },
+      {
+        role: 'user' as const,
+        content: prompt
+      }
+    ];
+
+    result = await deepSeekService.chat(messages, { temperature: 0.3 });
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `# 🎨 Frontend Tool: ${toolType}\n\n${result}`
+        }
+      ]
+    };
+  } catch (error) {
+    logger.error(`❌ Frontend tool error (${toolType}):`, error);
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `❌ Error in ${toolType}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        }
+      ],
+      isError: true
+    };
+  }
+}
+
+/**
  * Main server setup
  */
 async function main() {
@@ -335,7 +530,7 @@ async function main() {
 
   // List tools
   server.setRequestHandler(ListToolsRequestSchema, async () => {
-    return { tools: DEEPSEEK_TOOLS };
+    return { tools: [...DEEPSEEK_TOOLS, ...FRONTEND_TOOLS] };
   });
 
   // Call tools
@@ -357,6 +552,17 @@ async function main() {
         return await handleChat(args);
       case 'deepseek_health_check':
         return await handleHealthCheck(args);
+
+      // Frontend integration tools
+      case 'deepseek_generate_react_component':
+        return await handleFrontendTool('generate_react_component', args);
+      case 'deepseek_generate_api_route':
+        return await handleFrontendTool('generate_api_route', args);
+      case 'deepseek_create_ui_design_system':
+        return await handleFrontendTool('create_ui_design_system', args);
+      case 'deepseek_optimize_frontend_performance':
+        return await handleFrontendTool('optimize_frontend_performance', args);
+
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -366,7 +572,8 @@ async function main() {
   await server.connect(transport);
 
   logger.info('🚀 Simple Estimate Service MCP Server with DeepSeek R1 started successfully');
-  logger.info(`📋 Available tools: ${DEEPSEEK_TOOLS.map(t => t.name).join(', ')}`);
+  const allTools = [...DEEPSEEK_TOOLS, ...FRONTEND_TOOLS];
+  logger.info(`📋 Available tools (${allTools.length}): ${allTools.map(t => t.name).join(', ')}`);
 }
 
 main().catch((error) => {

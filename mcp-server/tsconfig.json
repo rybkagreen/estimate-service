@@ -14,7 +14,7 @@
     "rootDir": "./src",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmitOnError": true,
+    "noEmitOnError": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "types": [
@@ -30,9 +30,6 @@
     "dist",
     "**/*.test.ts",
     "**/*.spec.ts",
-    "src/tools/**/*",
-    "src/resources/**/*",
-    "src/services/**/*",
     "src/index-old.ts"
   ]
 }

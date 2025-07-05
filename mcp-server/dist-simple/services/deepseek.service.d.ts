@@ -1,17 +1,10 @@
 /**
  * DeepSeek R1 AI Service for MCP Server
- * Интеграция с DeepSeek R1 для помощи в разработке
+ * Интеграция с DeepSeek R1 через прямые HTTP-запросы
  */
 export interface DeepSeekMessage {
     role: 'system' | 'user' | 'assistant';
     content: string;
-}
-export interface DeepSeekRequest {
-    model: string;
-    messages: DeepSeekMessage[];
-    temperature?: number;
-    max_tokens?: number;
-    stream?: boolean;
 }
 export interface DeepSeekResponse {
     id: string;
@@ -33,16 +26,16 @@ export interface DeepSeekResponse {
     };
 }
 /**
- * Сервис для работы с DeepSeek R1 API
+ * Сервис для работы с DeepSeek R1 API через прямые HTTP-запросы
  */
 export declare class DeepSeekService {
-    private client;
     private readonly apiKey;
     private readonly model;
     private readonly baseUrl;
+    private readonly mockMode;
     constructor();
     /**
-     * Отправка запроса к DeepSeek R1
+     * Отправка запроса к DeepSeek R1 через прямые HTTP-запросы или мок-ответ
      */
     chat(messages: DeepSeekMessage[], options?: {
         temperature?: number;
@@ -76,5 +69,9 @@ export declare class DeepSeekService {
         message: string;
         latency?: number;
     }>;
+    /**
+     * Генерация мок-ответа для тестирования
+     */
+    private generateMockResponse;
 }
 export declare const deepSeekService: DeepSeekService;
