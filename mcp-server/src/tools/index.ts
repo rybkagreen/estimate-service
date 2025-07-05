@@ -1,4 +1,5 @@
-import { CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { CallToolRequestSchema, CallToolResult, ListToolsRequestSchema, Tool } from '@modelcontextprotocol/sdk/types.js';
 import { logger } from '../utils/logger.js';
 
 // Development tools
@@ -18,6 +19,9 @@ import { DocumentationTool } from './project/documentation.js';
 import { AIAssistantTool } from './ai/assistant.js';
 import { ClassificationTool } from './ai/classification.js';
 import { EstimateTool } from './ai/estimate.js';
+
+// DeepSeek R1 tools
+import { deepSeekToolsList, setupDeepSeekTools } from './deepseek.tools.js';
 
 // External integration tools
 import { GrandSmetaTool } from './external/grand-smeta.js';
@@ -95,3 +99,51 @@ class ToolRegistry {
 
 // Export singleton instance
 export const toolRegistry = new ToolRegistry();
+
+/**
+ * Setup all tools for the MCP server including DeepSeek R1 integration
+ */
+export async function setupTools(server: Server, config: any): Promise<void> {
+  logger.info('🛠️ Setting up MCP tools...');
+
+  try {
+    // Setup traditional tools registry
+    const tools = toolRegistry.getAllTools();
+    logger.info(`✅ Registered ${tools.length} traditional tools`);
+
+    // Setup DeepSeek R1 tools
+    setupDeepSeekTools(server);
+    logger.info(`✅ Registered ${deepSeekToolsList.length} DeepSeek R1 tools`);
+
+    // Setup tools list handler
+    server.setRequestHandler(ListToolsRequestSchema, async () => {
+      const allTools = [
+        ...tools,
+        ...deepSeekToolsList
+      ];
+
+      logger.debug(`📋 Returning ${allTools.length} total tools`);
+      return { tools: allTools };
+    });
+
+    // Setup tool call handler for traditional tools
+    server.setRequestHandler(CallToolRequestSchema, async (request) => {
+      const { name, arguments: args } = request.params;
+
+      // Check if it's a traditional tool
+      if (toolRegistry.hasTool(name)) {
+        return await toolRegistry.executeTool(name, args || {});
+      }
+
+      // DeepSeek tools are handled by their own handlers
+      throw new Error(`Unknown tool: ${name}`);
+    });
+
+    logger.info(`🎉 All ${tools.length + deepSeekToolsList.length} tools setup completed`);
+  } catch (error) {
+    logger.error('❌ Failed to setup tools:', error);
+    throw error;
+  }
+}
+
+export { deepSeekToolsList };
