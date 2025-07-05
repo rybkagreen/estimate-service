@@ -1,36 +1,87 @@
-import { logger } from '../utils/logger.js';
+/**
+ * Инициализация сервисов MCP сервера
+ */
 
-export async function initializeServices(): Promise<void> {
-  logger.info('Initializing MCP server services...');
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { logger } from '../utils/logger.js';
+import { DatabaseService } from './database.js';
+import { AIService } from './ai.js';
+import { ExternalService } from './external.js';
+import { ProjectService } from './project.js';
+
+export interface Services {
+  database: DatabaseService;
+  ai: AIService;
+  external: ExternalService;
+  project: ProjectService;
+}
+
+let services: Services | null = null;
+
+export async function setupServices(server: Server, config: any): Promise<Services> {
+  logger.info('🔧 Инициализация сервисов MCP сервера...');
 
   try {
-    // Initialize database connection
-    await initializeDatabase();
+    // Инициализация сервиса базы данных
+    const database = new DatabaseService(config.database);
+    await database.initialize();
+    logger.info('✅ Сервис базы данных инициализирован');
 
-    // Initialize AI services
-    await initializeAI();
+    // Инициализация AI сервиса
+    const ai = new AIService(config.ai);
+    await ai.initialize();
+    logger.info('✅ AI сервис инициализирован');
 
-    // Initialize external integrations
-    await initializeExternalServices();
+    // Инициализация внешних сервисов
+    const external = new ExternalService(config.external);
+    await external.initialize();
+    logger.info('✅ Внешние сервисы инициализированы');
 
-    logger.info('All services initialized successfully');
+    // Инициализация проектного сервиса
+    const project = new ProjectService(config.project);
+    await project.initialize();
+    logger.info('✅ Проектный сервис инициализирован');
+
+    services = {
+      database,
+      ai,
+      external,
+      project,
+    };
+
+    logger.info('🎉 Все сервисы успешно инициализированы');
+    return services;
+
   } catch (error) {
-    logger.error('Failed to initialize services', { error });
+    logger.error('❌ Ошибка инициализации сервисов:', error);
     throw error;
   }
 }
 
-async function initializeDatabase(): Promise<void> {
-  logger.info('Initializing database connection...');
-  // Placeholder for database initialization
+export function getServices(): Services {
+  if (!services) {
+    throw new Error('Сервисы не инициализированы. Вызовите setupServices() сначала.');
+  }
+  return services;
 }
 
-async function initializeAI(): Promise<void> {
-  logger.info('Initializing AI services...');
-  // Placeholder for AI services initialization
-}
+export async function shutdownServices(): Promise<void> {
+  if (!services) {
+    return;
+  }
 
-async function initializeExternalServices(): Promise<void> {
-  logger.info('Initializing external services...');
-  // Placeholder for external services initialization
+  logger.info('🛑 Завершение работы сервисов...');
+
+  try {
+    await services.database.shutdown();
+    await services.ai.shutdown();
+    await services.external.shutdown();
+    await services.project.shutdown();
+
+    services = null;
+    logger.info('✅ Все сервисы завершили работу');
+  } catch (error) {
+    logger.error('❌ Ошибка завершения работы сервисов:', error);
+    throw error;
+  }
 }
