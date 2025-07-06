@@ -54,3 +54,15 @@ prisma/dev.db*
 # Lock files (keep package-lock.json but ignore others)
 yarn.lock
 pnpm-lock.yaml
+
+# API Keys and Secrets
+mcp-server/.env.api
+mcp-server/tests/check-models.mjs
+**/check-models.mjs
+**/.env.api
+*.secret
+*.key
+
+# Hugging Face tokens
+**/hf_token*
+**/huggingface_token*
