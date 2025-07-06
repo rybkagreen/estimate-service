@@ -65,6 +65,37 @@ declare const configSchema: z.ZodObject<{
             timeout?: number | undefined;
             mockMode?: boolean | undefined;
         }>;
+        huggingface: z.ZodOptional<z.ZodObject<{
+            apiKey: z.ZodOptional<z.ZodString>;
+            provider: z.ZodDefault<z.ZodString>;
+            modelName: z.ZodDefault<z.ZodString>;
+            modelPath: z.ZodDefault<z.ZodString>;
+            maxTokens: z.ZodDefault<z.ZodNumber>;
+            temperature: z.ZodDefault<z.ZodNumber>;
+            mockMode: z.ZodDefault<z.ZodBoolean>;
+            useLocal: z.ZodDefault<z.ZodBoolean>;
+            useApi: z.ZodDefault<z.ZodBoolean>;
+        }, "strip", z.ZodTypeAny, {
+            maxTokens: number;
+            temperature: number;
+            mockMode: boolean;
+            provider: string;
+            modelName: string;
+            modelPath: string;
+            useLocal: boolean;
+            useApi: boolean;
+            apiKey?: string | undefined;
+        }, {
+            apiKey?: string | undefined;
+            maxTokens?: number | undefined;
+            temperature?: number | undefined;
+            mockMode?: boolean | undefined;
+            provider?: string | undefined;
+            modelName?: string | undefined;
+            modelPath?: string | undefined;
+            useLocal?: boolean | undefined;
+            useApi?: boolean | undefined;
+        }>>;
     }, "strip", z.ZodTypeAny, {
         deepseek: {
             apiKey: string;
@@ -75,6 +106,17 @@ declare const configSchema: z.ZodObject<{
             timeout: number;
             mockMode: boolean;
         };
+        huggingface?: {
+            maxTokens: number;
+            temperature: number;
+            mockMode: boolean;
+            provider: string;
+            modelName: string;
+            modelPath: string;
+            useLocal: boolean;
+            useApi: boolean;
+            apiKey?: string | undefined;
+        } | undefined;
     }, {
         deepseek: {
             apiKey: string;
@@ -85,6 +127,17 @@ declare const configSchema: z.ZodObject<{
             timeout?: number | undefined;
             mockMode?: boolean | undefined;
         };
+        huggingface?: {
+            apiKey?: string | undefined;
+            maxTokens?: number | undefined;
+            temperature?: number | undefined;
+            mockMode?: boolean | undefined;
+            provider?: string | undefined;
+            modelName?: string | undefined;
+            modelPath?: string | undefined;
+            useLocal?: boolean | undefined;
+            useApi?: boolean | undefined;
+        } | undefined;
     }>;
     external: z.ZodObject<{
         grandSmeta: z.ZodObject<{
@@ -147,6 +200,17 @@ declare const configSchema: z.ZodObject<{
             timeout: number;
             mockMode: boolean;
         };
+        huggingface?: {
+            maxTokens: number;
+            temperature: number;
+            mockMode: boolean;
+            provider: string;
+            modelName: string;
+            modelPath: string;
+            useLocal: boolean;
+            useApi: boolean;
+            apiKey?: string | undefined;
+        } | undefined;
     };
     external: {
         grandSmeta: {
@@ -185,6 +249,17 @@ declare const configSchema: z.ZodObject<{
             timeout?: number | undefined;
             mockMode?: boolean | undefined;
         };
+        huggingface?: {
+            apiKey?: string | undefined;
+            maxTokens?: number | undefined;
+            temperature?: number | undefined;
+            mockMode?: boolean | undefined;
+            provider?: string | undefined;
+            modelName?: string | undefined;
+            modelPath?: string | undefined;
+            useLocal?: boolean | undefined;
+            useApi?: boolean | undefined;
+        } | undefined;
     };
     external: {
         grandSmeta: {

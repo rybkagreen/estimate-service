@@ -1,0 +1,72 @@
+{
+  "version": "1.0",
+  "name": "estimate-service",
+  "description": "ИИ-ассистент для составления строительных смет с интеграцией ФСБЦ-2022",
+  "type": "nx-monorepo",
+  "technologies": {
+    "backend": ["NestJS", "TypeScript", "Prisma", "PostgreSQL", "Redis"],
+    "frontend": ["React", "TypeScript", "Vite", "Tailwind CSS"],
+    "ai": ["DeepSeek R1", "Hugging Face", "MCP"],
+    "infrastructure": ["Docker", "GitHub Actions", "Codespaces"]
+  },
+  "architecture": {
+    "pattern": "Clean Architecture",
+    "domain": "Domain-Driven Design",
+    "cqrs": true,
+    "eventSourcing": true
+  },
+  "workspace": {
+    "type": "nx",
+    "version": "17.2.8",
+    "packageManager": "npm"
+  },
+  "projects": [
+    {
+      "name": "estimate-service",
+      "type": "application",
+      "framework": "nestjs",
+      "path": "services/estimate-service"
+    },
+    {
+      "name": "estimate-frontend",
+      "type": "application",
+      "framework": "react",
+      "path": "apps/estimate-frontend"
+    },
+    {
+      "name": "mcp-server",
+      "type": "application",
+      "framework": "node",
+      "path": "mcp-server"
+    },
+    {
+      "name": "shared-contracts",
+      "type": "library",
+      "framework": "typescript",
+      "path": "libs/shared-contracts"
+    }
+  ],
+  "domains": [
+    {
+      "name": "estimate-management",
+      "description": "Управление строительными сметами",
+      "entities": ["Estimate", "EstimateItem", "Rate", "Material", "Work"]
+    },
+    {
+      "name": "pricing",
+      "description": "Ценообразование и расчеты",
+      "entities": ["PriceItem", "RegionalCoefficient", "OverheadCost", "Profit"]
+    },
+    {
+      "name": "integration",
+      "description": "Интеграция с внешними системами",
+      "entities": ["FSBTSIntegration", "GrandSmetaExport", "AIService"]
+    }
+  ],
+  "copilot": {
+    "context": ".github/COPILOT_CONTEXT.md",
+    "prompts": ".github/copilot-prompts.json",
+    "workspace": ".github/copilot-workspace.yml",
+    "settings": ".vscode/copilot.json"
+  }
+}

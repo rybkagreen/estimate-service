@@ -1,0 +1,283 @@
+name: 🤖 AI-Enhanced CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # === Code Quality and Security ===
+  code-quality:
+    name: 🔍 Code Quality Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint code
+        run: npm run lint:all
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Security audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+
+  # === Testing Suite ===
+  test:
+    name: 🧪 Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-type: ['unit', 'integration', 'e2e']
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: estimate_service_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup test database
+        run: |
+          npm run prisma:migrate:test
+          npm run prisma:seed:test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/estimate_service_test
+
+      - name: Run ${{ matrix.test-type }} tests
+        run: npm run test:${{ matrix.test-type }}
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/estimate_service_test
+
+      - name: Upload coverage to Codecov
+        if: matrix.test-type == 'unit'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+
+  # === Build and Package ===
+  build:
+    name: 🏗️ Build Application
+    runs-on: ubuntu-latest
+    needs: [code-quality, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build all projects
+        run: npm run build:all
+
+      - name: Build Docker image
+        run: docker build -t estimate-service:latest .
+
+      - name: Test Docker image
+        run: |
+          docker run --rm -d --name test-container -p 3022:3022 estimate-service:latest
+          sleep 10
+          curl -f http://localhost:3022/health || exit 1
+          docker stop test-container
+
+  # === Documentation Check ===
+  docs:
+    name: 📚 Documentation Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate documentation
+        run: npm run docs:check
+
+      - name: Generate API docs
+        run: npm run docs:generate-api
+
+      - name: Check docs freshness
+        run: |
+          if ! git diff --quiet docs/; then
+            echo "❌ Documentation is out of sync!"
+            echo "Run 'npm run docs:generate-api' locally and commit changes."
+            exit 1
+          fi
+
+  # === AI Code Review Preparation ===
+  ai-review-prep:
+    name: 🤖 AI Code Review Preparation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate diff summary
+        run: |
+          git diff origin/main...HEAD --name-only > changed_files.txt
+          git diff origin/main...HEAD --stat > diff_stats.txt
+
+          echo "## 📊 Change Summary" > pr_summary.md
+          echo "" >> pr_summary.md
+          echo "### Files Changed:" >> pr_summary.md
+          cat changed_files.txt | sed 's/^/- /' >> pr_summary.md
+          echo "" >> pr_summary.md
+          echo "### Statistics:" >> pr_summary.md
+          echo '```' >> pr_summary.md
+          cat diff_stats.txt >> pr_summary.md
+          echo '```' >> pr_summary.md
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-analysis
+          path: |
+            changed_files.txt
+            diff_stats.txt
+            pr_summary.md
+
+  # === Performance Testing ===
+  performance:
+    name: ⚡ Performance Testing
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run performance tests
+        run: npm run test:performance
+
+      - name: Upload performance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: performance-report.html
+
+  # === Deploy to Staging ===
+  deploy-staging:
+    name: 🚀 Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, docs]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to staging
+        run: |
+          echo "🚀 Deploying to staging environment..."
+          # Add your deployment logic here
+
+  # === Deploy to Production ===
+  deploy-production:
+    name: 🌟 Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build, docs, performance]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to production
+        run: |
+          echo "🌟 Deploying to production environment..."
+          # Add your deployment logic here
+
+  # === Notify Results ===
+  notify:
+    name: 📬 Notify Results
+    runs-on: ubuntu-latest
+    needs: [code-quality, test, build, docs]
+    if: always()
+    steps:
+      - name: Notify success
+        if: needs.code-quality.result == 'success' && needs.test.result == 'success' && needs.build.result == 'success'
+        run: |
+          echo "✅ All checks passed! Ready for deployment."
+
+      - name: Notify failure
+        if: needs.code-quality.result == 'failure' || needs.test.result == 'failure' || needs.build.result == 'failure'
+        run: |
+          echo "❌ Some checks failed. Please review and fix issues."

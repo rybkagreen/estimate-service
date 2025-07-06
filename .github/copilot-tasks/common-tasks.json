@@ -1,0 +1,39 @@
+{
+  "tasks": [
+    {
+      "name": "create-estimate-entity",
+      "description": "Создать новую сущность для сметы",
+      "prompt": "Создай новую Entity для управления строительными сметами с валидацией ФСБЦ-2022, включая DTO, Service, Controller и тесты",
+      "files": ["src/entities/", "src/dto/", "src/services/", "src/controllers/"],
+      "tags": ["entity", "crud", "backend"]
+    },
+    {
+      "name": "implement-calculator",
+      "description": "Реализовать калькулятор стоимости",
+      "prompt": "Реализуй сервис расчета стоимости строительных работ с учетом региональных коэффициентов и накладных расходов",
+      "files": ["src/services/calculator/", "src/types/calculation.ts"],
+      "tags": ["calculation", "business-logic", "backend"]
+    },
+    {
+      "name": "add-integration",
+      "description": "Добавить интеграцию с внешним API",
+      "prompt": "Создай сервис интеграции с API ФСБЦ-2022 для получения актуальных расценок",
+      "files": ["src/integrations/", "src/services/external/"],
+      "tags": ["integration", "api", "external"]
+    },
+    {
+      "name": "create-frontend-component",
+      "description": "Создать React компонент",
+      "prompt": "Создай React компонент для отображения и редактирования сметы с использованием Tailwind CSS",
+      "files": ["src/components/", "src/pages/", "src/hooks/"],
+      "tags": ["frontend", "react", "ui"]
+    },
+    {
+      "name": "add-tests",
+      "description": "Добавить тесты",
+      "prompt": "Создай comprehensive тесты для указанного модуля с покрытием позитивных, негативных сценариев и edge cases",
+      "files": ["src/**/*.spec.ts", "test/"],
+      "tags": ["testing", "quality"]
+    }
+  ]
+}

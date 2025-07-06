@@ -1,0 +1,44 @@
+# GitHub CODEOWNERS for Estimate Service
+# Определяет ответственных за код review различных частей проекта
+
+# === Global Owners ===
+* @estimate-service/tech-leads
+
+# === Backend Services ===
+/services/ @estimate-service/tech-leads @estimate-service/senior-developers
+/services/estimate-service/ @estimate-service/tech-leads @estimate-service/senior-developers
+*.prisma @estimate-service/tech-leads @estimate-service/senior-developers
+
+# === Frontend Application ===
+/apps/estimate-frontend/ @estimate-service/tech-leads @estimate-service/senior-developers
+/apps/estimate-frontend/src/components/ @estimate-service/senior-developers @estimate-service/developers
+
+# === MCP Server ===
+/mcp-server/ @estimate-service/tech-leads @estimate-service/senior-developers
+
+# === Infrastructure & DevOps ===
+/.github/ @estimate-service/tech-leads
+/docker-compose*.yml @estimate-service/tech-leads
+/Dockerfile @estimate-service/tech-leads
+/.vscode/ @estimate-service/tech-leads
+
+# === Documentation ===
+/docs/ @estimate-service/tech-leads @estimate-service/domain-experts
+README.md @estimate-service/tech-leads @estimate-service/domain-experts
+CHANGELOG.md @estimate-service/tech-leads
+
+# === Domain-Specific Files ===
+# Файлы, связанные с ФСБЦ-2022 и строительными сметами
+**/estimate/ @estimate-service/domain-experts @estimate-service/tech-leads
+**/rate/ @estimate-service/domain-experts @estimate-service/tech-leads
+**/calculation/ @estimate-service/domain-experts @estimate-service/tech-leads
+
+# === Security & Configuration ===
+**/security/ @estimate-service/tech-leads
+**/.env* @estimate-service/tech-leads
+**/secrets/ @estimate-service/tech-leads
+
+# === Testing ===
+**/*.test.ts @estimate-service/senior-developers @estimate-service/developers
+**/*.spec.ts @estimate-service/senior-developers @estimate-service/developers
+/test/ @estimate-service/senior-developers @estimate-service/developers

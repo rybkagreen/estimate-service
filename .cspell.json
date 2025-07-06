@@ -1,0 +1,88 @@
+{
+  "version": "0.2",
+  "language": "en,ru",
+  "dictionaries": [
+    "typescript",
+    "node",
+    "software-terms",
+    "npm",
+    "companies",
+    "custom-terms"
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "custom-terms",
+      "path": "./docs/.cspell/custom-dictionary.txt"
+    }
+  ],
+  "ignorePaths": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    "coverage/**",
+    "*.min.js",
+    "*.map",
+    ".git/**",
+    "*.log"
+  ],
+  "ignoreWords": [
+    "fsbts",
+    "deepseek",
+    "novita",
+    "huggingface",
+    "nestjs",
+    "prisma",
+    "graphql",
+    "postgresql",
+    "redis",
+    "kubernetes",
+    "dockerfile",
+    "yaml",
+    "json",
+    "api",
+    "url",
+    "uri",
+    "uuid",
+    "jwt",
+    "oauth",
+    "cors",
+    "csrf",
+    "sql",
+    "nosql",
+    "crud",
+    "dto",
+    "dao",
+    "orm",
+    "mcp",
+    "sdk",
+    "cli",
+    "npm",
+    "yarn",
+    "pnpm",
+    "webpack",
+    "vite",
+    "eslint",
+    "prettier",
+    "jest",
+    "cypress",
+    "docker",
+    "kubernetes",
+    "aws",
+    "azure",
+    "gcp"
+  ],
+  "patterns": [
+    {
+      "name": "Markdown links",
+      "pattern": "/\\[.*\\]\\(.*\\)/g"
+    },
+    {
+      "name": "Code blocks",
+      "pattern": "/```[\\s\\S]*?```/g"
+    },
+    {
+      "name": "Inline code",
+      "pattern": "/`[^`]*`/g"
+    }
+  ]
+}

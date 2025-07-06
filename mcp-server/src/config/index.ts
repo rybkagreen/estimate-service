@@ -2,7 +2,9 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import { z } from 'zod';
 
-// Load environment variables
+// Load environment variables - try .env.local first, then .env
+dotenv.config({ path: path.resolve('.env.local') });
+dotenv.config({ path: path.resolve('.env') });
 dotenv.config({ path: path.resolve('../.env') });
 
 const configSchema = z.object({
@@ -38,6 +40,17 @@ const configSchema = z.object({
       timeout: z.number().default(30000),
       mockMode: z.boolean().default(false),
     }),
+    huggingface: z.object({
+      apiKey: z.string().optional(),
+      provider: z.string().default('novita'),
+      modelName: z.string().default('deepseek/deepseek-r1-0528'),
+      modelPath: z.string().default('./models/deepseek-r1'),
+      maxTokens: z.number().default(2048),
+      temperature: z.number().default(0.7),
+      mockMode: z.boolean().default(false),
+      useLocal: z.boolean().default(false),
+      useApi: z.boolean().default(true),
+    }).optional(),
   }),
 
   // External APIs
@@ -85,6 +98,17 @@ const rawConfig = {
       timeout: parseInt(process.env.DEEPSEEK_TIMEOUT || '30000'),
       mockMode: process.env.DEEPSEEK_MOCK_MODE === 'true',
     },
+    huggingface: {
+      apiKey: process.env.HF_TOKEN || process.env.HUGGINGFACE_API_KEY,
+      provider: process.env.HUGGINGFACE_PROVIDER || 'novita',
+      modelName: process.env.HUGGINGFACE_MODEL_NAME || 'deepseek/deepseek-r1-turbo',
+      modelPath: process.env.HUGGINGFACE_MODEL_PATH || './models/deepseek-r1',
+      maxTokens: parseInt(process.env.HUGGINGFACE_MAX_TOKENS || '2048'),
+      temperature: parseFloat(process.env.HUGGINGFACE_TEMPERATURE || '0.7'),
+      mockMode: process.env.HUGGINGFACE_MOCK_MODE === 'true',
+      useLocal: process.env.HUGGINGFACE_USE_LOCAL === 'true',
+      useApi: process.env.HUGGINGFACE_USE_API !== 'false',
+    },
   },
   external: {
     grandSmeta: {
@@ -101,7 +125,11 @@ const rawConfig = {
 
 export const config: Config = configSchema.parse(rawConfig);
 
-// Validate required environment variables
-if (!config.ai.deepseek.apiKey) {
-  throw new Error('DEEPSEEK_API_KEY is required');
+// Log configuration summary
+if (process.env.NODE_ENV === 'development') {
+  console.log('🔧 Configuration loaded:', {
+    useLocalModel: config.ai.huggingface?.useLocal,
+    modelName: config.ai.huggingface?.modelName,
+    mockMode: config.ai.huggingface?.mockMode,
+  });
 }

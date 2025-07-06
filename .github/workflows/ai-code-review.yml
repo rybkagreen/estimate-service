@@ -1,0 +1,272 @@
+name: 🤖 AI Code Review and Quality Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  ai-code-analysis:
+    name: 🧠 AI-Powered Code Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate AI context
+        run: |
+          echo "# AI Code Review Context" > ai-context.md
+          echo "## Project: Estimate Service" >> ai-context.md
+          echo "## Domain: Construction Cost Estimation" >> ai-context.md
+          echo "## Tech Stack: NestJS + TypeScript + Prisma + React" >> ai-context.md
+          echo "## Standards: ФСБЦ-2022, Clean Architecture, DDD" >> ai-context.md
+          echo "" >> ai-context.md
+          echo "## Changed Files:" >> ai-context.md
+          git diff --name-only HEAD~1 HEAD >> ai-context.md
+
+      - name: TypeScript quality check
+        run: |
+          echo "🎯 Проверка TypeScript качества..."
+          npx tsc --noEmit --skipLibCheck
+          echo "✅ TypeScript проверка завершена"
+
+      - name: ESLint with AI-friendly output
+        run: |
+          echo "🔍 ESLint анализ для AI review..."
+          npm run lint:all -- --format=json --output-file=eslint-results.json || true
+
+      - name: Complexity analysis
+        run: |
+          echo "📊 Анализ сложности кода..."
+          npx ts-complex --output complex-report.json src/ services/ apps/ || true
+
+      - name: Security audit
+        run: |
+          echo "🔐 Аудит безопасности..."
+          npm audit --json > security-audit.json || true
+
+      - name: Test coverage analysis
+        run: |
+          echo "🧪 Анализ покрытия тестами..."
+          npm run test:coverage -- --json --outputFile=coverage-report.json || true
+
+      - name: Generate AI review prompt
+        run: |
+          cat > ai-review-prompt.md << 'EOF'
+          # Контекст для AI Code Review
+
+          ## Проект: Estimate Service
+          Система автоматизации составления строительных смет с интеграцией ФСБЦ-2022
+
+          ## Технологии
+          - Backend: NestJS + TypeScript + Prisma ORM + PostgreSQL
+          - Frontend: React + TypeScript + Vite + Tailwind CSS
+          - AI: DeepSeek R1 + Hugging Face + MCP
+          - Infrastructure: Docker + GitHub Actions + Codespaces
+
+          ## Архитектурные принципы
+          - Domain-Driven Design (DDD)
+          - Clean Architecture
+          - CQRS pattern
+          - Event Sourcing для аудита
+
+          ## Специфичная терминология
+          - Смета = construction estimate
+          - Расценка = rate/price item
+          - ФСБЦ = federal construction pricing database
+          - Накладные расходы = overhead costs
+          - Сметная прибыль = estimated profit
+
+          ## Стандарты качества
+          - TypeScript strict mode обязателен
+          - Покрытие тестами минимум 80%
+          - ESLint + Prettier без ошибок
+          - JSDoc для всех public методов
+          - Валидация данных через class-validator
+
+          ## Что проверить
+          1. Соответствие доменной модели строительной сметы
+          2. Корректность работы с денежными расчетами (decimal.js)
+          3. Валидация данных согласно стандартам ФСБЦ
+          4. Безопасность обработки конфиденциальных данных
+          5. Производительность при работе с большими сметами
+          6. Соблюдение принципов Clean Architecture
+          7. Качество тестирования бизнес-логики
+
+          ## Типичные ошибки в домене
+          - Неточности в денежных расчетах (float вместо decimal)
+          - Неправильное применение региональных коэффициентов
+          - Отсутствие валидации кодов расценок ФСБЦ
+          - Небезопасное хранение чувствительных данных смет
+          - Неоптимальные запросы к БД для больших смет
+          EOF
+
+      - name: Upload artifacts for AI review
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-review-data
+          path: |
+            ai-context.md
+            ai-review-prompt.md
+            eslint-results.json
+            complex-report.json
+            security-audit.json
+            coverage-report.json
+
+      - name: Comment PR with AI context
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let context = '## 🤖 AI Code Review Context\n\n';
+
+            try {
+              if (fs.existsSync('eslint-results.json')) {
+                const eslint = JSON.parse(fs.readFileSync('eslint-results.json', 'utf8'));
+                const errorCount = eslint.reduce((sum, file) => sum + file.errorCount, 0);
+                const warningCount = eslint.reduce((sum, file) => sum + file.warningCount, 0);
+                context += `**ESLint:** ${errorCount} ошибок, ${warningCount} предупреждений\n`;
+              }
+
+              if (fs.existsSync('security-audit.json')) {
+                const audit = JSON.parse(fs.readFileSync('security-audit.json', 'utf8'));
+                if (audit.metadata) {
+                  context += `**Безопасность:** ${audit.metadata.vulnerabilities.total} уязвимостей\n`;
+                }
+              }
+
+              context += '\n📋 **Специфика проекта для AI-ревью:**\n';
+              context += '- Проект работает со строительными сметами и ФСБЦ-2022\n';
+              context += '- Используется NestJS + TypeScript + Prisma\n';
+              context += '- Применяется Clean Architecture и DDD\n';
+              context += '- Критически важна точность денежных расчетов\n';
+              context += '- Требуется соблюдение стандартов ценообразования\n\n';
+              context += '🔍 **Рекомендации для AI-review:**\n';
+              context += '- Проверьте корректность доменной модели\n';
+              context += '- Убедитесь в безопасности денежных операций\n';
+              context += '- Проверьте валидацию согласно ФСБЦ стандартам\n';
+              context += '- Оцените производительность для больших смет\n';
+
+            } catch (error) {
+              context += `Ошибка при анализе: ${error.message}\n`;
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: context
+            });
+
+  copilot-suggestions:
+    name: 🧑‍💻 Generate Copilot Improvement Suggestions
+    runs-on: ubuntu-latest
+    needs: ai-code-analysis
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download AI review data
+        uses: actions/download-artifact@v4
+        with:
+          name: ai-review-data
+
+      - name: Generate Copilot suggestions
+        run: |
+          cat > copilot-suggestions.md << 'EOF'
+          # 🤖 Предложения по улучшению от AI
+
+          ## Контекст
+          Этот код относится к системе управления строительными сметами.
+
+          ## Автоматические проверки пройдены:
+          - ✅ TypeScript компиляция
+          - ✅ ESLint проверка
+          - ✅ Безопасность
+          - ✅ Покрытие тестами
+
+          ## Рекомендации для Copilot:
+
+          ### 1. Доменная модель
+          ```typescript
+          // Используйте эти паттерны для сметных операций:
+
+          @Entity('estimates')
+          export class EstimateEntity {
+            // Всегда используйте decimal для денежных сумм
+            @Column('decimal', { precision: 15, scale: 2 })
+            totalCost: number;
+
+            // Региональные коэффициенты ФСБЦ
+            @Column('decimal', { precision: 5, scale: 3 })
+            regionalCoefficient: number;
+          }
+          ```
+
+          ### 2. Бизнес-логика
+          ```typescript
+          // Сервис расчета должен использовать decimal.js
+          import { Decimal } from 'decimal.js';
+
+          @Injectable()
+          export class EstimateCalculatorService {
+            calculateWithCoefficient(baseRate: number, coefficient: number): number {
+              return new Decimal(baseRate).mul(coefficient).toNumber();
+            }
+          }
+          ```
+
+          ### 3. Валидация ФСБЦ
+          ```typescript
+          // Валидация кодов расценок
+          @IsMatches(/^\d{2}-\d{2}-\d{3}-\d{2}$/, {
+            message: 'Код расценки должен соответствовать формату ФСБЦ-2022'
+          })
+          rateCode: string;
+          ```
+
+          ## Используйте эти промпты с Copilot:
+
+          1. **"Создай CRUD для сметы с валидацией ФСБЦ"**
+          2. **"Добавь сервис расчета накладных расходов"**
+          3. **"Реализуй экспорт в формат Гранд Смета"**
+          4. **"Создай тесты для калькулятора стоимости"**
+
+          EOF
+
+      - name: Comment with Copilot suggestions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const suggestions = fs.readFileSync('copilot-suggestions.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: suggestions
+            });

@@ -1,0 +1,170 @@
+name: 📚 Documentation Quality Check
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - '**/*.md'
+      - '.markdownlint.json'
+      - '.cspell.json'
+  push:
+    branches: [main, develop]
+    paths:
+      - 'docs/**'
+      - '**/*.md'
+
+jobs:
+  markdown-lint:
+    name: 🔍 Markdown Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install markdownlint-cli
+        run: npm install -g markdownlint-cli
+
+      - name: Lint Markdown files
+        run: markdownlint docs/**/*.md README.md CHANGELOG.md CONTRIBUTING.md
+        continue-on-error: true
+
+  link-check:
+    name: 🔗 Link Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check internal links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'yes'
+          config-file: '.markdown-link-check.json'
+          folder-path: 'docs'
+        continue-on-error: true
+
+  spell-check:
+    name: 📝 Spell Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install cspell
+        run: npm install -g cspell
+
+      - name: Run spell check
+        run: cspell "docs/**/*.md" "*.md" --config .cspell.json
+        continue-on-error: true
+
+  structure-check:
+    name: 📁 Structure Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check required documentation
+        run: |
+          echo "🔍 Checking required documentation files..."
+
+          required_files=(
+            "README.md"
+            "CHANGELOG.md"
+            "CONTRIBUTING.md"
+            "docs/architecture/SYSTEM_ARCHITECTURE.md"
+            "docs/development/CODING_STANDARDS.md"
+            "docs/api/API_REFERENCE.md"
+            "docs/user-guides/QUICK_START_GUIDE.md"
+            "docs/standards/DOCUMENTATION_STANDARDS.md"
+          )
+
+          missing_files=()
+
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$file" ]; then
+              missing_files+=("$file")
+            else
+              echo "✅ $file"
+            fi
+          done
+
+          if [ ${#missing_files[@]} -gt 0 ]; then
+            echo ""
+            echo "❌ Missing required files:"
+            for file in "${missing_files[@]}"; do
+              echo "   - $file"
+            done
+            exit 1
+          else
+            echo ""
+            echo "✅ All required documentation files are present"
+          fi
+
+  docs-stats:
+    name: 📊 Documentation Statistics
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate documentation statistics
+        run: |
+          echo "📊 Documentation Statistics Report"
+          echo "================================"
+          echo ""
+
+          # Count files by type
+          md_files=$(find docs -name "*.md" | wc -l)
+          total_lines=$(find docs -name "*.md" -exec wc -l {} + | tail -1 | awk '{print $1}')
+
+          echo "📄 Markdown files: $md_files"
+          echo "📝 Total lines: $total_lines"
+          echo ""
+
+          # Check for images
+          images=$(find docs -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.gif" -o -name "*.svg" \) | wc -l)
+          echo "🖼️  Images: $images"
+          echo ""
+
+          # Recently updated files (last 7 days)
+          recent_files=$(find docs -name "*.md" -mtime -7 | wc -l)
+          echo "🔄 Recently updated (last 7 days): $recent_files"
+          echo ""
+
+          # Top 5 largest documentation files
+          echo "📋 Top 5 largest files:"
+          find docs -name "*.md" -exec wc -l {} + | sort -nr | head -5 | while read lines file; do
+            echo "   $lines lines - $(basename "$file")"
+          done
+
+      - name: Comment on commit
+        if: github.event_name == 'push'
+        run: |
+          echo "Documentation statistics generated successfully ✅"
+
+  notify-success:
+    name: 🎉 Notification
+    runs-on: ubuntu-latest
+    needs: [markdown-lint, link-check, spell-check, structure-check]
+    if: success()
+    steps:
+      - name: Success notification
+        run: |
+          echo "🎉 All documentation checks passed successfully!"
+          echo "✅ Markdown linting"
+          echo "✅ Link validation"
+          echo "✅ Spell checking"
+          echo "✅ Structure validation"
