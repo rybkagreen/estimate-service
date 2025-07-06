@@ -4,8 +4,9 @@
 // Date: 2025-06-28
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
+  provider        = "prisma-client-js"
+  output          = "../node_modules/.prisma/client"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -29,11 +30,11 @@ enum UserStatus {
 enum RoleType {
   // Standard human roles
   ADMIN
-  MANAGER 
+  MANAGER
   EDITOR
   VIEWER
   GUEST
-  
+
   // AI Agent roles
   AI_OPERATOR
   AI_ASSISTANT
@@ -42,7 +43,7 @@ enum RoleType {
   AI_DOCUMENT_PROCESSOR
   AI_PREDICTOR
   AI_SECURITY_ANALYST
-  
+
   // Service roles
   SERVICE_AUTH
   SERVICE_NOTIFICATION
@@ -152,6 +153,23 @@ enum ProjectStatus {
   ON_HOLD
   COMPLETED
   CANCELLED
+  ARCHIVED
+}
+
+enum EstimateStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum ProjectType {
+  RESIDENTIAL
+  COMMERCIAL
+  INDUSTRIAL
+  INFRASTRUCTURE
+  OTHER
 }
 
 // ================================
@@ -202,17 +220,20 @@ model User {
   refreshTokens     RefreshToken[]
   auditLogs         AuditLog[]
   authLogs          AuthLog[]
-  
+
   // RBAC relationships
   userRoleContexts  UserRoleContext[]
   delegationsFrom   Delegation[] @relation("UserDelegator")
   delegationsTo     Delegation[] @relation("UserDelegatee")
   temporaryAccess   TemporaryAccess[]
-  
+
   // Content relationships
   notifications     UserNotification[]
   documents         Document[]
-  projects          ProjectMember[]
+  createdProjects   Project[] @relation("ProjectCreatedBy")
+  managedProjects   Project[] @relation("ProjectManager")
+  createdEstimates  Estimate[] @relation("EstimateCreatedBy")
+  approvedEstimates Estimate[] @relation("EstimateApprovedBy")
 
   // Notification service relations
   notificationSubscriptions NotificationSubscription[]
@@ -289,18 +310,18 @@ model RefreshToken {
   token     String    @unique
   userId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   expiresAt DateTime
   revokedAt DateTime?
   isActive  Boolean   @default(true)
-  
+
   // Additional tracking
   ipAddress String?
   userAgent String?
-  
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  
+
   @@map("refresh_tokens")
   @@index([token])
   @@index([userId])
@@ -319,32 +340,32 @@ model Role {
   category      String?        // admin, user, ai, service
   isSystemRole  Boolean        @default(false)
   isActive      Boolean        @default(true)
-  
+
   // Hierarchical roles
   parentRoleId  String?
   parentRole    Role?          @relation("RoleHierarchy", fields: [parentRoleId], references: [id])
   childRoles    Role[]         @relation("RoleHierarchy")
-  
+
   // Permissions
   rolePermissions RolePermission[]
-  
+
   // User assignments
   userRoleContexts UserRoleContext[]
-  
+
   // Role contexts and service configurations
   roleContexts      RoleContext[]
   serviceRoleConfigs ServiceRoleConfig[]
-  
+
   // AI specific configuration
   aiConfig      Json?
   maxConcurrentTasks Int?
-  
+
   // Metadata
   metadata      Json?
-  
+
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
-  
+
   @@map("roles")
   @@index([name])
   @@index([category])
@@ -358,13 +379,13 @@ model Permission {
   description String?
   conditions  Json?              // JSON conditions for dynamic permissions
   isActive    Boolean            @default(true)
-  
+
   // Relations
   rolePermissions RolePermission[]
-  
+
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
-  
+
   @@unique([resource, action])
   @@map("permissions")
   @@index([resource])
@@ -375,18 +396,18 @@ model RolePermission {
   id           String     @id @default(cuid())
   roleId       String
   permissionId String
-  
+
   // Context-specific permissions
   contextType  ContextType?
   contextId    String?
   conditions   Json?      // Additional conditions
-  
+
   role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  
+
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  
+
   @@unique([roleId, permissionId, contextType, contextId])
   @@map("role_permissions")
 }
@@ -395,32 +416,32 @@ model UserRoleContext {
   id          String      @id @default(cuid())
   userId      String
   roleId      String
-  
+
   // Context where this role applies
   contextType ContextType @default(GLOBAL)
   contextId   String?     // NULL for global context
-  
+
   // Validity and metadata
   grantedAt   DateTime    @default(now())
   grantedBy   String?
   expiresAt   DateTime?
   isActive    Boolean     @default(true)
   isTemporary Boolean     @default(false)
-  
+
   // Relations
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   role        Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  
+
   // Role context relation
   roleContextId String?
   roleContext   RoleContext? @relation(fields: [roleContextId], references: [id])
-  
+
   // Additional metadata
   metadata    Json?
-  
+
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  
+
   @@unique([userId, roleId, contextType, contextId])
   @@map("user_role_contexts")
   @@index([userId])
@@ -434,19 +455,19 @@ model Context {
   type        ContextType
   name        String
   description String?
-  
+
   // Hierarchical context
   parentId    String?
   parent      Context?    @relation("ContextHierarchy", fields: [parentId], references: [id])
   children    Context[]   @relation("ContextHierarchy")
-  
+
   // Metadata
   metadata    Json?
   isActive    Boolean     @default(true)
-  
+
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  
+
   @@map("contexts")
   @@index([type])
   @@index([parentId])
@@ -459,53 +480,53 @@ model Context {
 // RoleContext - поддержка иерархии ролей, связей с ролями и контекста
 model RoleContext {
   id            String      @id @default(cuid())
-  
+
   // Основная роль
   roleId        String
   role          Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  
+
   // Контекст применения роли
   contextType   ContextType @default(GLOBAL)
   contextId     String?     // Связь с конкретным контекстом (организация, проект, сервис)
-  
+
   // Иерархия ролей в контексте
   parentRoleContextId String?
   parentRoleContext   RoleContext? @relation("RoleContextHierarchy", fields: [parentRoleContextId], references: [id])
   childRoleContexts   RoleContext[] @relation("RoleContextHierarchy")
-  
+
   // Дополнительные связи с ролями в контексте
   inheritedRoles      String[]    @default([]) // ID ролей, от которых наследуются права
   excludedRoles       String[]    @default([]) // ID ролей, которые исключаются из наследования
-  
+
   // Приоритет роли в контексте (для разрешения конфликтов)
   priority        Int         @default(0)
-  
+
   // Условия активации роли
   activationConditions Json?    // JSON с условиями когда роль становится активной
-  
+
   // Ограничения роли в контексте
   restrictions    Json?        // JSON с ограничениями применения роли
-  
+
   // Метаданные контекста роли
   displayName     String?
   description     String?
   metadata        Json?
-  
+
   // Статус и валидность
   isActive        Boolean     @default(true)
   isInheritable   Boolean     @default(true) // Может ли роль наследоваться дочерними контекстами
-  
+
   // Временные ограничения
   validFrom       DateTime?   // Когда роль становится активной в контексте
   validUntil      DateTime?   // Когда роль перестает быть активной в контексте
-  
+
   // Связи с назначениями ролей
   userRoleContexts UserRoleContext[]
   serviceRoleConfigs ServiceRoleConfig[]
-  
+
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-  
+
   @@unique([roleId, contextType, contextId])
   @@map("role_contexts")
   @@index([roleId])
@@ -518,82 +539,82 @@ model RoleContext {
 // ServiceRoleConfig - конфигурации сервисных ролей и их разрешений
 model ServiceRoleConfig {
   id              String      @id @default(cuid())
-  
+
   // Информация о сервисе
   serviceName     String      // Имя микросервиса
   serviceVersion  String      @default("1.0.0")
   serviceType     String      // auth, document, notification, ai-operator, etc.
-  
+
   // Связь с ролью и контекстом
   roleId          String
   role            Role        @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  
+
   roleContextId   String?
   roleContext     RoleContext? @relation(fields: [roleContextId], references: [id])
-  
+
   // Конфигурация разрешений для сервиса
   allowedResources    String[]    @default([]) // Ресурсы, к которым есть доступ
   allowedActions      String[]    @default([]) // Действия, которые можно выполнять
   deniedResources     String[]    @default([]) // Явно запрещенные ресурсы
   deniedActions       String[]    @default([]) // Явно запрещенные действия
-  
+
   // Дополнительные разрешения специфичные для сервиса
   customPermissions   Json?       // JSON с кастомными разрешениями сервиса
-  
+
   // Ограничения и квоты
   rateLimits         Json?        // Ограничения на частоту запросов
   resourceQuotas     Json?        // Квоты на использование ресурсов
-  
+
   // Конфигурация безопасности
   requiredTLS        Boolean     @default(true)
   allowedIPs         String[]    @default([]) // Разрешенные IP адреса (пусто = все)
   blockedIPs         String[]    @default([]) // Заблокированные IP адреса
-  
+
   // JWT конфигурация для сервиса
   jwtConfig          Json?       // Настройки JWT для сервиса
-  
+
   // API ключи и токены
   apiKeys            Json?       // API ключи для внешних интеграций
   serviceTokens      Json?       // Токены для межсервисного взаимодействия
-  
+
   // Мониторинг и аудит
   enableAuditLog     Boolean     @default(true)
   auditLevel         String      @default("standard") // minimal, standard, detailed, full
-  
+
   // Конфигурация для AI сервисов
   aiCapabilities     String[]    @default([]) // Возможности AI агента
   maxConcurrentTasks Int?        // Максимальное количество одновременных задач
   aiModelAccess      String[]    @default([]) // Доступные AI модели
-  
+
   // Интеграции с внешними системами
   externalIntegrations Json?     // Настройки интеграций
-  
+
   // Настройки уведомлений для сервиса
   notificationConfig Json?       // Конфигурация уведомлений
-  
+
   // Резервное копирование и восстановление
   backupConfig       Json?       // Настройки бэкапа
-  
+
   // Статус и валидность конфигурации
   isActive           Boolean     @default(true)
   configVersion      String      @default("1.0")
-  
+
   // Временные ограничения
   validFrom          DateTime?   // Когда конфигурация становится активной
   validUntil         DateTime?   // Когда конфигурация перестает быть активной
-  
+
   // Последняя активность
   lastUsed           DateTime?
   lastConfigUpdate   DateTime?   @updatedAt
-  
+
   // Метаданные
   description        String?
   tags               String[]    @default([])
   metadata           Json?
-  
+
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
-  
+
   @@unique([serviceName, roleId, serviceVersion])
   @@map("service_role_configs")
   @@index([serviceName])
@@ -613,25 +634,25 @@ model Delegation {
   id          String    @id @default(cuid())
   delegatorId String
   delegateeId String
-  
+
   delegator   User      @relation("UserDelegator", fields: [delegatorId], references: [id], onDelete: Cascade)
   delegatee   User      @relation("UserDelegatee", fields: [delegateeId], references: [id], onDelete: Cascade)
-  
+
   // What is being delegated
   roleId      String?
   permissions Json?     // Specific permissions being delegated
   contextType ContextType?
   contextId   String?
-  
+
   // Validity
   startsAt    DateTime  @default(now())
   expiresAt   DateTime
   isActive    Boolean   @default(true)
   reason      String?
-  
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  
+
   @@map("delegations")
   @@index([delegatorId])
   @@index([delegateeId])
@@ -642,13 +663,13 @@ model TemporaryAccess {
   id          String      @id @default(cuid())
   userId      String
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Access details
   resource    PermissionResource
   action      PermissionAction
   contextType ContextType?
   contextId   String?
-  
+
   // Validity
   grantedBy   String
   reason      String
@@ -657,10 +678,10 @@ model TemporaryAccess {
   isActive    Boolean     @default(true)
   usageCount  Int         @default(0)
   maxUsage    Int?        // Optional usage limit
-  
+
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  
+
   @@map("temporary_access")
   @@index([userId])
   @@index([expiresAt])
@@ -678,74 +699,336 @@ model Organization {
   description String?
   logo        String?
   website     String?
-  
+
   // Configuration
   settings    Json?
   metadata    Json?
   isActive    Boolean  @default(true)
-  
+
   // Relations
   users       User[]
   projects    Project[]
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   deletedAt   DateTime?
-  
+
   @@map("organizations")
   @@index([slug])
   @@index([isActive])
 }
 
 model Project {
-  id             String        @id @default(cuid())
-  name           String
-  description    String?
-  status         ProjectStatus @default(PLANNING)
-  
-  organizationId String
-  organization   Organization  @relation(fields: [organizationId], references: [id])
-  
-  // Project details
-  startDate      DateTime?
-  endDate        DateTime?
-  budget         Decimal?
-  location       Json?
-  
-  // Relations
-  members        ProjectMember[]
-  documents      Document[]
-  
-  // Metadata
-  metadata       Json?
-  
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  deletedAt      DateTime?
-  
+  id               String        @id @default(cuid())
+
+  /// Название проекта
+  name             String        @db.VarChar(255)
+
+  /// Описание проекта
+  description      String?       @db.Text
+
+  /// Тип проекта
+  type             ProjectType   @default(RESIDENTIAL)
+
+  /// Статус проекта
+  status           ProjectStatus @default(PLANNING)
+
+  /// Локация проекта
+  location         String?       @db.VarChar(500)
+
+  /// Код региона для коэффициентов
+  regionCode       String?       @db.VarChar(10)
+
+  /// Плановая дата начала
+  startDate        DateTime?
+
+  /// Плановая дата окончания
+  endDate          DateTime?
+
+  /// Создатель проекта
+  createdById      String
+  createdBy        User          @relation("ProjectCreatedBy", fields: [createdById], references: [id])
+
+  /// Ответственный за проект
+  managerId        String?
+  manager          User?         @relation("ProjectManager", fields: [managerId], references: [id])
+
+  /// Организация
+  organizationId   String?
+  organization     Organization? @relation(fields: [organizationId], references: [id])
+
+  /// Метаданные проекта
+  metadata         Json?
+
+  /// Сметы в проекте
+  estimates        Estimate[]
+
+  /// Документы проекта
+  documents        Document[]
+
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
   @@map("projects")
-  @@index([organizationId])
   @@index([status])
+  @@index([type])
+  @@index([createdById])
+  @@index([managerId])
+  @@index([regionCode])
+  @@index([createdAt(sort: Desc)])
+  @@index([status, type])
+  @@index([createdById, status])
 }
 
-model ProjectMember {
-  id        String   @id @default(cuid())
-  userId    String
-  projectId String
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  role      String   // Project-specific role
-  joinedAt  DateTime @default(now())
-  leftAt    DateTime?
-  isActive  Boolean  @default(true)
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  @@unique([userId, projectId])
-  @@map("project_members")
+/// Основная модель сметы
+model Estimate {
+  id                 String        @id @default(cuid())
+
+  /// Название сметы
+  name               String        @db.VarChar(255)
+
+  /// Описание сметы
+  description        String?       @db.Text
+
+  /// Связь с проектом
+  projectId          String
+  project            Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  /// Статус сметы
+  status             EstimateStatus @default(DRAFT)
+
+  /// Валюта расчетов
+  currency           String        @default("RUB") @db.VarChar(3)
+
+  /// Стоимость человеко-часа
+  laborCostPerHour   Decimal       @default(0) @db.Decimal(10, 2)
+
+  /// Процент накладных расходов
+  overheadPercentage Decimal       @default(0) @db.Decimal(5, 2)
+
+  /// Процент сметной прибыли
+  profitPercentage   Decimal       @default(0) @db.Decimal(5, 2)
+
+  /// Общая стоимость материалов (вычисляемое поле)
+  materialCost       Decimal       @default(0) @db.Decimal(15, 2)
+
+  /// Общая стоимость труда (вычисляемое поле)
+  laborCost          Decimal       @default(0) @db.Decimal(15, 2)
+
+  /// Накладные расходы (вычисляемое поле)
+  overheadCost       Decimal       @default(0) @db.Decimal(15, 2)
+
+  /// Сметная прибыль (вычисляемое поле)
+  profitCost         Decimal       @default(0) @db.Decimal(15, 2)
+
+  /// Общая стоимость сметы (вычисляемое поле)
+  totalCost          Decimal       @default(0) @db.Decimal(15, 2)
+
+  /// Создатель сметы
+  createdById        String
+  createdBy          User          @relation("EstimateCreatedBy", fields: [createdById], references: [id])
+
+  /// Утверждающий смету
+  approvedById       String?
+  approvedBy         User?         @relation("EstimateApprovedBy", fields: [approvedById], references: [id])
+
+  /// Дата утверждения
+  approvedAt         DateTime?
+
+  /// Версия сметы
+  version            Int           @default(1)
+
+  /// Родительская смета (для версионирования)
+  parentId           String?
+  parent             Estimate?     @relation("EstimateVersions", fields: [parentId], references: [id])
+  versions           Estimate[]    @relation("EstimateVersions")
+
+  /// Позиции сметы
+  items              EstimateItem[]
+
+  /// Метаданные сметы
+  metadata           Json?
+
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@map("estimates")
+  @@index([projectId])
+  @@index([status])
+  @@index([createdById])
+  @@index([approvedById])
+  @@index([createdAt(sort: Desc)])
+  @@index([updatedAt(sort: Desc)])
+  @@index([projectId, status])
+  @@index([createdById, status])
+  @@index([status, approvedAt])
+  @@index([totalCost(sort: Desc)])
+  @@index([version, parentId])
+}
+
+/// Позиции сметы
+model EstimateItem {
+  id               String      @id @default(cuid())
+
+  /// Связь со сметой
+  estimateId       String
+  estimate         Estimate    @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+
+  /// Название позиции
+  name             String      @db.VarChar(500)
+
+  /// Описание позиции
+  description      String?     @db.Text
+
+  /// Единица измерения
+  unit             String      @db.VarChar(50)
+
+  /// Количество
+  quantity         Decimal     @db.Decimal(15, 3)
+
+  /// Цена за единицу
+  unitPrice        Decimal     @db.Decimal(12, 2)
+
+  /// Общая стоимость позиции (quantity * unitPrice)
+  totalPrice       Decimal     @db.Decimal(15, 2)
+
+  /// Трудозатраты в часах
+  laborHours       Decimal     @default(0) @db.Decimal(10, 2)
+
+  /// Код ФСБЦ (если применимо)
+  fsbtsCode        String?     @db.VarChar(50)
+
+  /// Категория работ
+  category         String?     @db.VarChar(100)
+
+  /// Порядковый номер в смете
+  sortOrder        Int         @default(0)
+
+  /// Группировка позиций
+  groupName        String?     @db.VarChar(200)
+
+  /// Метаданные позиции
+  metadata         Json?
+
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@map("estimate_items")
+  @@index([estimateId])
+  @@index([fsbtsCode])
+  @@index([category])
+  @@index([estimateId, sortOrder])
+  @@index([groupName])
+  @@index([totalPrice(sort: Desc)])
+  @@index([laborHours(sort: Desc)])
+}
+
+/// ФСБЦ справочник (Federal Reference Base of Construction Prices)
+model FSBTSItem {
+  id               String      @id @default(cuid())
+
+  /// Код ФСБЦ
+  code             String      @unique @db.VarChar(50)
+
+  /// Наименование работы
+  name             String      @db.Text
+
+  /// Единица измерения
+  unit             String      @db.VarChar(50)
+
+  /// Базовая цена
+  basePrice        Decimal     @db.Decimal(12, 2)
+
+  /// Стоимость труда
+  laborCost        Decimal     @default(0) @db.Decimal(12, 2)
+
+  /// Стоимость машин и механизмов
+  machineCost      Decimal     @default(0) @db.Decimal(12, 2)
+
+  /// Стоимость материалов
+  materialCost     Decimal     @default(0) @db.Decimal(12, 2)
+
+  /// Категория работ
+  category         String      @db.VarChar(100)
+
+  /// Раздел ФСБЦ
+  section          String      @db.VarChar(200)
+
+  /// Код региона
+  regionCode       String      @db.VarChar(10)
+
+  /// Дата начала действия
+  validFrom        DateTime
+
+  /// Дата окончания действия
+  validTo          DateTime?
+
+  /// Активность записи
+  isActive         Boolean     @default(true)
+
+  /// Версия записи
+  version          String      @default("1.0") @db.VarChar(20)
+
+  /// Источник данных
+  source           String?     @db.VarChar(500)
+
+  /// Метаданные
+  metadata         Json?
+
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@map("fsbts_items")
+  @@index([code])
+  @@index([category])
+  @@index([section])
+  @@index([regionCode])
+  @@index([isActive])
+  @@index([validFrom, validTo])
+  @@index([category, regionCode])
+  @@index([basePrice(sort: Desc)])
+}
+
+/// Региональные коэффициенты
+model RegionalCoefficient {
+  id               String      @id @default(cuid())
+
+  /// Код региона
+  regionCode       String      @db.VarChar(10)
+
+  /// Название региона
+  regionName       String      @db.VarChar(200)
+
+  /// Коэффициент для материалов
+  materialCoeff    Decimal     @default(1.0) @db.Decimal(6, 3)
+
+  /// Коэффициент для труда
+  laborCoeff       Decimal     @default(1.0) @db.Decimal(6, 3)
+
+  /// Коэффициент для машин
+  machineCoeff     Decimal     @default(1.0) @db.Decimal(6, 3)
+
+  /// Климатический пояс
+  climateZone      String?     @db.VarChar(50)
+
+  /// Дата начала действия
+  validFrom        DateTime
+
+  /// Дата окончания действия
+  validTo          DateTime?
+
+  /// Активность коэффициента
+  isActive         Boolean     @default(true)
+
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@map("regional_coefficients")
+  @@index([regionCode])
+  @@index([isActive])
+  @@index([validFrom, validTo])
+  @@index([regionCode, isActive])
+  @@unique([regionCode, validFrom])
 }
 
 // ================================
@@ -759,11 +1042,11 @@ model Notification {
   type        NotificationType   @default(INFO)
   priority    NotificationPriority @default(MEDIUM)
   status      NotificationStatus @default(PENDING)
-  
+
   // Sending details
   senderId    String?
   recipientId String? // NULL for broadcast notifications
-  
+
   // Channels and delivery
   channels    String[]           @default(["web"]) // web, email, sms, push
   metadata    Json?
@@ -771,14 +1054,14 @@ model Notification {
   scheduledFor DateTime?
   sentAt      DateTime?
   readAt      DateTime?
-  
+
   // Relations
   userNotifications UserNotification[]
   deliveries  NotificationDelivery[]
-  
+
   createdAt   DateTime           @default(now())
   updatedAt   DateTime           @updatedAt
-  
+
   @@map("notifications")
   @@index([type])
   @@index([priority])
@@ -790,18 +1073,18 @@ model UserNotification {
   id             String       @id @default(cuid())
   userId         String
   notificationId String
-  
+
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  
+
   isRead         Boolean      @default(false)
   readAt         DateTime?
   isArchived     Boolean      @default(false)
   archivedAt     DateTime?
-  
+
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
-  
+
   @@unique([userId, notificationId])
   @@map("user_notifications")
   @@index([userId])
@@ -812,26 +1095,26 @@ model NotificationDelivery {
   id             String       @id @default(cuid())
   notificationId String
   notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  
+
   channel        String       // email, sms, push, web
   recipient      String       // email address, phone number, etc.
   status         NotificationStatus @default(PENDING)
-  
+
   sentAt         DateTime?
   deliveredAt    DateTime?
   failedAt       DateTime?
   errorMessage   String?
-  
+
   // Retry logic
   attempts       Int          @default(0)
   maxAttempts    Int          @default(3)
   nextRetryAt    DateTime?
-  
+
   metadata       Json?
-  
+
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
-  
+
   @@map("notification_deliveries")
   @@index([notificationId])
   @@index([channel])
@@ -849,45 +1132,45 @@ model Document {
   description String?
   type        DocumentType   @default(OTHER)
   status      DocumentStatus @default(DRAFT)
-  
+
   // File details
   fileName    String
   filePath    String
   fileSize    BigInt
   mimeType    String
   checksum    String?        // For integrity verification
-  
+
   // Ownership
   uploadedBy  String
   user        User           @relation(fields: [uploadedBy], references: [id])
-  
+
   // Project association
   projectId   String?
   project     Project?       @relation(fields: [projectId], references: [id])
-  
+
   // Construction object association
   constructionObjectId String?
   constructionObject   ConstructionObject? @relation("ConstructionObjectDocuments", fields: [constructionObjectId], references: [id])
-  
+
   // Version control
   version     String         @default("1.0")
   parentDocId String?
   parentDoc   Document?      @relation("DocumentVersions", fields: [parentDocId], references: [id])
   versions    Document[]     @relation("DocumentVersions")
-  
+
   // AI processing
   aiProcessed Boolean        @default(false)
   aiMetadata  Json?          // AI extracted metadata
-  
+
   // Access control
   isPublic    Boolean        @default(false)
   tags        String[]       @default([])
-  
+
   // Timestamps
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   deletedAt   DateTime?
-  
+
   @@map("documents")
   @@index([uploadedBy])
   @@index([projectId])
@@ -904,32 +1187,32 @@ model AuditLog {
   id          String      @id @default(cuid())
   userId      String?
   user        User?       @relation(fields: [userId], references: [id])
-  
+
   // Action details
   action      String      // CREATE, UPDATE, DELETE, etc.
   resource    String      // user, role, document, etc.
   resourceId  String?     // ID of the affected resource
-  
+
   // Context
   contextType ContextType?
   contextId   String?
-  
+
   // Changes
   oldValues   Json?
   newValues   Json?
   changes     Json?       // Structured change log
-  
+
   // Request details
   ipAddress   String?
   userAgent   String?
   sessionId   String?
-  
+
   // Result
   success     Boolean     @default(true)
   errorMessage String?
-  
+
   createdAt   DateTime    @default(now())
-  
+
   @@map("audit_logs")
   @@index([userId])
   @@index([action])
@@ -941,23 +1224,23 @@ model AuthLog {
   id          String      @id @default(cuid())
   userId      String?
   user        User?       @relation(fields: [userId], references: [id])
-  
+
   type        AuthLogType
   success     Boolean
-  
+
   // Details
   email       String?
   ipAddress   String?
   userAgent   String?
   location    Json?
-  
+
   // Additional data
   errorCode   String?
   errorMessage String?
   metadata    Json?
-  
+
   createdAt   DateTime    @default(now())
-  
+
   @@map("auth_logs")
   @@index([userId])
   @@index([type])
@@ -1006,7 +1289,7 @@ model ConstructionObject {
   type              ConstructionObjectType
   status            ConstructionObjectStatus @default(PLANNING)
   priority          Priority                 @default(MEDIUM)
-  
+
   // Location
   address           String
   city              String
@@ -1015,31 +1298,31 @@ model ConstructionObject {
   postalCode        String?
   latitude          Float?
   longitude         Float?
-  
+
   // Ownership and management
   ownerId           String?
   managerId         String?
   contractorId      String?
   architectId       String?
-  
+
   // Project timeline
   startDate         DateTime?
   plannedEndDate    DateTime?
   actualEndDate     DateTime?
-  
+
   // Financial
   budgetPlanned     Decimal?
   budgetActual      Decimal?
-  
+
   // Technical details
   totalArea         Float?                   // in square meters
   builtArea         Float?                   // in square meters
   floors            Int?
   height            Float?                   // in meters
-  
+
   // Progress tracking
   overallProgress   Float?                   @default(0) // percentage 0-100
-  
+
   // Relations
   phases            ConstructionPhase[]
   documents         Document[]               @relation("ConstructionObjectDocuments")
@@ -1050,16 +1333,16 @@ model ConstructionObject {
   equipment         EquipmentAssignment[]
   materials         MaterialUsage[]
   images            ConstructionImage[]
-  
+
   // Metadata
   metadata          Json?
   tags              String[]                 @default([])
-  
+
   // Timestamps
   createdAt         DateTime                 @default(now())
   updatedAt         DateTime                 @updatedAt
   deletedAt         DateTime?
-  
+
   @@map("construction_objects")
   @@index([type])
   @@index([status])
@@ -1076,30 +1359,30 @@ model ConstructionPhase {
   name                 String
   description          String?
   order                Int                 // sequence order
-  
+
   // Timeline
   plannedStart         DateTime?
   plannedEnd           DateTime?
   actualStart          DateTime?
   actualEnd            DateTime?
-  
+
   // Progress
   progress             Float               @default(0) // percentage 0-100
   status               String              @default("planned") // planned, active, completed, delayed
-  
+
   // Relations
   constructionObjectId String
   constructionObject   ConstructionObject  @relation(fields: [constructionObjectId], references: [id], onDelete: Cascade)
-  
+
   // Dependencies
   dependencies         String[]            @default([]) // IDs of phases that must complete first
-  
+
   // Metadata
   metadata             Json?
-  
+
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
-  
+
   @@map("construction_phases")
   @@index([constructionObjectId])
   @@index([status])
@@ -1111,32 +1394,32 @@ model ConstructionPermit {
   name                 String
   type                 String              // building_permit, environmental, safety, etc.
   permitNumber         String?
-  
+
   // Status tracking
   status               String              @default("pending") // pending, approved, rejected, expired
   applicationDate      DateTime
   approvalDate         DateTime?
   expiryDate           DateTime?
-  
+
   // Issuing authority
   issuingAuthority     String
   contactPerson        String?
   contactPhone         String?
   contactEmail         String?
-  
+
   // Relations
   constructionObjectId String
   constructionObject   ConstructionObject  @relation(fields: [constructionObjectId], references: [id], onDelete: Cascade)
-  
+
   // Files and documentation
   documentIds          String[]            @default([])
-  
+
   // Metadata
   metadata             Json?
-  
+
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
-  
+
   @@map("construction_permits")
   @@index([constructionObjectId])
   @@index([status])
@@ -1147,39 +1430,39 @@ model ConstructionInspection {
   id                   String              @id @default(cuid())
   name                 String
   type                 String              // safety, quality, progress, final
-  
+
   // Scheduling
   scheduledDate        DateTime
   completedDate        DateTime?
-  
+
   // Status and results
   status               String              @default("scheduled") // scheduled, in_progress, completed, cancelled
   result               String?             // passed, failed, conditional
-  
+
   // Inspector details
   inspectorName        String?
   inspectorLicense     String?
   inspectorContact     String?
-  
+
   // Report
   findings             String?
   recommendations      String?
   deficiencies         Json?               // structured list of issues
-  
+
   // Relations
   constructionObjectId String
   constructionObject   ConstructionObject  @relation(fields: [constructionObjectId], references: [id], onDelete: Cascade)
-  
+
   // Files
   documentIds          String[]            @default([])
   imageIds             String[]            @default([])
-  
+
   // Metadata
   metadata             Json?
-  
+
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
-  
+
   @@map("construction_inspections")
   @@index([constructionObjectId])
   @@index([status])
@@ -1191,52 +1474,52 @@ model ProgressReport {
   id                   String              @id @default(cuid())
   reportDate           DateTime
   reportPeriod         String              // daily, weekly, monthly
-  
+
   // Progress metrics
   overallProgress      Float               @default(0) // percentage 0-100
   phaseProgress        Json?               // progress by phase
-  
+
   // Work performed
   workCompleted        String?
   workPlanned          String?
-  
+
   // Issues and risks
   issues               Json?               // current issues
   risks                Json?               // identified risks
-  
+
   // Resources
   workersOnSite        Int?
   equipmentOnSite      Json?
   materialsUsed        Json?
-  
+
   // Financial
   costsThisPeriod      Decimal?
   costsCumulative      Decimal?
-  
+
   // Weather and conditions
   weatherConditions    String?
   workingDays          Int?
   delayedDays          Int?
-  
+
   // Relations
   constructionObjectId String
   constructionObject   ConstructionObject  @relation(fields: [constructionObjectId], references: [id], onDelete: Cascade)
-  
+
   // Reporter
   reportedBy           String              // User ID
   approvedBy           String?             // User ID
   approvalDate         DateTime?
-  
+
   // Attachments
   imageIds             String[]            @default([])
   documentIds          String[]            @default([])
-  
+
   // Metadata
   metadata             Json?
-  
+
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
-  
+
   @@map("progress_reports")
   @@index([constructionObjectId])
   @@index([reportDate])
@@ -1245,35 +1528,35 @@ model ProgressReport {
 
 model WorkerAssignment {
   id                   String              @id @default(cuid())
-  
+
   // Worker details
   workerName           String
   position             String
   specialization       String?
-  
+
   // Assignment period
   startDate            DateTime
   endDate              DateTime?
   isActive             Boolean             @default(true)
-  
+
   // Contact
   phone                String?
   email                String?
-  
+
   // Certifications
   certifications       Json?               // list of certifications
   licenses             Json?               // list of licenses
-  
+
   // Relations
   constructionObjectId String
   constructionObject   ConstructionObject  @relation(fields: [constructionObjectId], references: [id], onDelete: Cascade)
-  
+
   // Metadata
   metadata             Json?
-  
+
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
-  
+
   @@map("worker_assignments")
   @@index([constructionObjectId])
   @@index([isActive])
@@ -1282,40 +1565,40 @@ model WorkerAssignment {
 
 model EquipmentAssignment {
   id                   String              @id @default(cuid())
-  
+
   // Equipment details
   equipmentName        String
   equipmentType        String
   model                String?
   serialNumber         String?
-  
+
   // Assignment period
   startDate            DateTime
   endDate              DateTime?
   status               String              @default("active") // active, maintenance, returned
-  
+
   // Usage tracking
   hoursUsed            Float?              @default(0)
   fuelConsumption      Float?
-  
+
   // Operator
   operatorName         String?
   operatorLicense      String?
-  
+
   // Relations
   constructionObjectId String
   constructionObject   ConstructionObject  @relation(fields: [constructionObjectId], references: [id], onDelete: Cascade)
-  
+
   // Maintenance
   lastMaintenance      DateTime?
   nextMaintenance      DateTime?
-  
+
   // Metadata
   metadata             Json?
-  
+
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
-  
+
   @@map("equipment_assignments")
   @@index([constructionObjectId])
   @@index([status])
@@ -1324,45 +1607,45 @@ model EquipmentAssignment {
 
 model MaterialUsage {
   id                   String              @id @default(cuid())
-  
+
   // Material details
   materialName         String
   materialType         String
   specification        String?
   unit                 String              // m3, kg, pieces, etc.
-  
+
   // Quantities
   quantityPlanned      Float
   quantityDelivered    Float               @default(0)
   quantityUsed         Float               @default(0)
   quantityWasted       Float               @default(0)
-  
+
   // Cost tracking
   unitCost             Decimal?
   totalCost            Decimal?
-  
+
   // Supplier
   supplierName         String?
   supplierContact      String?
-  
+
   // Delivery tracking
   deliveryDate         DateTime?
   usageDate            DateTime?
-  
+
   // Relations
   constructionObjectId String
   constructionObject   ConstructionObject  @relation(fields: [constructionObjectId], references: [id], onDelete: Cascade)
-  
+
   // Quality control
   qualityCheck         String?             // passed, failed, pending
   qualityNotes         String?
-  
+
   // Metadata
   metadata             Json?
-  
+
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
-  
+
   @@map("material_usage")
   @@index([constructionObjectId])
   @@index([materialType])
@@ -1371,48 +1654,48 @@ model MaterialUsage {
 
 model ConstructionImage {
   id                   String              @id @default(cuid())
-  
+
   // Image details
   filename             String
   originalName         String
   filePath             String
   fileSize             BigInt
   mimeType             String
-  
+
   // Categorization
   category             String              // progress, safety, quality, before, after
   description          String?
   tags                 String[]            @default([])
-  
+
   // Location in project
   location             String?             // where photo was taken
   phase                String?             // construction phase
-  
+
   // Metadata
   uploadedAt           DateTime            @default(now())
   takenAt              DateTime?
-  
+
   // GPS coordinates if available
   latitude             Float?
   longitude            Float?
-  
+
   // Relations
   constructionObjectId String
   constructionObject   ConstructionObject  @relation(fields: [constructionObjectId], references: [id], onDelete: Cascade)
-  
+
   // Approval workflow
   uploadedBy           String              // User ID
   reviewedBy           String?             // User ID
   isApproved           Boolean             @default(false)
   approvalDate         DateTime?
-  
+
   // AI processing
   aiAnalyzed           Boolean             @default(false)
   aiMetadata           Json?               // AI extracted metadata
-  
+
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
-  
+
   @@map("construction_images")
   @@index([constructionObjectId])
   @@index([category])
@@ -1429,32 +1712,32 @@ model AITask {
   name        String
   description String?
   type        String   // document_analysis, prediction, quality_check, etc.
-  
+
   // AI Agent assignment
   assignedTo  String?  // User ID of AI agent
-  
+
   // Task data
   inputData   Json
   outputData  Json?
   status      String   @default("pending") // pending, running, completed, failed
-  
+
   // Processing details
   startedAt   DateTime?
   completedAt DateTime?
   duration    Int?     // in milliseconds
-  
+
   // Error handling
   errorMessage String?
   retryCount  Int      @default(0)
   maxRetries  Int      @default(3)
-  
+
   // Metadata
   priority    Int      @default(5) // 1-10
   metadata    Json?
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@map("ai_tasks")
   @@index([assignedTo])
   @@index([status])
@@ -1467,33 +1750,33 @@ model AIModel {
   name        String   @unique
   version     String
   type        String   // llm, embedding, classification, etc.
-  
+
   // Model details
   provider    String   // ollama, local, openai, etc.
   modelPath   String?
   parameters  Json?
-  
+
   // Capabilities
   capabilities String[] @default([])
   languages   String[]  @default(["ru", "en"])
-  
+
   // Performance metrics
   accuracy    Float?
   latency     Int?     // average response time in ms
   throughput  Int?     // requests per minute
-  
+
   // Status
   isActive    Boolean  @default(true)
   isLoaded    Boolean  @default(false)
   lastUsed    DateTime?
-  
+
   // Metadata
   description String?
   metadata    Json?
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   @@map("ai_models")
   @@index([name])
   @@index([type])
@@ -1578,26 +1861,26 @@ model SystemSetting {
 
 model NotificationSubscription {
   id                String @id @default(cuid())
-  
+
   // User
   userId            String
   user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   // Subscription details
   eventType         String // Type of event to subscribe to
   channel           ChannelType // Preferred channel
-  
+
   // Settings
   isActive          Boolean @default(true)
   frequency         String @default("immediate") // immediate, daily, weekly
-  
+
   // Filters
   filters           Json? // Event filters
   preferences       Json? // User preferences for this subscription
-  
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  
+
   @@unique([userId, eventType, channel])
   @@map("notification_subscriptions")
 }
@@ -1606,32 +1889,32 @@ model NotificationTemplate {
   id                String @id @default(cuid())
   name              String
   description       String?
-  
+
   // Template details
   type              String // Email, SMS, Push, etc.
   category          String?
-  
+
   // Content
   subject           String?
   content           String
   variables         Json? // Available template variables
-  
+
   // Settings
   isActive          Boolean @default(true)
   defaultPriority   NotificationPriority @default(MEDIUM)
-  
+
   // Creator
   userId            String
   user              User @relation(fields: [userId], references: [id])
-  
+
   // Usage tracking
   usageCount        Int @default(0)
   lastUsed          DateTime?
   version           Int @default(1)
-  
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  
+
   @@map("notification_templates")
   @@index([type])
   @@index([isActive])
@@ -1641,6 +1924,6 @@ model UserNotificationSubscription {
   id        String @id @default(cuid())
   userId    String
   user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@map("user_notification_subscriptions")
 }
