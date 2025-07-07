@@ -17,6 +17,9 @@ import { FsbcModule } from './modules/fsbc/fsbc.module';
 import { GesnModule } from './modules/gesn/gesn.module';
 import { TerModule } from './modules/ter/ter.module';
 
+// Автоматизация
+import { AutomationModule } from './automation/automation.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -40,6 +43,9 @@ import { TerModule } from './modules/ter/ter.module';
     TerModule,
     GesnModule,
     FsbcModule,
+
+    // Автоматизация
+    AutomationModule,
   ],
 })
 export class AppModule {}

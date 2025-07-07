@@ -84,7 +84,7 @@ export enum WorkCategory {
   VENTILATION = 'VENTILATION',
   ROADS = 'ROADS',
   NETWORKS = 'NETWORKS',
-  OTHER = 'OTHER'
+  OTHER = 'OTHER',
 }
 
 // Источники данных
@@ -93,7 +93,7 @@ export enum DataSource {
   TER = 'TER',
   GESN = 'GESN',
   MARKET = 'MARKET',
-  CUSTOM = 'CUSTOM'
+  CUSTOM = 'CUSTOM',
 }
 
 // Единицы измерения
@@ -107,5 +107,91 @@ export enum MeasurementUnit {
   SET = 'компл',
   HOUR = 'ч',
   DAY = 'день',
-  PERCENT = '%'
+  PERCENT = '%',
+}
+
+// Дополнительные типы для ETL и сбора данных
+export interface CollectionResult {
+  success: boolean;
+  totalItems: number;
+  processedItems: number;
+  errors: string[];
+  source: string;
+  timestamp: Date;
+  duration?: number;
+  metadata?: any;
+}
+
+export interface FsbtsWorkItem {
+  id: string;
+  code: string;
+  name: string;
+  unit: string;
+  basePrice: number;
+  laborCost: number;
+  materialCost: number;
+  machineCost: number;
+  chapter: string;
+  section?: string;
+  region?: string;
+  source: DataSource;
+  version: string;
+  lastUpdated: Date;
+}
+
+export interface FsbtsRegion {
+  id: string;
+  name: string;
+  code: string;
+  coefficient: number;
+  active: boolean;
+}
+
+export interface FsbtsUpdate {
+  id: string;
+  type: 'FULL' | 'PARTIAL';
+  source: string;
+  status: 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED';
+  itemsProcessed: number;
+  itemsTotal: number;
+  startedAt: Date;
+  completedAt?: Date;
+  errors: string[];
+}
+
+export interface SourceMetadata {
+  url: string;
+  title: string;
+  version: string;
+  lastModified?: Date;
+  size?: number;
+  format: string;
+  parsingDate?: Date;
+}
+
+export interface FsbtsRawData {
+  source: string;
+  rawContent: string;
+  metadata: SourceMetadata;
+  extractedAt: Date;
+  items?: any[];
+  validItems?: number;
+  errors?: string[];
+}
+
+export interface ParsedWorkItem {
+  code: string;
+  name: string;
+  unit: string;
+  costs: {
+    labor: number;
+    materials: number;
+    machinery: number;
+    total: number;
+  };
+  basePrice?: number;
+  chapter?: string;
+  section?: string;
+  materials?: MaterialSpec[];
+  machinery?: MachineSpec[];
 }
