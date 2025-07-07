@@ -8,12 +8,14 @@ import { DatabaseService } from './database.js';
 import { AIService } from './ai.js';
 import { ExternalService } from './external.js';
 import { ProjectService } from './project.js';
+import { ModelManagerService, modelManager } from './model-manager.service.js';
 
 export interface Services {
   database: DatabaseService;
   ai: AIService;
   external: ExternalService;
   project: ProjectService;
+  modelManager: ModelManagerService;
 }
 
 let services: Services | null = null;
@@ -42,11 +44,16 @@ export async function setupServices(server: Server, config: any): Promise<Servic
     await project.initialize();
     logger.info('✅ Проектный сервис инициализирован');
 
+    // Инициализация Model Manager
+    await modelManager.initializeClaude(config.ai?.claude?.apiKey);
+    logger.info('✅ Model Manager инициализирован');
+
     services = {
       database,
       ai,
       external,
       project,
+      modelManager,
     };
 
     logger.info('🎉 Все сервисы успешно инициализированы');

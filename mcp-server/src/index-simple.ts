@@ -13,6 +13,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { deepSeekService } from './services/deepseek.service.js';
 import { logger } from './utils/logger.js';
+import { startMetricsServer } from './utils/metrics-server.js';
 
 /**
  * DeepSeek R1 tools definitions
@@ -520,6 +521,9 @@ ${code}
  * Main server setup
  */
 async function main() {
+  // Start metrics server
+  startMetricsServer();
+  
   const server = new Server(
     {
       name: 'estimate-service-mcp-simple',
