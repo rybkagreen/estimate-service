@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { GracefulShutdownService } from './common/services/graceful-shutdown.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -32,6 +33,9 @@ async function bootstrap() {
   SwaggerModule.setup('api/docs', app, document);
 
   const port = process.env['PORT'] || 3020;
+
+const gracefulShutdownService = app.get(GracefulShutdownService);
+gracefulShutdownService.setupSignalHandlers(app);
 
   await app.listen(port);
 
