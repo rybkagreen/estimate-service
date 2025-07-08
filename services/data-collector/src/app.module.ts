@@ -20,6 +20,9 @@ import { TerModule } from './modules/ter/ter.module';
 // Автоматизация
 import { AutomationModule } from './automation/automation.module';
 
+// Анализ
+import { HistoricalAnalysisModule } from './modules/historical-analysis/historical-analysis.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -37,6 +40,9 @@ import { AutomationModule } from './automation/automation.module';
     CollectorModule,
     ParserModule,
     HealthModule,
+
+    // Модули анализа
+    HistoricalAnalysisModule,
 
     // ФСБЦ-2022 модули
     FerModule,

@@ -72,6 +72,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/bull": "^11.0.2",
     "@nestjs/cache-manager": "^3.0.1",
     "@nestjs/common": "^10.0.2",
@@ -92,7 +93,7 @@
     "@types/compression": "^1.8.1",
     "@types/multer": "^2.0.0",
     "@types/node-fetch": "^2.6.12",
-    "axios": "^1.0.0",
+    "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",
     "bull": "^4.16.5",
     "cache-manager": "^7.0.1",

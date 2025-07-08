@@ -239,6 +239,12 @@ model User {
   notificationSubscriptions NotificationSubscription[]
   notificationTemplates     NotificationTemplate[]
   userNotificationSubs      UserNotificationSubscription[]
+  
+  // Knowledge Base relations
+  knowledgeEntries      KnowledgeEntry[]     @relation("KnowledgeAuthor")
+  knowledgeFeedbacks    UserFeedback[]       @relation("UserKnowledgeFeedback")
+  expertValidations     ExpertValidation[]   @relation("ExpertKnowledgeValidation")
+  
   // Timestamps
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
@@ -765,6 +771,9 @@ model Project {
 
   /// Документы проекта
   documents        Document[]
+
+  /// Знания проекта
+  knowledgeEntries KnowledgeEntry[]
 
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
@@ -1927,3 +1936,193 @@ model UserNotificationSubscription {
 
   @@map("user_notification_subscriptions")
 }
+
+// ================================
+// KNOWLEDGE BASE SYSTEM
+// ================================
+
+enum KnowledgeStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum KnowledgeCategory {
+  TECHNICAL
+  PROCESS
+  SAFETY
+  QUALITY
+  REGULATORY
+  BEST_PRACTICE
+  TROUBLESHOOTING
+  OTHER
+}
+
+model KnowledgeEntry {
+  id               String              @id @default(cuid())
+  title            String
+  content          String              @db.Text
+  summary          String?             @db.Text
+  
+  // Categorization
+  category         KnowledgeCategory   @default(OTHER)
+  subCategory      String?
+  tags             String[]            @default([])
+  keywords         String[]            @default([])
+  
+  // Status tracking
+  status           KnowledgeStatus     @default(DRAFT)
+  publishedAt      DateTime?
+  archivedAt       DateTime?
+  
+  // Authorship
+  authorId         String
+  author           User                @relation("KnowledgeAuthor", fields: [authorId], references: [id])
+  
+  // Version control
+  version          Int                 @default(1)
+  parentId         String?
+  parent           KnowledgeEntry?     @relation("KnowledgeVersions", fields: [parentId], references: [id])
+  versions         KnowledgeEntry[]    @relation("KnowledgeVersions")
+  
+  // Related entities
+  projectId        String?
+  project          Project?            @relation(fields: [projectId], references: [id])
+  
+  // Attachments
+  attachments      Json?               // URLs or file references
+  externalLinks    String[]            @default([])
+  
+  // Usage metrics
+  viewCount        Int                 @default(0)
+  useCount         Int                 @default(0)
+  helpfulCount     Int                 @default(0)
+  
+  // AI processing
+  aiProcessed      Boolean             @default(false)
+  aiSummary        String?             @db.Text
+  aiTags           String[]            @default([])
+  confidence       Float?              // AI confidence score
+  
+  // Relations
+  feedbacks        UserFeedback[]
+  validations      ExpertValidation[]
+  
+  // Metadata
+  metadata         Json?
+  
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  
+  @@map("knowledge_entries")
+  @@index([status])
+  @@index([category])
+  @@index([authorId])
+  @@index([tags])
+  @@index([createdAt(sort: Desc)])
+  @@fulltext([title, content, summary])
+}
+
+model UserFeedback {
+  id                String           @id @default(cuid())
+  
+  // Relations
+  knowledgeEntryId  String
+  knowledgeEntry    KnowledgeEntry   @relation(fields: [knowledgeEntryId], references: [id], onDelete: Cascade)
+  
+  userId            String
+  user              User             @relation("UserKnowledgeFeedback", fields: [userId], references: [id])
+  
+  // Feedback content
+  feedback          String           @db.Text
+  suggestion        String?          @db.Text
+  
+  // Rating
+  rating            Int              // 1-5 stars
+  isHelpful         Boolean          @default(true)
+  
+  // Categorization
+  feedbackType      String           @default("general") // general, correction, enhancement, question
+  priority          Priority         @default(MEDIUM)
+  
+  // Status
+  isResolved        Boolean          @default(false)
+  resolvedAt        DateTime?
+  resolvedBy        String?
+  resolutionNotes   String?          @db.Text
+  
+  // AI analysis
+  sentiment         String?          // positive, negative, neutral
+  aiAnalyzed        Boolean          @default(false)
+  
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  
+  @@map("user_feedbacks")
+  @@index([knowledgeEntryId])
+  @@index([userId])
+  @@index([isResolved])
+  @@index([priority])
+  @@index([createdAt(sort: Desc)])
+}
+
+model ExpertValidation {
+  id                String           @id @default(cuid())
+  
+  // Relations
+  knowledgeEntryId  String
+  knowledgeEntry    KnowledgeEntry   @relation(fields: [knowledgeEntryId], references: [id], onDelete: Cascade)
+  
+  expertId          String
+  expert            User             @relation("ExpertKnowledgeValidation", fields: [expertId], references: [id])
+  
+  // Validation details
+  isValid           Boolean
+  validationScore   Float?           // 0-100 score
+  
+  // Review content
+  comment           String?          @db.Text
+  corrections       Json?            // Structured corrections
+  recommendations   String[]         @default([])
+  
+  // Categorized validation
+  accuracyScore     Float?           // Technical accuracy
+  completenessScore Float?           // Content completeness
+  clarityScore      Float?           // Clarity and readability
+  relevanceScore    Float?           // Relevance to category
+  
+  // Expert credentials
+  expertiseArea     String?          // Expert's area of expertise
+  yearsExperience   Int?             // Years of experience in field
+  
+  // Review process
+  reviewStartedAt   DateTime         @default(now())
+  reviewCompletedAt DateTime?
+  timeSpentMinutes  Int?             // Time spent on review
+  
+  // Follow-up
+  requiresRevision  Boolean          @default(false)
+  revisionDeadline  DateTime?
+  
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  
+  @@map("expert_validations")
+  @@index([knowledgeEntryId])
+  @@index([expertId])
+  @@index([isValid])
+  @@index([createdAt(sort: Desc)])
+  @@unique([knowledgeEntryId, expertId]) // One validation per expert per entry
+}
+
+// Add relations to User model
+// These need to be added to the existing User model above:
+// knowledgeEntries      KnowledgeEntry[]     @relation("KnowledgeAuthor")
+// knowledgeFeedbacks    UserFeedback[]       @relation("UserKnowledgeFeedback")
+// expertValidations     ExpertValidation[]   @relation("ExpertKnowledgeValidation")
+
+// Add relation to Project model
+// This needs to be added to the existing Project model above:
+// knowledgeEntries      KnowledgeEntry[]
