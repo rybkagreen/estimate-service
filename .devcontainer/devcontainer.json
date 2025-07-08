@@ -1,0 +1,51 @@
+{
+  "name": "Estimate Service Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "prisma.prisma",
+        "bradlc.vscode-tailwindcss",
+        "streetsidesoftware.code-spell-checker",
+        "eamodio.gitlens",
+        "ms-azuretools.vscode-docker",
+        "firsttris.vscode-jest-runner",
+        "graphql.vscode-graphql",
+        "nx-console.vscode-nx-console"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": true
+        },
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "jest.autoEnable": true,
+        "tailwindCSS.includeLanguages": {
+          "typescript": "typescriptreact"
+        },
+        "files.exclude": {
+          "**/.git": true,
+          "**/.svn": true,
+          "**/.hg": true,
+          "**/CVS": true,
+          "**/.DS_Store": true,
+          "**/node_modules": true
+        }
+      }
+    }
+  },
+  "forwardPorts": [
+    3000,  // Frontend
+    3022,  // Backend
+    5432,  // PostgreSQL
+    9229   // Debugger
+  ],
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "remoteUser": "node"
+}
