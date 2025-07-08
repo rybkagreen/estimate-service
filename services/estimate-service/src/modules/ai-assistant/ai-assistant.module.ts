@@ -14,11 +14,19 @@ import { TaskPlannerService } from './services/task-planner.service';
 import { FallbackHandlerService } from './services/fallback-handler.service';
 import { TaskPlannerController } from './controllers/task-planner.controller';
 import { CacheModule } from '../cache';
+import { CoreModule } from './modules/core/core.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { KnowledgeModule } from './modules/knowledge/knowledge.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 
 @Module({
   imports: [
     ConfigModule,
     CacheModule,
+    CoreModule,
+    ChatModule,
+    KnowledgeModule,
+    AnalyticsModule,
   ],
   controllers: [
     AiAssistantController,

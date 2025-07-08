@@ -1,0 +1,28 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+// Import new modules
+import { CoreModule } from './modules/core/core.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { KnowledgeModule } from './modules/knowledge/knowledge.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { PrismaModule } from './prisma/prisma.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', '.env.local'],
+    }),
+    PrismaModule,
+    CoreModule,
+    ChatModule,
+    KnowledgeModule,
+    AnalyticsModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
