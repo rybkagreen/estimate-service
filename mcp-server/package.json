@@ -6,11 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "build:simple": "npx tsc src/index-simple.ts --outDir dist-simple --target ES2022 --module ESNext --moduleResolution bundler --allowSyntheticDefaultImports --esModuleInterop --strict --skipLibCheck --forceConsistentCasingInFileNames --declaration --resolveJsonModule --isolatedModules --noEmitOnError",
     "start": "node dist/index.js",
-    "start:simple": "node dist-simple/index-simple.js",
     "dev": "tsx watch src/index.ts",
-    "dev:simple": "tsx watch src/index-simple.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/**/*.ts",
