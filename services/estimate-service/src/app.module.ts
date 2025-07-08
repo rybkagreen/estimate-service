@@ -16,6 +16,7 @@ import { BackgroundJobsModule } from './modules/background-jobs/background-jobs.
 import { ClassificationModule } from './modules/classification/classification.module';
 import { EstimateModule } from './modules/estimate/estimate.module';
 import { GrandSmetaModule } from './modules/grand-smeta/grand-smeta.module';
+import { PredictionModule } from './modules/prediction/prediction.module';
 import { TemplatesModule } from './modules/templates/templates.module';
 import { ValidationModule } from './modules/validation/validation.module';
 
@@ -69,6 +70,7 @@ import { StreamingModule } from './shared/streaming/streaming.module';
     GrandSmetaModule,
     AiAssistantModule,
     BackgroundJobsModule,
+    PredictionModule,
     ValidationModule,
   ],
   providers: [
