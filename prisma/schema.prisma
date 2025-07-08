@@ -6,6 +6,7 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
+  previewFeatures = ["metrics", "tracing", "extendedIndexes"]
 }
 
 datasource db {
@@ -218,6 +219,13 @@ model User {
   notificationSubscriptions NotificationSubscription[]
   notificationTemplates     NotificationTemplate[]
   userNotificationSubs      UserNotificationSubscription[]
+  
+  // Feedback system relations
+  feedback          Feedback[]
+  reportedFlags     ModerationFlag[] @relation("ReportedFlags")
+  moderatedFlags    ModerationFlag[] @relation("ModeratedFlags")
+  aiInteractionLogs AIInteractionLog[]
+  
   // Timestamps
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
@@ -1499,6 +1507,220 @@ model AIModel {
   @@index([type])
   @@index([provider])
   @@index([isActive])
+}
+
+// ================================
+// FEEDBACK SYSTEM
+// ================================
+
+enum FeedbackType {
+  GENERAL
+  AI_INTERACTION
+  CONSTRUCTION_OBJECT
+  DOCUMENT
+  SYSTEM
+  FEATURE_REQUEST
+  BUG_REPORT
+}
+
+enum FeedbackStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  REVIEWED
+  RESOLVED
+  ARCHIVED
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  FLAGGED
+  REMOVED
+  APPEALED
+}
+
+model Feedback {
+  id                String         @id @default(cuid())
+  userId            String
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Feedback content
+  type              FeedbackType   @default(GENERAL)
+  title             String?
+  content           String         @db.Text
+  rating            Int?           // 1-5 star rating
+  status            FeedbackStatus @default(SUBMITTED)
+  
+  // Context
+  contextType       String?        // e.g., "construction_object", "document", "ai_task"
+  contextId         String?        // ID of the related entity
+  
+  // AI interaction link
+  aiInteractionId   String?
+  aiInteraction     AIInteractionLog? @relation(fields: [aiInteractionId], references: [id])
+  
+  // Moderation
+  moderationFlags   ModerationFlag[]
+  
+  // Response tracking
+  respondedAt       DateTime?
+  responseBy        String?        // User ID who responded
+  responseContent   String?        @db.Text
+  
+  // Metadata
+  metadata          Json?
+  tags              String[]       @default([])
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@map("feedback")
+  @@index([userId])
+  @@index([type])
+  @@index([status])
+  @@index([rating])
+  @@index([contextType, contextId])
+  @@index([createdAt])
+}
+
+model FeedbackAggregation {
+  id                String         @id @default(cuid())
+  
+  // Aggregation scope
+  aggregationType   String         // daily, weekly, monthly, overall
+  startDate         DateTime?
+  endDate           DateTime?
+  
+  // Context
+  contextType       String?        // e.g., "construction_object", "ai_model", "global"
+  contextId         String?        // ID of the related entity
+  
+  // Metrics
+  totalCount        Int            @default(0)
+  averageRating     Float?         @db.Real
+  ratingDistribution Json?         // {"1": 10, "2": 5, "3": 20, "4": 50, "5": 100}
+  
+  // Breakdown by type
+  typeBreakdown     Json?          // {"GENERAL": 50, "AI_INTERACTION": 30, ...}
+  
+  // Sentiment analysis (if available)
+  sentimentScore    Float?         @db.Real // -1 to 1
+  sentimentBreakdown Json?         // {"positive": 60, "neutral": 30, "negative": 10}
+  
+  // Common themes/topics
+  topKeywords       String[]       @default([])
+  topIssues         Json?          // [{"issue": "...", "count": 10}, ...]
+  
+  // Response metrics
+  responseRate      Float?         @db.Real // percentage
+  avgResponseTime   Int?           // in hours
+  
+  // Metadata
+  metadata          Json?
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@unique([aggregationType, startDate, endDate, contextType, contextId])
+  @@map("feedback_aggregations")
+  @@index([aggregationType])
+  @@index([contextType, contextId])
+  @@index([startDate, endDate])
+}
+
+model ModerationFlag {
+  id                String           @id @default(cuid())
+  feedbackId        String
+  feedback          Feedback         @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  
+  // Flag details
+  reason            String           // inappropriate, spam, offensive, misleading, etc.
+  description       String?          @db.Text
+  severity          String           @default("medium") // low, medium, high, critical
+  status            ModerationStatus @default(PENDING)
+  
+  // Reporter
+  reportedBy        String           // User ID
+  reportedByUser    User             @relation("ReportedFlags", fields: [reportedBy], references: [id])
+  
+  // Moderator
+  moderatorId       String?
+  moderator         User?            @relation("ModeratedFlags", fields: [moderatorId], references: [id])
+  
+  // Review process
+  reviewedAt        DateTime?
+  reviewNotes       String?          @db.Text
+  actionTaken       String?          // removed, warned, banned, dismissed
+  
+  // Appeal process
+  appealedAt        DateTime?
+  appealReason      String?          @db.Text
+  appealReviewedAt  DateTime?
+  appealOutcome     String?          // upheld, overturned
+  
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  
+  @@map("moderation_flags")
+  @@index([feedbackId])
+  @@index([status])
+  @@index([severity])
+  @@index([reportedBy])
+  @@index([moderatorId])
+}
+
+model AIInteractionLog {
+  id                String     @id @default(cuid())
+  userId            String?
+  user              User?      @relation(fields: [userId], references: [id])
+  
+  // Session tracking
+  sessionId         String?    // To group related interactions
+  sequenceNumber    Int?       // Order within session
+  
+  // Interaction details
+  interactionType   String     // chat, command, analysis, generation
+  modelId           String?    // Reference to AIModel
+  modelVersion      String?
+  
+  // Input/Output
+  input             Json       // Structured input data
+  inputText         String?    @db.Text // For text-based interactions
+  output            Json?      // Structured output data
+  outputText        String?    @db.Text // For text-based outputs
+  
+  // Context
+  contextType       String?    // construction_object, document, etc.
+  contextId         String?    // ID of the related entity
+  
+  // Performance metrics
+  duration          Int?       // in milliseconds
+  tokensUsed        Int?       // For LLM interactions
+  estimatedCost     Decimal?   @db.Decimal(10, 4)
+  
+  // Quality metrics
+  success           Boolean    @default(true)
+  errorCode         String?
+  errorMessage      String?    @db.Text
+  confidenceScore   Float?     @db.Real // 0-1
+  
+  // User feedback link
+  feedback          Feedback[]
+  
+  // Metadata
+  metadata          Json?      // Additional interaction-specific data
+  tags              String[]   @default([])
+  
+  createdAt         DateTime   @default(now())
+  
+  @@map("ai_interaction_logs")
+  @@index([userId])
+  @@index([sessionId])
+  @@index([interactionType])
+  @@index([modelId])
+  @@index([contextType, contextId])
+  @@index([createdAt])
+  @@index([success])
 }
 
 // ================================
