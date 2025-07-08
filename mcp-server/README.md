@@ -8,20 +8,6 @@ This MCP server provides AI assistants with structured access to development too
 
 ## Features
 
-### Prometheus Metrics
-
-The service includes built-in Prometheus metrics for monitoring AI model performance:
-
-- **Response Time Metrics**: Track AI model response times by model, provider, and operation
-- **Error Tracking**: Monitor errors by type (auth, rate limit, network, etc.)
-- **Cache Efficiency**: Measure cache hit rates for AI responses
-- **Token Usage**: Track token consumption by model and type
-- **Model Availability**: Monitor which models are currently available
-
-Metrics are exposed on port 9090 by default at `/metrics` endpoint. See [Prometheus Metrics Documentation](docs/PROMETHEUS_METRICS.md) for details.
-
-## Core Features
-
 ### Available Tools
 
 - **echo** - Simple echo tool for testing

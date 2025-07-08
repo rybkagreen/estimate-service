@@ -1,55 +1,256 @@
 {
+  // === MCP Server Configuration ===
+  "mcp.servers": {
+    "estimate-service-shared": {
+      "command": "node",
+      "args": [
+        "/workspaces/estimate-service/mcp-server/dist-simple/index-local-simple.js"
+      ],
+      "env": {
+        "NODE_ENV": "development",
+        "TEAM_MODE": "true",
+        "HUGGINGFACE_MOCK_MODE": "true",
+        "LOG_LEVEL": "info"
+      }
+    }
+  },
+
+  // === GitHub Copilot Optimization ===
+  "github.copilot.enable": {
+    "*": true,
+    "yaml": true,
+    "plaintext": true,
+    "markdown": true,
+    "typescript": true,
+    "javascript": true,
+    "json": true,
+    "jsonc": true,
+    "prisma": true,
+    "dockercompose": true,
+    "dockerfile": true
+  },
+
+  "github.copilot.advanced": {
+    "debug.overrideEngine": "copilot-codex",
+    "length": 500,
+    "temperature": "0.1",
+    "top_p": "0.95",
+    "stops": {
+      "*": ["\n\n\n"],
+      "typescript": ["\n\n"],
+      "javascript": ["\n\n"],
+      "prisma": ["\n\n"]
+    },
+    "indentationMode": {
+      "*": "tabSize",
+      "typescript": "tabSize",
+      "javascript": "tabSize"
+    }
+  },
+
+  "github.copilot.chat.welcomeMessage": "never",
+  "github.copilot.conversation.welcomeMessage": "never",
+  "github.copilot.editor.enableAutoCompletions": true,
+  "github.copilot.chat.localeOverride": "ru",
+  "github.copilot.chat.experimental.codeGeneration": true,
+
+  // === Nx Workspace Configuration ===
+  "nx.preferences": {
+    "useInferencePlugins": true,
+    "enableTaskDistribution": true,
+    "maxParallel": 12
+  },
+  "nxConsole.generateAiAgentRules": true,
+  "nxConsole.showNodeVersionOnStartup": false,
+  "nxConsole.enableTelemetry": false,
+
+  // === Editor Configuration ===
+  // === Editor Configuration ===
   "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
-    "source.organizeImports": "explicit"
+    "source.organizeImports": "explicit",
+    "source.sortImports": "explicit",
+    "source.removeUnusedImports": "explicit"
   },
-  "editor.rulers": [
-    100
-  ],
+  "editor.rulers": [100],
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
+  "editor.acceptSuggestionOnCommitCharacter": true,
+  "editor.acceptSuggestionOnEnter": "on",
+  "editor.quickSuggestions": {
+    "other": "on",
+    "comments": "on",
+    "strings": "on"
+  },
+  "editor.suggestSelection": "first",
+  "editor.wordBasedSuggestions": "allDocuments",
+  "editor.parameterHints.enabled": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.inlineSuggest.enabled": true,
+  "editor.snippetSuggestions": "top",
+
+  // === File Management ===
+  // === File Management ===
   "files.eol": "\n",
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
+  "files.associations": {
+    "*.env*": "dotenv",
+    "Dockerfile*": "dockerfile",
+    "docker-compose*.yml": "dockercompose",
+    "*.prisma": "prisma",
+    "*.mjs": "javascript",
+    "*.cjs": "javascript",
+    ".eslintrc": "jsonc",
+    ".prettierrc": "jsonc",
+    "tsconfig*.json": "jsonc"
+  },
+
+  // === TypeScript Configuration ===
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.preferences.includePackageJsonAutoImports": "auto",
+  "typescript.inlayHints.enumMemberValues.enabled": true,
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+  "typescript.inlayHints.parameterNames.enabled": "literals",
+  "typescript.inlayHints.parameterTypes.enabled": true,
+  "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+  "typescript.inlayHints.variableTypes.enabled": false,
+
+  // === JavaScript Configuration ===
+  "javascript.preferences.quoteStyle": "single",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "javascript.suggest.autoImports": true,
+
+  // === ESLint Configuration ===
+  "eslint.enable": true,
+  "eslint.format.enable": true,
+  "eslint.lintTask.enable": true,
+  "eslint.codeActionsOnSave.mode": "problems",
   "eslint.validate": [
     "javascript",
     "javascriptreact",
     "typescript",
     "typescriptreact"
   ],
+
+  // === Emmet Configuration ===
   "emmet.includeLanguages": {
-    "typescript": "html",
+    "typescript": "typescriptreact",
     "typescriptreact": "html"
   },
-  "files.associations": {
-    "*.env*": "dotenv",
-    "Dockerfile*": "dockerfile",
-    "docker-compose*.yml": "dockercompose"
-  },
+  "emmet.triggerExpansionOnTab": true,
+
+  // === Search and Files Exclusion ===
   "search.exclude": {
     "**/node_modules": true,
     "**/dist": true,
     "**/build": true,
     "**/.nx": true,
     "**/coverage": true,
-    "**/*.log": true
+    "**/*.log": true,
+    "**/package-lock.json": true,
+    "**/yarn.lock": true
   },
   "files.exclude": {
     "**/.nx": true,
     "**/dist": true,
     "**/build": true,
-    "**/coverage": true
+    "**/coverage": true,
+    "**/node_modules": false
   },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/.nx/**": true,
+    "**/coverage/**": true
+  },
+
+  // === Language Specific Settings ===
   "[markdown]": {
-    "editor.wordWrap": "on"
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": "on",
+      "strings": "on",
+      "other": "on"
+    }
   },
-  "terminal.integrated.defaultProfile.linux": "bash",
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // === Terminal and Git ===
+  // === Terminal and Git ===
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "terminal.integrated.profiles.linux": {
+    "zsh": {
+      "path": "/bin/zsh"
+    },
+    "bash": {
+      "path": "/bin/bash"
+    }
+  },
+  "terminal.integrated.fontFamily": "MesloLGS NF, 'Courier New', monospace",
+  "terminal.integrated.fontSize": 14,
   "git.autofetch": true,
   "git.enableSmartCommit": true,
   "git.confirmSync": false,
-  "nxConsole.generateAiAgentRules": true
+  "git.enableStatusBarSync": true,
+  "git.suggestSmartCommit": true,
+
+  // === Workbench and UI ===
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+  "workbench.startupEditor": "welcomePage",
+  "workbench.colorTheme": "GitHub Dark Default",
+  "workbench.iconTheme": "vs-seti",
+  "workbench.editorAssociations": {
+    "*.md": "vscode.markdown.preview.editor"
+  },
+
+  // === Testing ===
+  "jest.jestCommandLine": "npm run test",
+  "jest.autoRun": "off",
+  "jest.showCoverageOnLoad": false,
+
+  // === Prisma ===
+  "prisma.showPrismaDataPlatformNotification": false,
+
+  // === MCP Chat Configuration ===
+  "chat.mcp.serverSampling": {
+    "estimate-service/.vscode/mcp.json: nx-mcp": {
+      "allowedModels": [
+        "github.copilot-chat/gpt-4.1",
+        "github.copilot-chat/claude-3.5-sonnet",
+        "github.copilot-chat/claude-3.7-sonnet",
+        "github.copilot-chat/claude-3.7-sonnet-thought",
+        "github.copilot-chat/claude-sonnet-4",
+        "github.copilot-chat/gemini-2.0-flash-001",
+        "github.copilot-chat/gemini-2.5-pro",
+        "github.copilot-chat/gpt-4o",
+        "github.copilot-chat/o1",
+        "github.copilot-chat/o3-mini",
+        "github.copilot-chat/o4-mini"
+      ]
+    }
+  }
 }

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "estimate-service-local-deepseek": {
+      "command": "node",
+      "args": [
+        "/workspaces/estimate-service/mcp-server/dist-simple/index-local-simple.js"
+      ],
+      "env": {
+        "NODE_ENV": "development",
+        "LOG_LEVEL": "info",
+        "HUGGINGFACE_MOCK_MODE": "true",
+        "HUGGINGFACE_USE_LOCAL": "true",
+        "HUGGINGFACE_MODEL_NAME": "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+      }
+    }
+  }
+}

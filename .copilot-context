@@ -1,0 +1,28 @@
+# Estimate Service - Контекст для GitHub Copilot
+
+## Тип проекта
+ИИ-ассистент для составления строительных смет
+
+## Технологии
+- Backend: NestJS + TypeScript + Prisma + PostgreSQL
+- Frontend: React + TypeScript + Vite + Tailwind
+- AI: DeepSeek R1 + Hugging Face + MCP
+- Infrastructure: Docker + GitHub Actions
+
+## Специфичные термины
+- Смета = estimate
+- Расценка = rate/price item
+- ФСБЦ = federal pricing database
+- Накладные расходы = overhead costs
+
+## Паттерны
+- Domain-Driven Design
+- Clean Architecture
+- CQRS pattern
+- Event Sourcing
+
+## Стандарты кода
+- ESLint + Prettier обязательны
+- TypeScript strict mode
+- Покрытие тестами 80%+
+- JSDoc для public методов

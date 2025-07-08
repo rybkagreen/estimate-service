@@ -306,6 +306,125 @@
         "focus": false,
         "panel": "shared"
       }
+    },
+    {
+      "label": "🤖 Start MCP Server (Team)",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "mcp-server/dist-simple/index-local-simple.js"
+      ],
+      "group": "build",
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "new",
+        "group": "mcp"
+      },
+      "options": {
+        "env": {
+          "NODE_ENV": "development",
+          "TEAM_MODE": "true",
+          "HUGGINGFACE_MOCK_MODE": "true"
+        }
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🌐 Start MCP HTTP Server",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "mcp-server/dist-simple/index-http.js"
+      ],
+      "group": "build",
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "new",
+        "group": "mcp"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "💻 Frontend Team Development",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "run",
+        "dev"
+      ],
+      "group": "build",
+      "isBackground": true,
+      "options": {
+        "cwd": "apps/estimate-frontend"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "new",
+        "group": "frontend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔧 Backend Team Development",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "run",
+        "start:dev"
+      ],
+      "group": "build",
+      "isBackground": true,
+      "options": {
+        "cwd": "services/estimate-service"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "new",
+        "group": "backend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🧪 MCP Team Tests",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "test-local.mjs"
+      ],
+      "group": "test",
+      "options": {
+        "cwd": "mcp-server"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "new",
+        "group": "testing"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔄 Team Sync & Setup",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "run",
+        "install"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "new",
+        "group": "team"
+      },
+      "problemMatcher": []
     }
   ]
 }

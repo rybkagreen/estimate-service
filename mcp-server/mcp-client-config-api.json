@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "estimate-service-deepseek-api": {
+      "command": "node",
+      "args": [
+        "mcp-server/dist-api/index-api.js"
+      ],
+      "env": {
+        "NODE_ENV": "development",
+        "HF_TOKEN": "your_huggingface_api_token_here",
+        "HUGGINGFACE_MODEL_NAME": "deepseek-ai/DeepSeek-R1",
+        "HUGGINGFACE_USE_API": "true",
+        "HUGGINGFACE_USE_LOCAL": "false",
+        "HUGGINGFACE_MOCK_MODE": "false",
+        "HUGGINGFACE_MAX_TOKENS": "2048",
+        "HUGGINGFACE_TEMPERATURE": "0.7",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "name": "Estimate Service Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20-bookworm",
+
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true
+    }
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.copilot-labs",
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "Prisma.prisma",
+        "ms-vscode.vscode-json",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.vscode-yaml",
+        "ms-vscode.vscode-docker",
+        "ms-vscode-remote.remote-containers",
+        "streetsidesoftware.code-spell-checker",
+        "yzhang.markdown-all-in-one",
+        "DavidAnson.vscode-markdownlint",
+        "ms-playwright.playwright",
+        "ms-vscode.test-adapter-converter",
+        "hbenl.vscode-test-explorer",
+        "Orta.vscode-jest",
+        "ms-vscode.vscode-node-azure-pack",
+        "redhat.vscode-yaml",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "visualstudioexptteam.vscodeintellicode",
+        "ms-vscode.vscode-mcp"
+      ],
+
+      "settings": {
+        "github.copilot.enable": {
+          "*": true,
+          "yaml": true,
+          "plaintext": true,
+          "markdown": true,
+          "typescript": true,
+          "javascript": true,
+          "json": true,
+          "jsonc": true,
+          "prisma": true
+        },
+
+        "github.copilot.advanced": {
+          "debug.overrideEngine": "copilot-codex",
+          "debug.testOverrideProxyUrl": "",
+          "debug.overrideProxyUrl": "",
+          "length": 500,
+          "temperature": "",
+          "top_p": "",
+          "stops": {
+            "*": ["\n\n\n"]
+          },
+          "indentationMode": {
+            "*": "tabSize",
+            "javascript": "tabSize",
+            "typescript": "tabSize"
+          }
+        },
+
+        "github.copilot.chat.welcomeMessage": "never",
+        "github.copilot.conversation.welcomeMessage": "never",
+
+        "typescript.preferences.quoteStyle": "single",
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "typescript.suggest.autoImports": true,
+        "typescript.preferences.includePackageJsonAutoImports": "auto",
+
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit",
+          "source.organizeImports": "explicit"
+        },
+
+        "files.associations": {
+          "*.env.*": "dotenv",
+          "docker-compose*.yml": "dockercompose",
+          "*.prisma": "prisma"
+        },
+
+        "emmet.includeLanguages": {
+          "typescript": "typescriptreact",
+          "javascript": "javascriptreact"
+        },
+
+        "workbench.editorAssociations": {
+          "*.md": "vscode.markdown.preview.editor"
+        }
+      }
+    }
+  },
+
+  "forwardPorts": [3000, 3001, 3022, 5432, 6379],
+
+  "portsAttributes": {
+    "3000": {
+      "label": "Frontend (React)",
+      "onAutoForward": "notify"
+    },
+    "3001": {
+      "label": "Backend API",
+      "onAutoForward": "notify"
+    },
+    "3022": {
+      "label": "Estimate Service",
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "postCreateCommand": "bash .github/setup-codespaces.sh",
+  "postStartCommand": "npm run post-start",
+
+  "mounts": [
+    "source=${localWorkspaceFolder}/.devcontainer/bashrc,target=/home/vscode/.bashrc,type=bind",
+    "source=${localWorkspaceFolder}/.devcontainer/gitconfig,target=/home/vscode/.gitconfig,type=bind"
+  ],
+
+  "remoteEnv": {
+    "TZ": "Europe/Moscow",
+    "NODE_ENV": "development",
+    "GITHUB_CODESPACE": "true"
+  }
+}

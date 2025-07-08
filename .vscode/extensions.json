@@ -1,28 +1,62 @@
 {
   "recommendations": [
+    // === GitHub Copilot Suite ===
+    "github.copilot",
+    "github.copilot-chat",
+    "github.copilot-labs",
+
+    // === Nx and Workspace ===
+    "nrwl.angular-console",
+
+    // === Core Development ===
+    "ms-vscode.vscode-typescript-next",
     "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
-    "bradlc.vscode-tailwindcss",
-    "ms-vscode.vscode-typescript-next",
-    "formulahendry.auto-rename-tag",
-    "christian-kohler.path-intellisense",
     "ms-vscode.vscode-json",
     "redhat.vscode-yaml",
-    "ms-vscode-remote.remote-containers",
     "ms-azuretools.vscode-docker",
-    "humao.rest-client",
-    "github.vscode-pull-request-github",
-    "gitlens.gitlens",
-    "ms-vscode.hexeditor",
-    "yzhang.markdown-all-in-one",
-    "bierner.markdown-mermaid",
+
+    // === Frontend Development ===
+    "bradlc.vscode-tailwindcss",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+
+    // === Database and Backend ===
+    "prisma.prisma",
+
+    // === Testing ===
     "ms-playwright.playwright",
     "orta.vscode-jest",
     "firsttris.vscode-jest-runner",
-    "prisma.prisma",
-    "ms-vscode.vscode-typescript-next",
+
+    // === Documentation ===
+    "yzhang.markdown-all-in-one",
+    "bierner.markdown-mermaid",
+    "streetsidesoftware.code-spell-checker",
+    "davidanson.vscode-markdownlint",
+
+    // === Productivity ===
     "visualstudioexptteam.vscodeintellicode",
-    "github.copilot",
-    "github.copilot-chat"
+    "ms-vscode-remote.remote-containers",
+    "github.vscode-pull-request-github",
+    "gitlens.gitlens",
+
+    // === API Development ===
+    "humao.rest-client",
+    "rangav.vscode-thunder-client",
+
+    // === Utilities ===
+    "ms-vscode.hexeditor",
+    "ms-vscode.vscode-npm-script",
+    "ms-vscode.vscode-node-azure-pack",
+
+    // === MCP Support ===
+    "ms-vscode.vscode-mcp"
+  ],
+
+  "unwantedRecommendations": [
+    "ms-vscode.vscode-typescript",
+    "hookyqr.beautify",
+    "ms-vscode.sublime-keybindings"
   ]
 }

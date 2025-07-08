@@ -1,0 +1,124 @@
+{
+  "timestamp": "2025-07-06T13:28:15.894Z",
+  "metrics": {
+    "files": {
+      "markdown": 22,
+      "images": 0,
+      "total": 22
+    },
+    "content": {
+      "totalLines": 14631,
+      "totalWords": 38782,
+      "totalCharacters": 364893,
+      "averageWordsPerFile": 1763,
+      "largestFiles": [
+        {
+          "file": "frontend/ADVANCED_FEATURES.md",
+          "lines": 1117,
+          "words": 2760,
+          "size": 28.35
+        },
+        {
+          "file": "standards/DOCUMENTATION_STANDARDS.md",
+          "lines": 1081,
+          "words": 3160,
+          "size": 27.02
+        },
+        {
+          "file": "frontend/API_INTEGRATION.md",
+          "lines": 922,
+          "words": 2342,
+          "size": 22.99
+        },
+        {
+          "file": "standards/SECURITY_GUIDELINES.md",
+          "lines": 906,
+          "words": 2233,
+          "size": 22.23
+        },
+        {
+          "file": "guides/PERFORMANCE_GUIDE.md",
+          "lines": 878,
+          "words": 2238,
+          "size": 21.67
+        }
+      ]
+    },
+    "structure": {
+      "requiredFiles": 6,
+      "existingFiles": 5,
+      "missingFiles": 1,
+      "completeness": 83,
+      "missing": [
+        "user-guides/QUICK_START_GUIDE.md"
+      ]
+    },
+    "activity": {
+      "recentlyModified": 22,
+      "documentationCommits": 2,
+      "lastMonth": true
+    },
+    "links": {
+      "total": 70,
+      "internal": 62,
+      "external": 8,
+      "broken": 18,
+      "brokenDetails": [
+        {
+          "file": "standards/DOCUMENTATION_STANDARDS.md",
+          "link": "#общие-принципы",
+          "text": "Общие принципы"
+        },
+        {
+          "file": "standards/DOCUMENTATION_STANDARDS.md",
+          "link": "#структура-документации",
+          "text": "Структура документации"
+        },
+        {
+          "file": "standards/DOCUMENTATION_STANDARDS.md",
+          "link": "#типы-документации",
+          "text": "Типы документации"
+        },
+        {
+          "file": "standards/DOCUMENTATION_STANDARDS.md",
+          "link": "#инструменты-документирования",
+          "text": "Инструменты документирования"
+        },
+        {
+          "file": "standards/DOCUMENTATION_STANDARDS.md",
+          "link": "#процесс-поддержки-документации",
+          "text": "Процесс поддержки документации"
+        },
+        {
+          "file": "standards/DOCUMENTATION_STANDARDS.md",
+          "link": "#стандарты-написания",
+          "text": "Стандарты написания"
+        },
+        {
+          "file": "standards/DOCUMENTATION_STANDARDS.md",
+          "link": "#шаблоны-документов",
+          "text": "Шаблоны документов"
+        },
+        {
+          "file": "standards/DOCUMENTATION_STANDARDS.md",
+          "link": "#контроль-качества",
+          "text": "Контроль качества"
+        },
+        {
+          "file": "standards/DOCUMENTATION_STANDARDS.md",
+          "link": "#инструкции-по-обновлению",
+          "text": "Инструкции по обновлению"
+        },
+        {
+          "file": "standards/DOCUMENTATION_STANDARDS.md",
+          "link": "images/create-estimate-step1.png",
+          "text": "Создание сметы - шаг 1"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "health": 85,
+    "recommendations": 3
+  }
+}

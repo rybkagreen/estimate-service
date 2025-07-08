@@ -2,13 +2,6 @@
 
 🏗️ **Современная система управления сметами с ИИ-ассистентом на базе DeepSeek R1**
 
-## 🔄 Production Sync Status (2025-07-07)
-
-✅ **Успешно интегрированы feature ветки:**
-- `feature/data-collection-clean` - Система сбора данных ФСБЦ-2022
-- База данных мигрирована и готова к production
-- CI/CD pipeline настроен и готов к использованию
-
 [![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black)](https://react.dev/)
 [![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=flat&logo=nestjs&logoColor=white)](https://nestjs.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)

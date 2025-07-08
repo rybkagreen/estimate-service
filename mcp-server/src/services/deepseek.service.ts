@@ -5,13 +5,6 @@
 
 import { config } from '../config/index.js';
 import { logger } from '../utils/logger.js';
-import {
-  startModelCall,
-  endModelCall,
-  recordModelError,
-  recordTokenUsage,
-  updateModelAvailability
-} from '../utils/prometheus-metrics.js';
 
 export interface DeepSeekMessage {
   role: 'system' | 'user' | 'assistant';
@@ -74,9 +67,6 @@ export class DeepSeekService {
     temperature?: number;
     maxTokens?: number;
   } = {}): Promise<string> {
-    // Start metrics tracking
-    const metricsCall = startModelCall('deepseek-r1', 'deepseek', 'chat');
-    
     try {
       logger.debug('🚀 Sending request to DeepSeek R1:', {
         model: this.model,
@@ -87,9 +77,7 @@ export class DeepSeekService {
 
       // Мок-режим для тестирования
       if (this.mockMode) {
-        const response = this.generateMockResponse(messages);
-        endModelCall(metricsCall, true, false);
-        return response;
+        return this.generateMockResponse(messages);
       }
 
       // Подготовка запроса к DeepSeek API
@@ -120,75 +108,38 @@ export class DeepSeekService {
         });
 
         // Специфичные ошибки DeepSeek
-        let errorType = 'unknown_error';
-        
         if (response.status === 401) {
-          errorType = 'auth_error';
-          recordModelError('deepseek-r1', 'deepseek', 'chat', errorType);
-          endModelCall(metricsCall, false, false);
-          updateModelAvailability('deepseek-r1', 'deepseek', false);
           throw new Error('Invalid DeepSeek API key (401 Unauthorized)');
         }
         if (response.status === 429) {
-          errorType = 'rate_limit';
-          recordModelError('deepseek-r1', 'deepseek', 'chat', errorType);
-          endModelCall(metricsCall, false, false);
           throw new Error('DeepSeek API rate limit exceeded (429)');
         }
         if (response.status === 402) {
-          errorType = 'payment_required';
-          recordModelError('deepseek-r1', 'deepseek', 'chat', errorType);
-          endModelCall(metricsCall, false, false);
-          updateModelAvailability('deepseek-r1', 'deepseek', false);
           throw new Error('Insufficient balance on DeepSeek account (402)');
         }
         if (response.status >= 500) {
-          errorType = 'server_error';
-          recordModelError('deepseek-r1', 'deepseek', 'chat', errorType);
-          endModelCall(metricsCall, false, false);
-          updateModelAvailability('deepseek-r1', 'deepseek', false);
           throw new Error(`DeepSeek API server error (${response.status})`);
         }
 
-        recordModelError('deepseek-r1', 'deepseek', 'chat', errorType);
-        endModelCall(metricsCall, false, false);
         throw new Error(`DeepSeek API error: ${response.status} ${response.statusText}`);
       }
 
       const data: DeepSeekResponse = await response.json();
 
       if (!data.choices || data.choices.length === 0) {
-        recordModelError('deepseek-r1', 'deepseek', 'chat', 'empty_response');
-        endModelCall(metricsCall, false, false);
         throw new Error('No response from DeepSeek R1');
       }
 
       const content = data.choices[0].message.content;
 
       if (!content) {
-        recordModelError('deepseek-r1', 'deepseek', 'chat', 'empty_content');
-        endModelCall(metricsCall, false, false);
         throw new Error('Empty response from DeepSeek R1');
-      }
-
-      // Record token usage
-      if (data.usage) {
-        recordTokenUsage(
-          'deepseek-r1',
-          'deepseek',
-          data.usage.prompt_tokens || 0,
-          data.usage.completion_tokens || 0
-        );
       }
 
       logger.debug('✅ DeepSeek R1 response received:', {
         tokensUsed: data.usage?.total_tokens || 0,
         responseLength: content.length,
       });
-
-      // Mark successful completion
-      endModelCall(metricsCall, true, false);
-      updateModelAvailability('deepseek-r1', 'deepseek', true);
 
       return content;
     } catch (error) {
@@ -201,16 +152,9 @@ export class DeepSeekService {
 
       // Обработка сетевых ошибок
       if (error instanceof TypeError && error.message.includes('fetch')) {
-        recordModelError('deepseek-r1', 'deepseek', 'chat', 'network_error');
-        endModelCall(metricsCall, false, false);
-        updateModelAvailability('deepseek-r1', 'deepseek', false);
         throw new Error('Network error: Unable to connect to DeepSeek API');
       }
 
-      // Record generic error
-      recordModelError('deepseek-r1', 'deepseek', 'chat', 'unknown_error');
-      endModelCall(metricsCall, false, false);
-      
       throw new Error(`DeepSeek API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -219,13 +163,10 @@ export class DeepSeekService {
    * Анализ кода с помощью DeepSeek R1
    */
   async analyzeCode(code: string, context: string = ''): Promise<string> {
-    const metricsCall = startModelCall('deepseek-r1', 'deepseek', 'analyze_code');
-    
-    try {
-      const messages: DeepSeekMessage[] = [
-        {
-          role: 'system',
-          content: `Ты - эксперт по разработке TypeScript/React/NestJS приложений.
+    const messages: DeepSeekMessage[] = [
+      {
+        role: 'system',
+        content: `Ты - эксперт по разработке TypeScript/React/NestJS приложений.
 Анализируй предоставленный код и дай конструктивные рекомендации по:
 - Качеству кода и архитектуре
 - Потенциальным ошибкам и уязвимостям
@@ -234,26 +175,20 @@ export class DeepSeekService {
 - Возможным улучшениям
 
 Отвечай конкретно и практично. Всегда предлагай примеры улучшенного кода.`
-        },
-        {
-          role: 'user',
-          content: `Проанализируй этот код:
+      },
+      {
+        role: 'user',
+        content: `Проанализируй этот код:
 
 ${context ? `Контекст: ${context}\n\n` : ''}
 
 \`\`\`typescript
 ${code}
 \`\`\``
-        }
-      ];
+      }
+    ];
 
-      const result = await this.chat(messages, { temperature: 0.2 });
-      endModelCall(metricsCall, true, false);
-      return result;
-    } catch (error) {
-      endModelCall(metricsCall, false, false);
-      throw error;
-    }
+    return await this.chat(messages, { temperature: 0.2 });
   }
 
   /**

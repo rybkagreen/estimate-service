@@ -1,0 +1,136 @@
+version: '3.8'
+
+services:
+  # Shared Infrastructure
+  postgres-dev:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: estimate_dev
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: estimate_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    networks:
+      - estimate-dev
+
+  redis-dev:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - estimate-dev
+
+  # MCP Server for Team
+  mcp-server:
+    build:
+      context: .
+      dockerfile: mcp-server/Dockerfile.dev
+    ports:
+      - "9460:9460"
+    environment:
+      - NODE_ENV=development
+      - TEAM_MODE=true
+      - HUGGINGFACE_MOCK_MODE=true
+      - LOG_LEVEL=info
+    volumes:
+      - ./mcp-server:/app/mcp-server
+      - /app/node_modules
+    networks:
+      - estimate-dev
+    restart: unless-stopped
+
+  # Frontend Development
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: apps/estimate-frontend/Dockerfile.dev
+    ports:
+      - "4200:4200"
+    environment:
+      - REACT_APP_API_URL=http://backend-dev:3333
+      - REACT_APP_MCP_ENDPOINT=http://mcp-server:9460
+      - TEAM=frontend
+    volumes:
+      - ./apps/estimate-frontend:/app
+      - /app/node_modules
+    networks:
+      - estimate-dev
+    depends_on:
+      - mcp-server
+    restart: unless-stopped
+
+  # Backend Development
+  backend-dev:
+    build:
+      context: .
+      dockerfile: services/estimate-service/Dockerfile.dev
+    ports:
+      - "3333:3333"
+    environment:
+      - DATABASE_URL=postgresql://estimate_dev:dev_password@postgres-dev:5432/estimate_dev
+      - REDIS_URL=redis://redis-dev:6379
+      - NODE_ENV=development
+      - TEAM=backend
+    volumes:
+      - ./services:/app/services
+      - ./libs:/app/libs
+      - /app/node_modules
+    networks:
+      - estimate-dev
+    depends_on:
+      - postgres-dev
+      - redis-dev
+      - mcp-server
+    restart: unless-stopped
+
+  # Development Tools
+  prisma-studio:
+    image: node:18-alpine
+    working_dir: /app
+    command: npx prisma studio --browser none --port 5555
+    ports:
+      - "5555:5555"
+    environment:
+      - DATABASE_URL=postgresql://estimate_dev:dev_password@postgres-dev:5432/estimate_dev
+    volumes:
+      - .:/app
+    networks:
+      - estimate-dev
+    depends_on:
+      - postgres-dev
+
+  # Monitoring (for Infrastructure team)
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - estimate-dev
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - estimate-dev
+    depends_on:
+      - prometheus
+
+networks:
+  estimate-dev:
+    driver: bridge
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+  grafana_data:

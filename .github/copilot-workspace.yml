@@ -1,0 +1,163 @@
+# GitHub Copilot Workspace Configuration
+# Этот файл помогает Copilot лучше понимать контекст проекта
+
+name: "Estimate Service - AI-Powered Construction Estimation Platform"
+description: "ИИ-ассистент для составления сметной документации, совместимый с Гранд Смета и интегрированный с базой ФСБЦ-2022"
+
+# === Архитектура проекта ===
+architecture:
+  type: "monorepo"
+  framework: "nx"
+  technologies:
+    backend:
+      - "NestJS"
+      - "TypeScript"
+      - "Prisma ORM"
+      - "PostgreSQL"
+      - "Redis"
+    frontend:
+      - "React"
+      - "TypeScript"
+      - "Vite"
+      - "Tailwind CSS"
+      - "Framer Motion"
+    ai:
+      - "DeepSeek R1"
+      - "Hugging Face"
+      - "Model Context Protocol (MCP)"
+    infrastructure:
+      - "Docker"
+      - "Docker Compose"
+      - "GitHub Actions"
+      - "Codespaces"
+
+# === Структура проекта ===
+project_structure:
+  root: "/workspaces/estimate-service"
+  key_directories:
+    - "apps/estimate-frontend/": "React frontend приложение"
+    - "services/estimate-service/": "NestJS backend сервис"
+    - "libs/shared/": "Общие библиотеки и утилиты"
+    - "mcp-server/": "MCP сервер для интеграции с ИИ"
+    - "prisma/": "База данных схема и миграции"
+    - "docs/": "Документация проекта"
+    - ".github/": "GitHub Actions и конфигурация"
+
+# === Ключевые концепции ===
+domain_concepts:
+  - "Смета (Estimate)": "Документ с расчетом стоимости строительных работ"
+  - "ФСБЦ-2022": "Федеральная сборная база ценников в строительстве"
+  - "Расценка (Rate)": "Единичная стоимость работы или материала"
+  - "Позиция сметы (EstimateItem)": "Отдельная строка в смете"
+  - "Коэффициенты": "Региональные и отраслевые корректировки цен"
+  - "Накладные расходы": "Дополнительные затраты на управление"
+
+# === Паттерны и конвенции ===
+patterns:
+  naming:
+    files: "kebab-case для файлов, PascalCase для компонентов"
+    variables: "camelCase для переменных, UPPER_CASE для констант"
+    database: "snake_case для таблиц и колонок"
+
+  code_structure:
+    controllers: "services/estimate-service/src/controllers/"
+    services: "services/estimate-service/src/services/"
+    entities: "services/estimate-service/src/entities/"
+    dtos: "services/estimate-service/src/dtos/"
+
+  api:
+    rest: "RESTful API с версионированием /api/v1/"
+    graphql: "GraphQL endpoint на /graphql"
+
+# === Контекстная информация для ИИ ===
+ai_context:
+  primary_language: "Russian"
+  secondary_language: "English"
+
+  business_domain: "Construction Cost Estimation"
+  user_types:
+    - "Сметчики (Cost Estimators)"
+    - "Прорабы (Construction Managers)"
+    - "Архитекторы (Architects)"
+    - "Заказчики (Clients)"
+
+  key_features:
+    - "Автоматическое составление смет с помощью ИИ"
+    - "Интеграция с базой ФСБЦ-2022"
+    - "Экспорт в форматы Гранд Смета"
+    - "Региональные коэффициенты"
+    - "Анализ и оптимизация затрат"
+
+# === Частые задачи для Copilot ===
+common_tasks:
+  - "Создание новых API endpoints для управления сметами"
+  - "Интеграция с внешними сервисами ФСБЦ"
+  - "Разработка React компонентов для UI"
+  - "Написание Prisma схем и миграций"
+  - "Настройка MCP сервера для ИИ"
+  - "Создание тестов для бизнес-логики"
+
+# === Качество кода ===
+quality_standards:
+  testing:
+    unit_tests: "Jest для unit тестов"
+    integration_tests: "Supertest для API тестов"
+    e2e_tests: "Playwright для E2E тестов"
+    coverage_target: "80%"
+
+  linting:
+    typescript: "ESLint с @typescript-eslint"
+    formatting: "Prettier"
+    imports: "Автоматическая организация импортов"
+
+  documentation:
+    api: "Swagger/OpenAPI спецификация"
+    code: "JSDoc комментарии"
+    architecture: "Markdown документы"
+
+# === Среда разработки ===
+development:
+  package_manager: "npm"
+  node_version: "20.x"
+  database: "PostgreSQL 15+"
+  cache: "Redis 7+"
+
+  commands:
+    dev: "npm run dev:all"
+    build: "npm run build:all"
+    test: "npm run test:all"
+    lint: "npm run lint:all"
+
+# === Безопасность ===
+security:
+  authentication: "JWT tokens"
+  authorization: "RBAC (Role-Based Access Control)"
+  data_protection: "Шифрование конфиденциальных данных"
+  api_security: "Rate limiting, CORS, validation"
+
+# === Интеграции ===
+integrations:
+  external_apis:
+    - "ФСБЦ API": "Получение актуальных расценок"
+    - "Hugging Face": "ИИ модели для анализа"
+    - "Export APIs": "Интеграция с внешними системами"
+
+  file_formats:
+    - "Excel (.xlsx)": "Экспорт смет"
+    - "PDF": "Печатные формы"
+    - "Grand Smeta (.gsp)": "Обмен данными"
+
+# === Полезные ссылки ===
+resources:
+  documentation: "docs/"
+  api_docs: "http://localhost:3001/api"
+  frontend: "http://localhost:3000"
+  database_ui: "npx prisma studio"
+
+# === Подсказки для разработчиков ===
+developer_hints:
+  - "Используйте nx generate для создания новых компонентов"
+  - "Всегда создавайте миграции через npx prisma migrate dev"
+  - "Тестируйте API через Thunder Client или REST Client"
+  - "Документируйте новые features в docs/"
+  - "Используйте GitHub Copilot Chat для объяснения сложной логики"

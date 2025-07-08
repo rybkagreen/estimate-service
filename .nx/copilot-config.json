@@ -1,0 +1,80 @@
+{
+  "extends": ["@nrwl/workspace"],
+  "generators": {
+    "@nrwl/angular": {
+      "application": {
+        "style": "scss",
+        "linter": "eslint",
+        "unitTestRunner": "jest",
+        "e2eTestRunner": "cypress"
+      },
+      "component": {
+        "style": "scss"
+      },
+      "library": {
+        "style": "scss",
+        "linter": "eslint",
+        "unitTestRunner": "jest"
+      }
+    },
+    "@nrwl/nest": {
+      "application": {
+        "linter": "eslint",
+        "unitTestRunner": "jest"
+      },
+      "library": {
+        "linter": "eslint",
+        "unitTestRunner": "jest"
+      }
+    },
+    "@nrwl/react": {
+      "application": {
+        "style": "css",
+        "linter": "eslint",
+        "bundler": "vite",
+        "unitTestRunner": "jest",
+        "e2eTestRunner": "playwright"
+      },
+      "component": {
+        "style": "css"
+      },
+      "library": {
+        "style": "css",
+        "linter": "eslint",
+        "unitTestRunner": "jest"
+      }
+    }
+  },
+  "defaultProject": "estimate-service",
+  "cli": {
+    "defaultCollection": "@nrwl/workspace",
+    "analytics": false,
+    "packageManager": "npm"
+  },
+  "copilot": {
+    "projectContext": {
+      "domain": "construction-cost-estimation",
+      "standards": ["ФСБЦ-2022", "Grand-Smeta"],
+      "architecture": "clean-architecture",
+      "patterns": ["DDD", "CQRS", "Event-Sourcing"],
+      "technologies": {
+        "backend": ["NestJS", "TypeScript", "Prisma", "PostgreSQL"],
+        "frontend": ["React", "TypeScript", "Vite", "Tailwind"],
+        "ai": ["DeepSeek-R1", "Hugging-Face", "MCP"]
+      }
+    },
+    "codeGeneration": {
+      "templates": {
+        "entity": ".nx/templates/entity",
+        "service": ".nx/templates/service",
+        "controller": ".nx/templates/controller",
+        "dto": ".nx/templates/dto"
+      },
+      "conventions": {
+        "naming": "camelCase",
+        "fileStructure": "feature-based",
+        "testLocation": "alongside"
+      }
+    }
+  }
+}

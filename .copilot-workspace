@@ -1,0 +1,34 @@
+# GitHub Copilot Workspace Context
+
+## Project Overview
+Estimate Service - ИИ-ассистент для составления строительных смет
+
+## Domain
+Construction cost estimation, ФСБЦ-2022 integration, Grand Smeta compatibility
+
+## Architecture
+- Pattern: Clean Architecture + DDD
+- Backend: NestJS + TypeScript + Prisma + PostgreSQL
+- Frontend: React + TypeScript + Vite + Tailwind
+- AI: DeepSeek R1 + Hugging Face + MCP
+- Monorepo: Nx workspace
+
+## Key Concepts
+- Смета (Estimate) - construction cost estimate
+- Расценка (Rate) - pricing item from ФСБЦ-2022
+- Накладные расходы (Overhead) - overhead costs
+- Сметная прибыль (Profit) - estimated profit margin
+
+## Development Patterns
+- Use decimal.js for monetary calculations
+- Follow NestJS best practices
+- Implement comprehensive testing
+- Document domain logic in Russian
+- Technical comments in English
+
+## Typical Tasks
+- CRUD operations for estimates
+- Integration with ФСБЦ-2022 API
+- Export to Grand Smeta format
+- Cost calculation algorithms
+- Regional coefficient application
