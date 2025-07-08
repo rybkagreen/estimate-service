@@ -83,31 +83,38 @@ GET    /api/fsbts/regions      // Регионы
 POST   /api/fsbts/sync         // Синхронизация данных
 ```
 
-### 3. AI Assistant Service
-**Назначение:** ИИ-помощник для работы со сметами на базе DeepSeek R1
-**Порт:** 3003
-**База данных:** Vector DB (ChromaDB) + PostgreSQL
+### 3. AI Assistant Module (Интегрирован в Estimate Service)
+**Назначение:** ИИ-помощник для работы со сметами
+**Расположение:** services/estimate-service/src/modules/ai-assistant
+**База данных:** PostgreSQL + Redis (кэш)
 
 #### Функции:
-- Чат с пользователем с использованием DeepSeek R1
-- Автосоставление смет с ИИ-анализом
-- Анализ технических заданий и документов
-- Рекомендации по оптимизации на основе ИИ
-- Обучение на данных пользователей
+- Планирование и выполнение задач на основе запросов пользователя
+- Построение интеллектуальных ответов
+- Валидация с помощью Claude
+- Обработка ошибок с fallback стратегиями
+- Управление различными AI моделями (DeepSeek, Yandex)
+- Исторический анализ смет
 
-#### AI Модель:
-- **Провайдер:** DeepSeek R1
-- **Модель:** deepseek-r1 (по умолчанию)
-- **API:** DeepSeek API v1
-- **Возможности:** Рассуждения, анализ, генерация текста
+#### Компоненты:
+- **TaskPlannerService:** Планирование и приоритизация задач
+- **ResponseBuilderService:** Формирование структурированных ответов
+- **ClaudeValidatorService:** Валидация ответов AI
+- **FallbackHandlerService:** Обработка ошибок и альтернативные стратегии
+- **ModelManagerService:** Управление различными AI провайдерами
+- **HistoricalEstimateService:** Анализ исторических данных
+
+#### AI Провайдеры:
+- **DeepSeek:** Основной провайдер для анализа и генерации
+- **Yandex:** Альтернативный провайдер
+- **Cached:** Кэширование результатов AI
 
 #### API Endpoints:
 ```typescript
-POST   /api/ai/chat            // Чат с ИИ
-POST   /api/ai/auto-estimate   // Автосоставление сметы
-POST   /api/ai/analyze         // Анализ документов
-GET    /api/ai/recommendations // Рекомендации
-POST   /api/ai/feedback        // Обратная связь
+POST   /api/ai/tasks/plan      // Планирование задач
+POST   /api/ai/tasks/execute   // Выполнение задачи
+POST   /api/ai/tasks/batch-execute // Пакетное выполнение
+GET    /api/ai/tasks/examples  // Примеры запросов
 ```
 
 ### 4. Analytics Service
@@ -181,9 +188,16 @@ estimate-service/
 │   ├── admin-panel/               # Панель администратора
 │   └── mobile-app/                # Мобильное приложение
 ├── services/                      # Микросервисы
-│   ├── estimate-service/          # Сервис смет
+│   ├── estimate-service/          # Сервис смет (включает AI Assistant)
+│   │   └── src/modules/
+│   │       ├── ai-assistant/     # Интегрированный ИИ-ассистент
+│   │       ├── estimate/         # Управление сметами
+│   │       ├── cache/            # Кэширование
+│   │       ├── classification/   # Классификация
+│   │       ├── priority-queue/   # Очередь задач
+│   │       ├── validation/       # Валидация
+│   │       └── templates/        # Шаблоны
 │   ├── fsbts-service/             # Сервис ФСБЦ-2022
-│   ├── ai-assistant/              # ИИ-ассистент
 │   ├── analytics-service/         # Сервис аналитики
 │   ├── data-collector/            # Сборщик данных
 │   ├── template-service/          # Сервис шаблонов

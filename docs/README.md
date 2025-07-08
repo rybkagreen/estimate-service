@@ -31,7 +31,8 @@ docs/
 ├── api/                     # API документация
 │   └── API_REFERENCE.md     # Полный справочник API
 ├── architecture/            # Архитектурная документация
-│   └── SYSTEM_ARCHITECTURE.md  # Архитектура системы
+│   ├── SYSTEM_ARCHITECTURE.md  # Архитектура системы
+│   └── AI_ASSISTANT_MODULE.md # Документация AI Assistant модуля
 ├── backend/                 # Backend документация
 │   ├── PRODUCTION_ROADMAP.md    # Дорожная карта backend (ОБНОВЛЕН)
 │   └── ITERATION_2_COMPLETE.md # Отчет о завершении итерации 2
@@ -66,6 +67,7 @@ docs/
 - **[Структура проекта](development/PROJECT_STRUCTURE.md)** - Организация файлов и папок
 - **[Стратегия тестирования](development/TESTING_STRATEGY.md)** - Подходы к тестированию
 - **[Чеклист код-ревью](standards/CODE_REVIEW_CHECKLIST.md)** - Что проверять при ревью
+- **[AI Assistant модуль](architecture/AI_ASSISTANT_MODULE.md)** - Документация по ИИ-ассистенту
 
 ### Для DevOps
 - **[Руководство по развертыванию](guides/DEPLOYMENT_GUIDE.md)** - Docker, Kubernetes, CI/CD
@@ -206,6 +208,6 @@ docs/
 
 ---
 
-*Документация обновлена: 4 июля 2025*
-*Версия: 1.0*
+*Документация обновлена: 8 июля 2025*
+*Версия: 1.1*
 *Статус: Готова к использованию*

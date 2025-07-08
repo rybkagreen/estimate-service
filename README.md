@@ -240,11 +240,12 @@ estimate-service/
 ├── services/                   # Backend сервисы
 │   ├── estimate-service/       # Основной backend сервис
 │   │   ├── src/modules/        # Модули NestJS
-│   │   │   ├── ai-assistant/   # ИИ-ассистент (DeepSeek R1)
+│   │   │   ├── ai-assistant/   # ИИ-ассистент
+│   │   │   │   ├── services/   # Сервисы подсистемы применения ИИ
+│   │   │   │   ├── interfaces/ # Интерфейсы для взаимодействия
+│   │   │   │   └── controllers/ # Контроллеры, обеспечивающие API
 │   │   │   ├── classification/ # Классификация работ
 │   │   │   ├── estimate/       # Управление сметами
-│   │   │   ├── auth/           # Аутентификация и авторизация
-│   │   │   └── users/          # Управление пользователями
 │   │   ├── prisma/             # Схема и миграции БД
 │   │   └── test/               # E2E тесты
 │   └── data-collector/ ⭐ NEW  # Система сбора данных ФСБЦ-2022

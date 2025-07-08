@@ -46,45 +46,46 @@ estimate-service/
 │   │   │   ├── main.ts               # Точка входа
 │   │   │   ├── app.module.ts         # Главный модуль
 │   │   │   ├── modules/              # Бизнес модули
+│   │   │   │   ├── ai-assistant/     # ИИ-ассистент (интегрирован)
+│   │   │   │   │   ├── services/     # Сервисы ИИ
+│   │   │   │   │   │   ├── task-planner.service.ts      # Планировщик задач
+│   │   │   │   │   │   ├── response-builder.service.ts  # Построитель ответов
+│   │   │   │   │   │   ├── historical-estimate.service.ts # Исторические данные
+│   │   │   │   │   │   ├── claude-validator.service.ts  # Валидатор Claude
+│   │   │   │   │   │   ├── fallback-handler.service.ts  # Обработчик ошибок
+│   │   │   │   │   │   └── model-manager.service.ts     # Управление моделями
+│   │   │   │   │   ├── controllers/  # API контроллеры
+│   │   │   │   │   │   └── task-planner.controller.ts   # API планировщика
+│   │   │   │   │   ├── interfaces/   # Интерфейсы
+│   │   │   │   │   │   └── ai-task.interface.ts         # Типы задач ИИ
+│   │   │   │   │   ├── providers/    # Провайдеры ИИ
+│   │   │   │   │   │   ├── deepseek-ai.provider.ts      # DeepSeek интеграция
+│   │   │   │   │   │   ├── yandex-ai.provider.ts        # Yandex интеграция
+│   │   │   │   │   │   └── cached-ai.provider.ts        # Кэширование ИИ
+│   │   │   │   │   ├── ai-assistant.service.ts          # Основной сервис
+│   │   │   │   │   ├── ai-assistant.controller.ts       # Основной контроллер
+│   │   │   │   │   └── ai-assistant.module.ts           # Модуль ИИ
 │   │   │   │   ├── estimate/         # Управление сметами
 │   │   │   │   │   ├── estimate.controller.ts
 │   │   │   │   │   ├── estimate.service.ts
-│   │   │   │   │   ├── estimate.repository.ts
 │   │   │   │   │   ├── dto/          # Data Transfer Objects
-│   │   │   │   │   ├── entities/     # Сущности
 │   │   │   │   │   └── estimate.module.ts
-│   │   │   │   ├── calculation/      # Расчеты стоимости
+│   │   │   │   ├── cache/            # Кэширование
+│   │   │   │   ├── classification/   # Классификация работ
+│   │   │   │   ├── priority-queue/   # Приоритезация задач
 │   │   │   │   ├── validation/       # Валидация смет
-│   │   │   │   └── export/           # Экспорт смет
-│   │   │   ├── shared/               # Общие компоненты
-│   │   │   │   ├── config/           # Конфигурация
-│   │   │   │   ├── guards/           # Auth guards
+│   │   │   │   └── templates/        # Шаблоны смет
+│   │   │   ├── common/               # Общие компоненты
+│   │   │   │   ├── filters/          # Exception filters
 │   │   │   │   ├── interceptors/     # HTTP interceptors
-│   │   │   │   ├── pipes/            # Validation pipes
-│   │   │   │   └── decorators/       # Custom decorators
+│   │   │   │   ├── interfaces/       # Общие интерфейсы
+│   │   │   │   └── services/         # Общие сервисы
 │   │   │   ├── prisma/               # Prisma клиент
-│   │   │   └── health/               # Health checks
+│   │   │   └── types/                # TypeScript типы
 │   │   ├── test/                     # E2E тесты
 │   │   ├── Dockerfile
 │   │   ├── project.json
 │   │   └── tsconfig.json
-│   ├── fsbts-service/                # Сервис ФСБЦ-2022
-│   │   ├── src/
-│   │   │   ├── modules/
-│   │   │   │   ├── search/           # Поиск в базе ФСБЦ
-│   │   │   │   ├── sync/             # Синхронизация данных
-│   │   │   │   ├── parser/           # Парсинг внешних источников
-│   │   │   │   └── cache/            # Кэширование
-│   │   │   └── [общая структура NestJS]
-│   ├── ai-assistant/                 # ИИ-ассистент
-│   │   ├── src/
-│   │   │   ├── modules/
-│   │   │   │   ├── chat/             # Чат с пользователем
-│   │   │   │   ├── analysis/         # Анализ документов
-│   │   │   │   ├── recommendations/  # Рекомендации
-│   │   │   │   ├── learning/         # Обучение системы
-│   │   │   │   └── vectorstore/      # Векторная база знаний
-│   │   │   └── [общая структура]
 │   ├── analytics-service/            # Сервис аналитики
 │   ├── data-collector/               # Сборщик данных
 │   ├── template-service/             # Сервис шаблонов
