@@ -16,13 +16,18 @@
         "ms-azuretools.vscode-docker",
         "firsttris.vscode-jest-runner",
         "graphql.vscode-graphql",
-        "nx-console.vscode-nx-console"
+        "nx-console.vscode-nx-console",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "rangav.vscode-thunder-client",
+        "usernamehw.errorlens",
+        "cweijan.vscode-postgresql"
       ],
       "settings": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-          "source.fixAll.eslint": true
+          "source.fixAll.eslint": "always"
         },
         "typescript.tsdk": "node_modules/typescript/lib",
         "jest.autoEnable": true,
@@ -44,6 +49,8 @@
     3000,  // Frontend
     3022,  // Backend
     5432,  // PostgreSQL
+    5555,  // Prisma Studio
+    6379,  // Redis
     9229   // Debugger
   ],
   "postCreateCommand": "bash .devcontainer/setup.sh",

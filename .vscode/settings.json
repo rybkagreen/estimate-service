@@ -18,9 +18,10 @@
   // === GitHub Copilot Optimization ===
   "github.copilot.enable": {
     "*": true,
-    "yaml": true,
     "plaintext": true,
     "markdown": true,
+    "scminput": false,
+    "yaml": true,
     "typescript": true,
     "javascript": true,
     "json": true,
