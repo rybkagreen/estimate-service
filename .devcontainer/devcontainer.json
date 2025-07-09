@@ -60,7 +60,7 @@
     6379,  // Redis
     9229   // Debugger
   ],
-  "postCreateCommand": "npm install --workspaces && pip install --upgrade pip && bash .github/setup-codespaces.sh && bash .github/init-copilot-workspace.sh",
+  "postCreateCommand": "npm install --workspaces && npx nx run-many -t build --all && pip install --upgrade pip && bash .github/setup-codespaces.sh && bash .github/init-copilot-workspace.sh",
   "remoteUser": "node",
   "features": {
     // "ghcr.io/devcontainers/features/zsh:1": {
