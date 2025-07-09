@@ -1,0 +1,337 @@
+/* ====================================
+   Loading States, Spinners & Skeletons
+   ==================================== */
+
+/* Spinners */
+.spinner {
+  @apply inline-block animate-spin;
+}
+
+.spinner-sm {
+  @apply w-4 h-4;
+}
+
+.spinner-md {
+  @apply w-6 h-6;
+}
+
+.spinner-lg {
+  @apply w-8 h-8;
+}
+
+.spinner-xl {
+  @apply w-12 h-12;
+}
+
+/* Spinner Colors */
+.spinner-primary {
+  @apply text-primary-600 dark:text-primary-400;
+}
+
+.spinner-white {
+  @apply text-white;
+}
+
+.spinner-gray {
+  @apply text-gray-600 dark:text-gray-400;
+}
+
+/* Loading Dots */
+.loading-dots {
+  @apply inline-flex items-center gap-1;
+}
+
+.loading-dot {
+  @apply w-2 h-2 bg-current rounded-full;
+  @apply animate-bounce;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+/* Loading Bar */
+.loading-bar {
+  @apply w-full h-1 bg-gray-200 dark:bg-gray-700 rounded-full;
+  @apply overflow-hidden relative;
+}
+
+.loading-bar-progress {
+  @apply absolute inset-y-0 left-0 bg-primary-500;
+  @apply rounded-full transition-all duration-300;
+}
+
+.loading-bar-indeterminate .loading-bar-progress {
+  @apply w-1/3;
+  animation: loading-bar-move 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-bar-move {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  @apply absolute inset-0 bg-white/80 dark:bg-gray-900/80;
+  @apply backdrop-blur-sm;
+  @apply flex items-center justify-center;
+  @apply z-50;
+}
+
+.loading-overlay-content {
+  @apply flex flex-col items-center gap-4;
+}
+
+.loading-overlay-text {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+/* Skeleton Loaders */
+.skeleton {
+  @apply bg-gray-200 dark:bg-gray-700;
+  @apply animate-pulse rounded;
+}
+
+.skeleton-text {
+  @apply h-4 skeleton;
+}
+
+.skeleton-text-sm {
+  @apply h-3 skeleton;
+}
+
+.skeleton-text-lg {
+  @apply h-6 skeleton;
+}
+
+.skeleton-heading {
+  @apply h-8 skeleton;
+}
+
+.skeleton-button {
+  @apply h-10 w-24 skeleton;
+}
+
+.skeleton-avatar {
+  @apply w-10 h-10 rounded-full skeleton;
+}
+
+.skeleton-avatar-sm {
+  @apply w-8 h-8 rounded-full skeleton;
+}
+
+.skeleton-avatar-lg {
+  @apply w-12 h-12 rounded-full skeleton;
+}
+
+.skeleton-card {
+  @apply p-6 rounded-lg skeleton;
+}
+
+.skeleton-image {
+  @apply w-full h-48 skeleton;
+}
+
+.skeleton-thumbnail {
+  @apply w-20 h-20 skeleton;
+}
+
+/* Skeleton Lines */
+.skeleton-lines {
+  @apply space-y-3;
+}
+
+.skeleton-line {
+  @apply skeleton-text;
+}
+
+.skeleton-line:last-child {
+  @apply w-3/4;
+}
+
+/* Table Skeleton */
+.skeleton-table {
+  @apply w-full;
+}
+
+.skeleton-table-row {
+  @apply flex items-center gap-4 p-4 border-b border-gray-200 dark:border-gray-700;
+}
+
+.skeleton-table-cell {
+  @apply flex-1 skeleton-text;
+}
+
+/* Card Skeleton */
+.skeleton-card-group {
+  @apply grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+}
+
+.skeleton-card-item {
+  @apply bg-white dark:bg-gray-800 rounded-lg p-6 space-y-4;
+  @apply border border-gray-200 dark:border-gray-700;
+}
+
+.skeleton-card-header {
+  @apply flex items-center gap-4;
+}
+
+.skeleton-card-body {
+  @apply space-y-3;
+}
+
+/* Form Skeleton */
+.skeleton-form {
+  @apply space-y-6;
+}
+
+.skeleton-form-group {
+  @apply space-y-2;
+}
+
+.skeleton-label {
+  @apply h-4 w-20 skeleton;
+}
+
+.skeleton-input {
+  @apply h-10 w-full skeleton;
+}
+
+.skeleton-textarea {
+  @apply h-24 w-full skeleton;
+}
+
+.skeleton-select {
+  @apply h-10 w-full skeleton;
+}
+
+/* List Skeleton */
+.skeleton-list {
+  @apply space-y-2;
+}
+
+.skeleton-list-item {
+  @apply flex items-center gap-3 p-3;
+}
+
+.skeleton-list-icon {
+  @apply w-6 h-6 skeleton rounded;
+}
+
+.skeleton-list-content {
+  @apply flex-1 space-y-2;
+}
+
+/* Loading States */
+.loading-state {
+  @apply flex flex-col items-center justify-center;
+  @apply py-12 text-center;
+}
+
+.loading-state-icon {
+  @apply w-16 h-16 text-gray-400 dark:text-gray-600 mb-4;
+}
+
+.loading-state-title {
+  @apply text-lg font-semibold text-gray-900 dark:text-white mb-2;
+}
+
+.loading-state-message {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+/* Progress Circle */
+.progress-circle {
+  @apply relative inline-flex;
+}
+
+.progress-circle-svg {
+  @apply transform -rotate-90;
+}
+
+.progress-circle-bg {
+  @apply stroke-gray-200 dark:stroke-gray-700;
+}
+
+.progress-circle-fill {
+  @apply stroke-primary-500;
+  @apply transition-all duration-500 ease-out;
+}
+
+.progress-circle-text {
+  @apply absolute inset-0 flex items-center justify-center;
+  @apply text-sm font-semibold text-gray-900 dark:text-white;
+}
+
+/* Shimmer Effect */
+.shimmer {
+  @apply relative overflow-hidden;
+}
+
+.shimmer::after {
+  content: '';
+  @apply absolute inset-0;
+  @apply bg-gradient-to-r from-transparent via-white/20 to-transparent;
+  @apply -translate-x-full;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Pulse Animation */
+.pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.pulse-fast {
+  animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Loading Button */
+.btn-loading {
+  @apply relative;
+  @apply pointer-events-none opacity-75;
+}
+
+.btn-loading-spinner {
+  @apply absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2;
+}
+
+.btn-loading-text {
+  @apply invisible;
+}
+
+/* Lazy Load Placeholder */
+.lazy-load-placeholder {
+  @apply bg-gray-100 dark:bg-gray-800;
+  @apply min-h-[200px] flex items-center justify-center;
+  @apply text-gray-400 dark:text-gray-600;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .skeleton-card-group {
+    @apply grid-cols-1;
+  }
+  
+  .loading-state {
+    @apply py-8;
+  }
+  
+  .loading-state-icon {
+    @apply w-12 h-12;
+  }
+}
