@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '20'
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --legacy-peer-deps
       - name: Lint and fix
         run: npm run lint:fix
       - name: Type check
@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: '20'
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --legacy-peer-deps
       - name: Prisma migrate dev
         run: npx prisma migrate dev --name=ci-fix --skip-generate
       - name: Prisma generate

@@ -30,7 +30,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --legacy-peer-deps
 
       - name: Lint code
         run: npm run lint:all
@@ -86,7 +86,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --legacy-peer-deps
 
       - name: Setup test database
         run: |
@@ -124,7 +124,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --legacy-peer-deps
 
       - name: Build all projects
         run: npm run build:all
@@ -154,7 +154,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --legacy-peer-deps
 
       - name: Validate documentation
         run: npm run docs:check
@@ -222,7 +222,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspaces --legacy-peer-deps
 
       - name: Run performance tests
         run: npm run test:performance

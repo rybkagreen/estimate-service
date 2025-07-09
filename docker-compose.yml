@@ -1,6 +1,17 @@
-version: '3.8'
 
 services:
+  python-app:
+    image: continuumio/miniconda3:latest
+    working_dir: /app
+    volumes:
+      - ./python:/app
+    command: tail -f /dev/null
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8000:8000"
+    # Пример использования conda-forge в Dockerfile или через команду:
+    # command: ["conda", "install", "-c", "conda-forge", "<your-packages>"]
   postgres:
     image: postgres:15-alpine
     environment:
@@ -13,7 +24,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   estimate-service:
-    build: .
+    build:
+      context: ./services/estimate-service
     ports:
       - "3022:3022"
     environment:
@@ -22,8 +34,61 @@ services:
     depends_on:
       - postgres
     volumes:
-      - .:/app
+      - ./services/estimate-service:/app
+      - /app/node_modules
+
+  data-collector:
+    build:
+      context: ./services/data-collector
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/estimate_service
+      PORT: 3001
+    depends_on:
+      - postgres
+    volumes:
+      - ./services/data-collector:/app
+      - /app/node_modules
+
+  estimate-frontend:
+    build:
+      context: ./apps/estimate-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./apps/estimate-frontend:/app
+      - /app/node_modules
+
+
+  ai-assistant:
+    build:
+      context: ./services/ai-assistant
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: development
+    depends_on:
+      - postgres
+    volumes:
+      - ./services/ai-assistant:/app
+      - /app/node_modules
+
+  knowledge-base:
+    build:
+      context: ./services/knowledge-base
+    ports:
+      - "3003:3003"
+    environment:
+      NODE_ENV: development
+    depends_on:
+      - postgres
+    volumes:
+      - ./services/knowledge-base:/app
       - /app/node_modules
 
 volumes:
   postgres_data:
+    driver: local
