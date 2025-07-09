@@ -1,6 +1,6 @@
 {
   "name": "Estimate Service Dev Container",
-  "dockerComposeFile": "docker-compose.yml",
+  "dockerComposeFile": "../docker-compose.yml",
   "service": "dev",
   "workspaceFolder": "/workspace",
   "shutdownAction": "stopCompose",
