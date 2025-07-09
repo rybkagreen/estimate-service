@@ -89,7 +89,7 @@ services:
 
   # Development Tools
   prisma-studio:
-    image: node:18-alpine
+    image: node:20-alpine
     working_dir: /app
     command: npx prisma studio --browser none --port 5555
     ports:
