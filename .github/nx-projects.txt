@@ -1,0 +1,27 @@
+# Nx Projects in Estimate Service Monorepo
+
+## Applications
+- apps/estimate-frontend - React-based frontend application for the estimate service
+
+## Services
+- services/estimate-service - Core NestJS service for estimate management
+- services/ai-assistant - AI assistant service for intelligent cost estimation
+- services/data-collector - Service for collecting and processing construction data
+- services/knowledge-base - Knowledge base service for construction materials and rates
+
+## Libraries
+- libs/shared - Shared utilities and types
+- libs/ui-components - Reusable UI components
+- libs/api-client - API client library
+
+## MCP Server
+- mcp-server - Model Context Protocol server for AI integration
+
+## Key Features
+- Monorepo managed by Nx 21.2.0
+- TypeScript throughout
+- NestJS for backend services
+- React + Vite for frontend
+- Prisma ORM for database management
+- Docker support for all services
+- Comprehensive CI/CD pipeline

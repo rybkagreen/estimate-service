@@ -14,6 +14,7 @@
     "test:watch": "nx test estimate-service --watch",
     "test:cov": "nx test estimate-service --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:unit": "nx test estimate-service",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:integration": "nx test estimate-service --config services/estimate-service/jest.integration.config.ts",
     "test:performance": "nx test estimate-service --testPathPattern=services/estimate-service/test/performance",
@@ -61,9 +62,11 @@
     "team:onboard": "echo '👥 Team onboarding...' && node scripts/team-onboard.js",
     "ai:review": "echo '🧠 Preparing for AI review...' && node scripts/prepare-ai-review.js",
     "ai:context": "echo '📋 Generating AI context...' && node scripts/generate-ai-context.js",
+    "ai:validate": "echo '✅ Validating AI services...' && nx run-many -t build --projects=ai-assistant,mcp-server",
+    "docs:generate-api": "echo '📚 Generating API documentation...' && nx run-many -t generate-docs",
     "quality:full": "npm run lint:all && npm run test:all && npm run docs:check && npm run copilot:check",
     "format:check": "prettier --check .",
-    "type-check": "tsc --noEmit",
+    "type-check": "nx run-many -t build --dry-run",
     "workspace:init": "bash .github/init-copilot-workspace.sh",
     "workspace:status": "gh copilot --version && echo 'Workspace initialized successfully!'",
     "workspace:suggest": "gh copilot suggest",
@@ -169,7 +172,10 @@
     "typescript": "~5.2.2",
     "url-loader": "^4.1.1",
     "webpack": "^5.88.0",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "markdownlint-cli": "^0.43.0",
+    "cspell": "^8.19.4",
+    "markdown-link-check": "^3.13.0"
   },
   "jest": {
     "preset": "./jest.preset.js"

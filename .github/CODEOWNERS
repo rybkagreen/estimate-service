@@ -7,6 +7,9 @@
 # === Backend Services ===
 /services/ @estimate-service/tech-leads @estimate-service/senior-developers
 /services/estimate-service/ @estimate-service/tech-leads @estimate-service/senior-developers
+/services/ai-assistant/ @estimate-service/tech-leads @estimate-service/ai-specialists @estimate-service/senior-developers
+/services/data-collector/ @estimate-service/tech-leads @estimate-service/data-engineers @estimate-service/senior-developers
+/services/knowledge-base/ @estimate-service/tech-leads @estimate-service/ai-specialists @estimate-service/domain-experts
 *.prisma @estimate-service/tech-leads @estimate-service/senior-developers
 
 # === Frontend Application ===
@@ -14,7 +17,7 @@
 /apps/estimate-frontend/src/components/ @estimate-service/senior-developers @estimate-service/developers
 
 # === MCP Server ===
-/mcp-server/ @estimate-service/tech-leads @estimate-service/senior-developers
+/mcp-server/ @estimate-service/tech-leads @estimate-service/ai-specialists @estimate-service/senior-developers
 
 # === Infrastructure & DevOps ===
 /.github/ @estimate-service/tech-leads
@@ -42,3 +45,9 @@ CHANGELOG.md @estimate-service/tech-leads
 **/*.test.ts @estimate-service/senior-developers @estimate-service/developers
 **/*.spec.ts @estimate-service/senior-developers @estimate-service/developers
 /test/ @estimate-service/senior-developers @estimate-service/developers
+
+# === AI/ML Models and Configurations ===
+**/models/ @estimate-service/ai-specialists @estimate-service/tech-leads
+**/prompts/ @estimate-service/ai-specialists @estimate-service/domain-experts
+**/*.prompt @estimate-service/ai-specialists @estimate-service/domain-experts
+**/embeddings/ @estimate-service/ai-specialists @estimate-service/data-engineers

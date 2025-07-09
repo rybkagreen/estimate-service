@@ -1,0 +1,91 @@
+{
+  "version": "1.0",
+  "patterns": {
+    "nestjs": {
+      "controller": {
+        "template": "@Controller('{{resourceName}}')\n@ApiTags('{{resourceName}}')\nexport class {{ResourceName}}Controller {\n  constructor(private readonly {{resourceName}}Service: {{ResourceName}}Service) {}\n\n  @Post()\n  @ApiOperation({ summary: 'Create {{resourceName}}' })\n  create(@Body() createDto: Create{{ResourceName}}Dto) {\n    return this.{{resourceName}}Service.create(createDto);\n  }\n\n  @Get()\n  @ApiOperation({ summary: 'Get all {{resourceName}}s' })\n  findAll() {\n    return this.{{resourceName}}Service.findAll();\n  }\n\n  @Get(':id')\n  @ApiOperation({ summary: 'Get {{resourceName}} by id' })\n  findOne(@Param('id') id: string) {\n    return this.{{resourceName}}Service.findOne(id);\n  }\n\n  @Patch(':id')\n  @ApiOperation({ summary: 'Update {{resourceName}}' })\n  update(@Param('id') id: string, @Body() updateDto: Update{{ResourceName}}Dto) {\n    return this.{{resourceName}}Service.update(id, updateDto);\n  }\n\n  @Delete(':id')\n  @ApiOperation({ summary: 'Delete {{resourceName}}' })\n  remove(@Param('id') id: string) {\n    return this.{{resourceName}}Service.remove(id);\n  }\n}",
+        "imports": [
+          "@nestjs/common",
+          "@nestjs/swagger"
+        ]
+      },
+      "service": {
+        "template": "@Injectable()\nexport class {{ResourceName}}Service {\n  constructor(\n    private readonly prisma: PrismaService,\n    private readonly logger: Logger,\n  ) {}\n\n  async create(createDto: Create{{ResourceName}}Dto) {\n    try {\n      return await this.prisma.{{resourceName}}.create({\n        data: createDto,\n      });\n    } catch (error) {\n      this.logger.error(`Failed to create {{resourceName}}`, error);\n      throw new InternalServerErrorException('Failed to create {{resourceName}}');\n    }\n  }\n\n  async findAll() {\n    return this.prisma.{{resourceName}}.findMany();\n  }\n\n  async findOne(id: string) {\n    const {{resourceName}} = await this.prisma.{{resourceName}}.findUnique({\n      where: { id },\n    });\n    \n    if (!{{resourceName}}) {\n      throw new NotFoundException('{{ResourceName}} not found');\n    }\n    \n    return {{resourceName}};\n  }\n\n  async update(id: string, updateDto: Update{{ResourceName}}Dto) {\n    try {\n      return await this.prisma.{{resourceName}}.update({\n        where: { id },\n        data: updateDto,\n      });\n    } catch (error) {\n      if (error.code === 'P2025') {\n        throw new NotFoundException('{{ResourceName}} not found');\n      }\n      throw error;\n    }\n  }\n\n  async remove(id: string) {\n    try {\n      return await this.prisma.{{resourceName}}.delete({\n        where: { id },\n      });\n    } catch (error) {\n      if (error.code === 'P2025') {\n        throw new NotFoundException('{{ResourceName}} not found');\n      }\n      throw error;\n    }\n  }\n}",
+        "imports": [
+          "@nestjs/common",
+          "prisma.service"
+        ]
+      },
+      "dto": {
+        "create": {
+          "template": "export class Create{{ResourceName}}Dto {\n  @ApiProperty({ description: 'Name of the {{resourceName}}' })\n  @IsString()\n  @IsNotEmpty()\n  name: string;\n\n  @ApiProperty({ description: 'Description of the {{resourceName}}', required: false })\n  @IsString()\n  @IsOptional()\n  description?: string;\n}",
+          "imports": [
+            "class-validator",
+            "@nestjs/swagger"
+          ]
+        },
+        "update": {
+          "template": "export class Update{{ResourceName}}Dto extends PartialType(Create{{ResourceName}}Dto) {}",
+          "imports": [
+            "@nestjs/swagger"
+          ]
+        }
+      },
+      "module": {
+        "template": "@Module({\n  imports: [],\n  controllers: [{{ResourceName}}Controller],\n  providers: [{{ResourceName}}Service, PrismaService],\n  exports: [{{ResourceName}}Service],\n})\nexport class {{ResourceName}}Module {}",
+        "imports": [
+          "@nestjs/common"
+        ]
+      }
+    },
+    "react": {
+      "component": {
+        "template": "import React from 'react';\nimport { cn } from '@/lib/utils';\n\ninterface {{ComponentName}}Props {\n  className?: string;\n}\n\nexport const {{ComponentName}}: React.FC<{{ComponentName}}Props> = ({ className }) => {\n  return (\n    <div className={cn('', className)}>\n      {/* Component content */}\n    </div>\n  );\n};",
+        "imports": []
+      },
+      "hook": {
+        "template": "import { useState, useEffect } from 'react';\n\nexport const use{{HookName}} = () => {\n  const [data, setData] = useState(null);\n  const [loading, setLoading] = useState(false);\n  const [error, setError] = useState<Error | null>(null);\n\n  useEffect(() => {\n    // Hook logic\n  }, []);\n\n  return { data, loading, error };\n};",
+        "imports": [
+          "react"
+        ]
+      },
+      "page": {
+        "template": "import React from 'react';\nimport { useNavigate } from 'react-router-dom';\n\nexport const {{PageName}}Page: React.FC = () => {\n  const navigate = useNavigate();\n\n  return (\n    <div className=\"container mx-auto p-4\">\n      <h1 className=\"text-2xl font-bold mb-4\">{{PageName}}</h1>\n      {/* Page content */}\n    </div>\n  );\n};",
+        "imports": [
+          "react",
+          "react-router-dom"
+        ]
+      }
+    },
+    "prisma": {
+      "model": {
+        "template": "model {{ModelName}} {\n  id          String   @id @default(uuid())\n  name        String\n  description String?\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  @@map(\"{{table_name}}\")\n}"
+      }
+    },
+    "testing": {
+      "unit": {
+        "template": "describe('{{TestSubject}}', () => {\n  let service: {{TestSubject}};\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      providers: [{{TestSubject}}],\n    }).compile();\n\n    service = module.get<{{TestSubject}}>({{TestSubject}});\n  });\n\n  it('should be defined', () => {\n    expect(service).toBeDefined();\n  });\n\n  describe('methodName', () => {\n    it('should do something', async () => {\n      // Arrange\n      const input = {};\n      \n      // Act\n      const result = await service.methodName(input);\n      \n      // Assert\n      expect(result).toBeDefined();\n    });\n  });\n});",
+        "imports": [
+          "@nestjs/testing"
+        ]
+      },
+      "integration": {
+        "template": "describe('{{TestSubject}} (integration)', () => {\n  let app: INestApplication;\n\n  beforeAll(async () => {\n    const moduleFixture: TestingModule = await Test.createTestingModule({\n      imports: [AppModule],\n    }).compile();\n\n    app = moduleFixture.createNestApplication();\n    await app.init();\n  });\n\n  afterAll(async () => {\n    await app.close();\n  });\n\n  it('/endpoint (GET)', () => {\n    return request(app.getHttpServer())\n      .get('/endpoint')\n      .expect(200)\n      .expect((res) => {\n        expect(res.body).toBeDefined();\n      });\n  });\n});",
+        "imports": [
+          "@nestjs/testing",
+          "supertest"
+        ]
+      }
+    }
+  },
+  "snippets": {
+    "estimate-calculation": {
+      "description": "Calculate estimate with regional coefficients",
+      "code": "const calculateEstimate = (basePrice: number, quantity: number, regionalCoefficient: number = 1.0): EstimateCalculation => {\n  const subtotal = basePrice * quantity * regionalCoefficient;\n  const overheadCosts = subtotal * 0.15; // 15% накладные расходы\n  const estimatedProfit = subtotal * 0.08; // 8% сметная прибыль\n  const total = subtotal + overheadCosts + estimatedProfit;\n  \n  return {\n    subtotal,\n    overheadCosts,\n    estimatedProfit,\n    total,\n    vat: total * 0.20, // 20% НДС\n    totalWithVat: total * 1.20\n  };\n};"
+    },
+    "fsbc-integration": {
+      "description": "Integrate with ФСБЦ-2022 API",
+      "code": "async fetchFSBCRate(code: string): Promise<FSBCRate> {\n  const cacheKey = `fsbc:rate:${code}`;\n  \n  // Check cache first\n  const cached = await this.redis.get(cacheKey);\n  if (cached) {\n    return JSON.parse(cached);\n  }\n  \n  // Fetch from API\n  const response = await this.httpService.get(`${this.fsbcApiUrl}/rates/${code}`);\n  const rate = response.data;\n  \n  // Cache for 24 hours\n  await this.redis.setex(cacheKey, 86400, JSON.stringify(rate));\n  \n  return rate;\n}"
+    }
+  }
+}

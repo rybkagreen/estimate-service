@@ -97,6 +97,26 @@ protection_rules:
   - ФСБЦ-2022 standards compliance
   - User acceptance testing
 
+#### @estimate-service/ai-specialists
+- **Members**: AI/ML engineers, Data scientists
+- **Permissions**: Push to AI feature branches, Pull request to develop
+- **Responsibilities**:
+  - AI model development and optimization
+  - Prompt engineering for construction domain
+  - Model integration and deployment
+  - AI service performance monitoring
+  - MCP server maintenance
+
+#### @estimate-service/data-engineers
+- **Members**: Data engineers, ETL specialists
+- **Permissions**: Push to data pipeline branches, Pull request to develop
+- **Responsibilities**:
+  - Data pipeline development
+  - ФСБЦ-2022 data integration
+  - Data quality and validation
+  - Performance optimization
+  - Knowledge base maintenance
+
 ## GitHub Copilot Access Control
 
 ### Copilot Enterprise Features
@@ -107,6 +127,8 @@ copilot_access:
     - "@estimate-service/senior-developers"
     - "@estimate-service/developers"
     - "@estimate-service/junior-developers"
+    - "@estimate-service/ai-specialists"
+    - "@estimate-service/data-engineers"
 
   copilot_business_features:
     - organization_level_policies: true
@@ -146,10 +168,12 @@ secrets:
   DATABASE_URL: "postgresql://..."
   REDIS_URL: "redis://..."
 
-  # APIs
+# APIs
   HUGGINGFACE_API_KEY: "hf_..."
   DEEPSEEK_API_KEY: "sk-..."
   FSBTS_API_KEY: "fsbtc_..."
+  OPENAI_API_KEY: "sk-..."
+  ANTHROPIC_API_KEY: "sk-ant-..."
 
   # Infrastructure
   DOCKER_REGISTRY_TOKEN: "ghp_..."
@@ -244,6 +268,12 @@ review_requirements:
 
   database_changes:
     required_reviewers: ["@estimate-service/senior-developers"]
+  
+  ai_model_changes:
+    required_reviewers: ["@estimate-service/ai-specialists", "@estimate-service/tech-leads"]
+  
+  data_pipeline_changes:
+    required_reviewers: ["@estimate-service/data-engineers", "@estimate-service/tech-leads"]
 ```
 
 ### Audit Logging

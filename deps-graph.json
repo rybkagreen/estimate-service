@@ -1,0 +1,1116 @@
+{
+  "graph": {
+    "nodes": {
+      "estimate-service": {
+        "name": "estimate-service",
+        "type": "app",
+        "data": {
+          "root": "services/estimate-service",
+          "name": "estimate-service",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "services/estimate-service/src",
+          "projectType": "application",
+          "tags": [
+            "scope:services",
+            "type:application"
+          ],
+          "targets": {
+            "build": {
+              "executor": "@nx/webpack:webpack",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "defaultConfiguration": "production",
+              "options": {
+                "target": "node",
+                "compiler": "tsc",
+                "outputPath": "dist/services/estimate-service",
+                "main": "services/estimate-service/src/main.ts",
+                "tsConfig": "services/estimate-service/tsconfig.app.json",
+                "assets": [
+                  "services/estimate-service/src/assets"
+                ],
+                "isolatedConfig": true,
+                "webpackConfig": "services/estimate-service/webpack.config.js"
+              },
+              "configurations": {
+                "development": {
+                  "optimization": false,
+                  "extractLicenses": false,
+                  "inspect": false
+                },
+                "production": {
+                  "optimization": true,
+                  "extractLicenses": true,
+                  "inspect": false,
+                  "fileReplacements": [
+                    {
+                      "replace": "services/estimate-service/src/environments/environment.ts",
+                      "with": "services/estimate-service/src/environments/environment.prod.ts"
+                    }
+                  ]
+                }
+              }
+            },
+            "serve": {
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "buildTarget": "estimate-service:build",
+                "runBuildTargetDependencies": false
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "estimate-service:build:development"
+                },
+                "production": {
+                  "buildTarget": "estimate-service:build:production"
+                }
+              }
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "options": {
+                "lintFilePatterns": [
+                  "services/estimate-service/**/*.{ts,tsx,js,jsx}"
+                ]
+              },
+              "configurations": {}
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "services/estimate-service/jest.config.ts"
+              },
+              "configurations": {}
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "data-collector": {
+        "name": "data-collector",
+        "type": "app",
+        "data": {
+          "root": "services/data-collector",
+          "name": "data-collector",
+          "targets": {
+            "build": {
+              "executor": "@nx/node:build",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "dist/services/data-collector",
+                "main": "services/data-collector/src/main.ts",
+                "tsConfig": "services/data-collector/tsconfig.json",
+                "assets": [
+                  "services/data-collector/src/assets"
+                ]
+              },
+              "configurations": {}
+            },
+            "format": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "format"
+              },
+              "configurations": {}
+            },
+            "start": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start"
+              },
+              "configurations": {}
+            },
+            "start:dev": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start:dev"
+              },
+              "configurations": {}
+            },
+            "start:debug": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start:debug"
+              },
+              "configurations": {}
+            },
+            "start:prod": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start:prod"
+              },
+              "configurations": {}
+            },
+            "lint": {
+              "executor": "@nx/linter:eslint",
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "options": {
+                "lintFilePatterns": [
+                  "services/data-collector/**/*.ts"
+                ]
+              },
+              "configurations": {}
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "services/data-collector/jest.config.ts",
+                "passWithNoTests": true
+              },
+              "configurations": {}
+            },
+            "test:watch": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:watch"
+              },
+              "configurations": {}
+            },
+            "test:cov": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:cov"
+              },
+              "configurations": {}
+            },
+            "test:debug": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:debug"
+              },
+              "configurations": {}
+            },
+            "test:e2e": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:e2e"
+              },
+              "configurations": {}
+            },
+            "nx-release-publish": {
+              "dependsOn": [
+                "^nx-release-publish"
+              ],
+              "executor": "@nx/js:release-publish",
+              "options": {},
+              "configurations": {}
+            },
+            "serve": {
+              "executor": "@nx/node:serve",
+              "options": {
+                "buildTarget": "data-collector:build"
+              },
+              "configurations": {}
+            }
+          },
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "services/data-collector/src",
+          "projectType": "application",
+          "tags": [],
+          "implicitDependencies": []
+        }
+      },
+      "knowledge-base": {
+        "name": "knowledge-base",
+        "type": "app",
+        "data": {
+          "root": "services/knowledge-base",
+          "name": "knowledge-base",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "services/knowledge-base/src",
+          "projectType": "application",
+          "targets": {
+            "build": {
+              "executor": "@nrwl/webpack:webpack",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "target": "node",
+                "compiler": "tsc",
+                "outputPath": "dist/services/knowledge-base",
+                "main": "services/knowledge-base/src/main.ts",
+                "tsConfig": "services/knowledge-base/tsconfig.json",
+                "assets": []
+              },
+              "configurations": {
+                "production": {
+                  "optimization": true,
+                  "extractLicenses": true,
+                  "inspect": false,
+                  "fileReplacements": []
+                }
+              }
+            },
+            "serve": {
+              "executor": "@nrwl/js:node",
+              "options": {
+                "buildTarget": "knowledge-base:build"
+              },
+              "configurations": {
+                "production": {
+                  "buildTarget": "knowledge-base:build:production"
+                }
+              }
+            },
+            "lint": {
+              "executor": "@nrwl/linter:eslint",
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "options": {
+                "lintFilePatterns": [
+                  "services/knowledge-base/**/*.ts"
+                ]
+              },
+              "configurations": {}
+            },
+            "test": {
+              "executor": "@nrwl/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "services/knowledge-base/jest.config.ts",
+                "passWithNoTests": true
+              },
+              "configurations": {
+                "ci": {
+                  "ci": true,
+                  "codeCoverage": true
+                }
+              }
+            }
+          },
+          "tags": [],
+          "implicitDependencies": []
+        }
+      },
+      "estimate-frontend": {
+        "name": "estimate-frontend",
+        "type": "app",
+        "data": {
+          "root": "apps/estimate-frontend",
+          "name": "estimate-frontend",
+          "targets": {
+            "dev": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev"
+              },
+              "configurations": {}
+            },
+            "build": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build"
+              },
+              "configurations": {}
+            },
+            "preview": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "preview"
+              },
+              "configurations": {}
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "options": {
+                "lintFilePatterns": [
+                  "apps/estimate-frontend/**/*.{ts,tsx,js,jsx}"
+                ]
+              },
+              "configurations": {}
+            },
+            "test": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test"
+              },
+              "configurations": {}
+            },
+            "nx-release-publish": {
+              "dependsOn": [
+                "^nx-release-publish"
+              ],
+              "executor": "@nx/js:release-publish",
+              "options": {},
+              "configurations": {}
+            },
+            "serve": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev"
+              },
+              "configurations": {}
+            }
+          },
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "projectType": "application",
+          "sourceRoot": "apps/estimate-frontend/src",
+          "tags": [
+            "type:app",
+            "scope:frontend"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "ai-assistant": {
+        "name": "ai-assistant",
+        "type": "app",
+        "data": {
+          "root": "services/ai-assistant",
+          "name": "ai-assistant",
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "services/ai-assistant/src",
+          "projectType": "application",
+          "targets": {
+            "build": {
+              "executor": "@nx/webpack:webpack",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "defaultConfiguration": "production",
+              "options": {
+                "target": "node",
+                "compiler": "tsc",
+                "outputPath": "dist/services/ai-assistant",
+                "main": "services/ai-assistant/src/main.ts",
+                "tsConfig": "services/ai-assistant/tsconfig.app.json",
+                "assets": [],
+                "isolatedConfig": true,
+                "webpackConfig": "services/ai-assistant/webpack.config.js"
+              },
+              "configurations": {
+                "development": {
+                  "optimization": false,
+                  "extractLicenses": false,
+                  "inspect": false
+                },
+                "production": {
+                  "optimization": true,
+                  "extractLicenses": true,
+                  "inspect": false
+                }
+              }
+            },
+            "serve": {
+              "executor": "@nx/js:node",
+              "defaultConfiguration": "development",
+              "options": {
+                "buildTarget": "ai-assistant:build",
+                "port": 3005
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "ai-assistant:build:development"
+                },
+                "production": {
+                  "buildTarget": "ai-assistant:build:production"
+                }
+              }
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "options": {
+                "lintFilePatterns": [
+                  "services/ai-assistant/**/*.ts"
+                ]
+              },
+              "configurations": {}
+            },
+            "test": {
+              "executor": "@nx/jest:jest",
+              "outputs": [
+                "{workspaceRoot}/coverage/{projectRoot}"
+              ],
+              "options": {
+                "jestConfig": "services/ai-assistant/jest.config.ts"
+              },
+              "configurations": {}
+            }
+          },
+          "tags": [],
+          "implicitDependencies": []
+        }
+      },
+      "mcp-server": {
+        "name": "mcp-server",
+        "type": "app",
+        "data": {
+          "root": "mcp-server",
+          "name": "mcp-server",
+          "targets": {
+            "build": {
+              "executor": "@nx/js:tsc",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "options": {
+                "outputPath": "mcp-server/dist",
+                "main": "mcp-server/src/index.ts",
+                "tsConfig": "mcp-server/tsconfig.json"
+              },
+              "configurations": {}
+            },
+            "build:simple": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build:simple"
+              },
+              "configurations": {}
+            },
+            "build:api": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build:api"
+              },
+              "configurations": {}
+            },
+            "start": {
+              "executor": "@nx/js:node",
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "buildTarget": "mcp-server:build",
+                "runBuildTargetDependencies": false
+              },
+              "configurations": {}
+            },
+            "start:simple": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start:simple"
+              },
+              "configurations": {}
+            },
+            "start:api": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start:api"
+              },
+              "configurations": {}
+            },
+            "start:deepseek-api": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start:deepseek-api"
+              },
+              "configurations": {}
+            },
+            "dev": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev"
+              },
+              "configurations": {}
+            },
+            "dev:simple": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:simple"
+              },
+              "configurations": {}
+            },
+            "dev:api": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:api"
+              },
+              "configurations": {}
+            },
+            "dev:deepseek-api": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:deepseek-api"
+              },
+              "configurations": {}
+            },
+            "test": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test"
+              },
+              "configurations": {}
+            },
+            "test:watch": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:watch"
+              },
+              "configurations": {}
+            },
+            "test:api": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:api"
+              },
+              "configurations": {}
+            },
+            "test:api:dev": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:api:dev"
+              },
+              "configurations": {}
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "options": {
+                "lintFilePatterns": [
+                  "mcp-server/**/*.{ts,tsx,js,jsx}"
+                ]
+              },
+              "configurations": {}
+            },
+            "lint:fix": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "lint:fix"
+              },
+              "configurations": {}
+            },
+            "type-check": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "type-check"
+              },
+              "configurations": {}
+            },
+            "nx-release-publish": {
+              "dependsOn": [
+                "^nx-release-publish"
+              ],
+              "executor": "@nx/js:release-publish",
+              "options": {},
+              "configurations": {}
+            }
+          },
+          "$schema": "../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "mcp-server/src",
+          "projectType": "application",
+          "tags": [
+            "scope:mcp",
+            "type:application"
+          ],
+          "implicitDependencies": []
+        }
+      },
+      "ez-eco": {
+        "name": "ez-eco",
+        "type": "lib",
+        "data": {
+          "root": ".",
+          "name": "ez-eco",
+          "targets": {
+            "build": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build"
+              },
+              "configurations": {}
+            },
+            "serve": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "serve"
+              },
+              "configurations": {}
+            },
+            "start": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start"
+              },
+              "configurations": {}
+            },
+            "start:dev": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start:dev"
+              },
+              "configurations": {}
+            },
+            "start:debug": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start:debug"
+              },
+              "configurations": {}
+            },
+            "start:prod": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "start:prod"
+              },
+              "configurations": {}
+            },
+            "test": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test"
+              },
+              "configurations": {}
+            },
+            "test:watch": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:watch"
+              },
+              "configurations": {}
+            },
+            "test:cov": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:cov"
+              },
+              "configurations": {}
+            },
+            "test:debug": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:debug"
+              },
+              "configurations": {}
+            },
+            "test:e2e": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:e2e"
+              },
+              "configurations": {}
+            },
+            "test:integration": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:integration"
+              },
+              "configurations": {}
+            },
+            "test:performance": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:performance"
+              },
+              "configurations": {}
+            },
+            "test:security": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:security"
+              },
+              "configurations": {}
+            },
+            "test:coverage": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:coverage"
+              },
+              "configurations": {}
+            },
+            "lint": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "lint"
+              },
+              "configurations": {}
+            },
+            "lint:fix": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "lint:fix"
+              },
+              "configurations": {}
+            },
+            "prisma:generate": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "prisma:generate"
+              },
+              "configurations": {}
+            },
+            "prisma:migrate": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "prisma:migrate"
+              },
+              "configurations": {}
+            },
+            "prisma:deploy": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "prisma:deploy"
+              },
+              "configurations": {}
+            },
+            "prisma:studio": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "prisma:studio"
+              },
+              "configurations": {}
+            },
+            "docker:build": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docker:build"
+              },
+              "configurations": {}
+            },
+            "docker:run": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docker:run"
+              },
+              "configurations": {}
+            },
+            "dev:all": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:all"
+              },
+              "configurations": {}
+            },
+            "dev:frontend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:frontend"
+              },
+              "configurations": {}
+            },
+            "dev:backend": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:backend"
+              },
+              "configurations": {}
+            },
+            "dev:ai-assistant": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:ai-assistant"
+              },
+              "configurations": {}
+            },
+            "dev:mcp": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:mcp"
+              },
+              "configurations": {}
+            },
+            "dev:mcp-stdio": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev:mcp-stdio"
+              },
+              "configurations": {}
+            },
+            "build:all": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "build:all"
+              },
+              "configurations": {}
+            },
+            "test:all": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "test:all"
+              },
+              "configurations": {}
+            },
+            "lint:all": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "lint:all"
+              },
+              "configurations": {}
+            },
+            "team:sync": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "team:sync"
+              },
+              "configurations": {}
+            },
+            "mcp:build": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "mcp:build"
+              },
+              "configurations": {}
+            },
+            "mcp:test": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "mcp:test"
+              },
+              "configurations": {}
+            },
+            "mcp:start": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "mcp:start"
+              },
+              "configurations": {}
+            },
+            "mcp:start-http": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "mcp:start-http"
+              },
+              "configurations": {}
+            },
+            "docs:metrics": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docs:metrics"
+              },
+              "configurations": {}
+            },
+            "docs:lint": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docs:lint"
+              },
+              "configurations": {}
+            },
+            "docs:lint:fix": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docs:lint:fix"
+              },
+              "configurations": {}
+            },
+            "docs:spell": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docs:spell"
+              },
+              "configurations": {}
+            },
+            "docs:links": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docs:links"
+              },
+              "configurations": {}
+            },
+            "docs:check": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docs:check"
+              },
+              "configurations": {}
+            },
+            "docs:fix": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "docs:fix"
+              },
+              "configurations": {}
+            },
+            "setup:dev": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "setup:dev"
+              },
+              "configurations": {}
+            },
+            "setup:hooks": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "setup:hooks"
+              },
+              "configurations": {}
+            },
+            "setup:env": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "setup:env"
+              },
+              "configurations": {}
+            },
+            "setup:db": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "setup:db"
+              },
+              "configurations": {}
+            },
+            "post-start": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "post-start"
+              },
+              "configurations": {}
+            },
+            "copilot:check": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "copilot:check"
+              },
+              "configurations": {}
+            },
+            "copilot:analyze": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "copilot:analyze"
+              },
+              "configurations": {}
+            },
+            "copilot:templates": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "copilot:templates"
+              },
+              "configurations": {}
+            },
+            "team:setup": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "team:setup"
+              },
+              "configurations": {}
+            },
+            "team:permissions": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "team:permissions"
+              },
+              "configurations": {}
+            },
+            "team:onboard": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "team:onboard"
+              },
+              "configurations": {}
+            },
+            "ai:review": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "ai:review"
+              },
+              "configurations": {}
+            },
+            "ai:context": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "ai:context"
+              },
+              "configurations": {}
+            },
+            "quality:full": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "quality:full"
+              },
+              "configurations": {}
+            },
+            "format:check": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "format:check"
+              },
+              "configurations": {}
+            },
+            "type-check": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "type-check"
+              },
+              "configurations": {}
+            },
+            "workspace:init": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "workspace:init"
+              },
+              "configurations": {}
+            },
+            "workspace:status": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "workspace:status"
+              },
+              "configurations": {}
+            },
+            "workspace:suggest": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "workspace:suggest"
+              },
+              "configurations": {}
+            },
+            "workspace:explain": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "workspace:explain"
+              },
+              "configurations": {}
+            },
+            "nx-release-publish": {
+              "dependsOn": [
+                "^nx-release-publish"
+              ],
+              "executor": "@nx/js:release-publish",
+              "options": {},
+              "configurations": {}
+            },
+            "local-registry": {
+              "executor": "@nx/js:verdaccio",
+              "options": {
+                "port": 4873,
+                "config": ".verdaccio/config.yml",
+                "storage": "tmp/local-registry/storage"
+              },
+              "configurations": {}
+            }
+          },
+          "$schema": "node_modules/nx/schemas/project-schema.json",
+          "implicitDependencies": [],
+          "tags": []
+        }
+      }
+    },
+    "dependencies": {
+      "estimate-service": [],
+      "data-collector": [],
+      "knowledge-base": [],
+      "estimate-frontend": [],
+      "ai-assistant": [],
+      "mcp-server": [],
+      "ez-eco": []
+    }
+  },
+  "affectedProjects": [],
+  "criticalPath": []
+}

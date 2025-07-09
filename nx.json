@@ -10,15 +10,59 @@
           "agentCount": "auto"
         },
         "enableDbCache": true,
-        "enableTaskDistribution": true
+        "enableTaskDistribution": true,
+        "cacheableOperations": [
+          "build",
+          "test",
+          "lint",
+          "format",
+          "e2e"
+        ]
       }
     }
   },
   "workspaceLayout": {
-    "projectNameAndRootFormat": "as-provided"
+    "projectNameAndRootFormat": "as-provided",
+    "appsDir": "apps",
+    "libsDir": "libs"
   },
   "affected": {
     "defaultBase": "main"
   },
-  "defaultBase": "main"
+  "defaultBase": "main",
+  "cli": {
+    "defaultCollection": "@nx/workspace",
+    "packageManager": "npm",
+    "analytics": false
+  },
+  "generators": {
+    "@nx/react": {
+      "application": {
+        "style": "css",
+        "linter": "eslint",
+        "bundler": "vite",
+        "unitTestRunner": "jest",
+        "e2eTestRunner": "playwright"
+      },
+      "component": {
+        "style": "css"
+      },
+      "library": {
+        "style": "css",
+        "linter": "eslint",
+        "unitTestRunner": "jest"
+      }
+    },
+    "@nx/nest": {
+      "application": {
+        "linter": "eslint",
+        "unitTestRunner": "jest"
+      },
+      "library": {
+        "linter": "eslint",
+        "unitTestRunner": "jest"
+      }
+    }
+  },
+  "defaultProject": "estimate-service"
 }

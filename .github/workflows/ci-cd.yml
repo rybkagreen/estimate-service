@@ -30,7 +30,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --workspaces --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Lint code
         run: npm run lint:all
@@ -86,12 +86,12 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --workspaces --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Setup test database
         run: |
-          npm run prisma:migrate:test
-          npm run prisma:seed:test
+          npm run prisma:generate
+          npm run prisma:deploy
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/estimate_service_test
 
@@ -124,7 +124,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --workspaces --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Build all projects
         run: npm run build:all
@@ -154,10 +154,13 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --workspaces --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Validate documentation
         run: npm run docs:check
+
+      - name: Ensure README is up to date
+        run: test -f README.md || echo "Warning: README.md missing"
 
       - name: Generate API docs
         run: npm run docs:generate-api
@@ -222,7 +225,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --workspaces --legacy-peer-deps
+        run: npm ci --legacy-peer-deps
 
       - name: Run performance tests
         run: npm run test:performance

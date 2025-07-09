@@ -377,6 +377,7 @@ docs/
 | [⚡ Performance Guide](docs/guides/PERFORMANCE_GUIDE.md) | Оптимизация производительности |
 | [🔒 Security Guidelines](docs/standards/SECURITY_GUIDELINES.md) | Руководство по безопасности |
 | [📋 Code Review Checklist](docs/standards/CODE_REVIEW_CHECKLIST.md) | Чеклист code review |
+| [📝 Configuration Changes](.github/CONFIGURATION_CHANGES.md) | Изменения конфигурации |
 
 ### Frontend документация
 

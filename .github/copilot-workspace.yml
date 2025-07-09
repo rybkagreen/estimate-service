@@ -127,6 +127,10 @@ development:
     build: "npm run build:all"
     test: "npm run test:all"
     lint: "npm run lint:all"
+    frontend: "npm run dev:frontend"
+    backend: "npm run dev:backend"
+    ai-assistant: "npm run dev:ai-assistant"
+    mcp: "npm run dev:mcp"
 
 # === Безопасность ===
 security:
