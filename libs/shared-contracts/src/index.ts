@@ -16,6 +16,9 @@ export * from './document.types';
 // Re-export from grand smeta types
 export * from './grand-smeta.types';
 
+// Re-export from estimate types
+export * from './estimate.types';
+
 // Vector DB and search types
 export interface VectorSearchRequest {
   query: string;

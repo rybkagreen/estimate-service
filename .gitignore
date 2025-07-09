@@ -66,3 +66,4 @@ mcp-server/tests/check-models.mjs
 # Hugging Face tokens
 **/hf_token*
 **/huggingface_token*
+nul

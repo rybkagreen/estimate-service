@@ -1,0 +1,88 @@
+/* Design System - Main File */
+/* ========================= */
+
+/* Import all design system modules */
+
+/* Core */
+@import url('./tokens/variables.css');
+
+/* Typography */
+@import url('./typography/typography.css');
+
+/* Layout */
+@import url('./layout/grid.css');
+
+/* Components */
+@import url('./components/buttons.css');
+@import url('./components/forms.css');
+@import url('./components/modals.css');
+@import url('./components/tables.css');
+
+/* Utilities */
+@import url('./utilities/helpers.css');
+
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Remove default margins */
+body, h1, h2, h3, h4, h5, h6, p, ol, ul {
+  margin: 0;
+}
+
+/* Remove default padding */
+ol, ul {
+  padding: 0;
+}
+
+/* Remove list styles */
+ol, ul {
+  list-style: none;
+}
+
+/* Set core body defaults */
+body {
+  min-height: 100vh;
+  text-rendering: optimizeSpeed;
+  line-height: var(--line-height-normal);
+}
+
+/* Make images easier to work with */
+img, picture {
+  max-width: 100%;
+  display: block;
+}
+
+/* Inherit fonts for inputs and buttons */
+input, button, textarea, select {
+  font: inherit;
+}
+
+/* Remove animations for people who've turned them off */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Theme Toggle Script */
+:root {
+  color-scheme: light dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+}

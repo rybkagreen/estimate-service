@@ -41,6 +41,7 @@
       "@ez-eco/ui-kit": ["packages/frontend/ui-kit/src"],
       "@ez-eco/utils": ["packages/common/utils/src"],
       "@ez-eco/websocket-client": ["packages/frontend/websocket-client/src"],
+      "api-client": ["libs/src/index.ts"],
       "~/*": ["./*"]
     },
     "resolveJsonModule": true,

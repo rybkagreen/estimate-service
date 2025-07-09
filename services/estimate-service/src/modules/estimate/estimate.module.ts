@@ -5,6 +5,7 @@ import { CircuitBreakerModule } from '../../shared/circuit-breaker/circuit-break
 import { StreamingModule } from '../../shared/streaming/streaming.module';
 import { EstimateController } from './estimate.controller';
 import { EstimateService } from './estimate.service';
+import { EstimateExtendedService } from './estimate-extended.service';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { EstimateService } from './estimate.service';
     CircuitBreakerModule,
   ],
   controllers: [EstimateController],
-  providers: [EstimateService, PrismaService],
-  exports: [EstimateService],
+  providers: [EstimateService, EstimateExtendedService, PrismaService],
+  exports: [EstimateService, EstimateExtendedService],
 })
 export class EstimateModule {}

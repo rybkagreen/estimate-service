@@ -11,13 +11,7 @@
         },
         "enableDbCache": true,
         "enableTaskDistribution": true,
-        "cacheableOperations": [
-          "build",
-          "test",
-          "lint",
-          "format",
-          "e2e"
-        ]
+        "cacheableOperations": ["build", "test", "lint", "format", "e2e"]
       }
     }
   },
@@ -64,5 +58,10 @@
       }
     }
   },
-  "defaultProject": "estimate-service"
+  "defaultProject": "estimate-service",
+  "pluginsConfig": {
+    "@nx/js": {
+      "analyzeSourceFiles": true
+    }
+  }
 }
