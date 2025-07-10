@@ -1,78 +1,116 @@
 {
-  "name": "Estimate Service Dev Container",
-  "dockerComposeFile": "../docker-compose.yml",
-  "service": "estimate-service",
-  "workspaceFolder": "/workspace",
-  "shutdownAction": "stopCompose",
+  "name": "Estimate Service Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20-bookworm",
   "customizations": {
     "vscode": {
       "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "prisma.prisma",
-        "bradlc.vscode-tailwindcss",
-        "streetsidesoftware.code-spell-checker",
-        "eamodio.gitlens",
-        "ms-azuretools.vscode-docker",
-        "firsttris.vscode-jest-runner",
-        "graphql.vscode-graphql",
-        "nx-console.vscode-nx-console",
         "GitHub.copilot",
         "GitHub.copilot-chat",
-        "ms-python.python",
-        "ms-toolsai.jupyter",
-        "rangav.vscode-thunder-client",
-        "usernamehw.errorlens",
-        "cweijan.vscode-postgresql",
-        "christian-kohler.npm-intellisense"
+        "GitHub.copilot-labs",
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "Prisma.prisma",
+        "ms-vscode.vscode-json",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.vscode-yaml",
+        "ms-vscode.vscode-docker",
+        "ms-vscode-remote.remote-containers",
+        "streetsidesoftware.code-spell-checker",
+        "yzhang.markdown-all-in-one",
+        "DavidAnson.vscode-markdownlint",
+        "ms-playwright.playwright",
+        "ms-vscode.test-adapter-converter",
+        "hbenl.vscode-test-explorer",
+        "Orta.vscode-jest",
+        "ms-vscode.vscode-node-azure-pack",
+        "redhat.vscode-yaml",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "visualstudioexptteam.vscodeintellicode",
+        "ms-vscode.vscode-mcp"
       ],
       "settings": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "github.copilot.enable": {
+          "*": true,
+          "yaml": true,
+          "plaintext": true,
+          "markdown": true,
+          "typescript": true,
+          "javascript": true,
+          "json": true,
+          "jsonc": true,
+          "prisma": true
+        },
+        "github.copilot.advanced": {
+          "debug.overrideEngine": "copilot-codex",
+          "debug.testOverrideProxyUrl": "",
+          "debug.overrideProxyUrl": "",
+          "length": 500,
+          "temperature": "",
+          "top_p": "",
+          "stops": {
+            "*": ["\n\n\n"]
+          },
+          "indentationMode": {
+            "*": "tabSize",
+            "javascript": "tabSize",
+            "typescript": "tabSize"
+          }
+        },
+        "github.copilot.chat.welcomeMessage": "never",
+        "github.copilot.conversation.welcomeMessage": "never",
+        "typescript.preferences.quoteStyle": "single",
+        "typescript.updateImportsOnFileMove.enabled": "always",
+        "typescript.suggest.autoImports": true,
+        "typescript.preferences.includePackageJsonAutoImports": "auto",
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-          "source.fixAll.eslint": "always"
+          "source.fixAll.eslint": "explicit",
+          "source.organizeImports": "explicit"
         },
-        "typescript.tsdk": "node_modules/typescript/lib",
-        "jest.autoEnable": true,
-        "tailwindCSS.includeLanguages": {
-          "typescript": "typescriptreact"
+        "files.associations": {
+          "*.env.*": "dotenv",
+          "docker-compose*.yml": "dockercompose",
+          "*.prisma": "prisma"
         },
-        "files.exclude": {
-          "**/.git": true,
-          "**/.svn": true,
-          "**/.hg": true,
-          "**/CVS": true,
-          "**/.DS_Store": true,
-          "**/node_modules": true
+        "emmet.includeLanguages": {
+          "typescript": "typescriptreact",
+          "javascript": "javascriptreact"
+        },
+        "workbench.editorAssociations": {
+          "*.md": "vscode.markdown.preview.editor"
         }
       }
     }
   },
-  "forwardPorts": [
-    3000,  // estimate-frontend
-    3022,  // estimate-service
-    3001,  // data-collector
-    3002,  // ai-assistant
-    3003,  // knowledge-base
-    8000,  // python-app
-    5432,  // PostgreSQL
-    5555,  // Prisma Studio
-    6379,  // Redis
-    9229   // Debugger
-  ],
-  "postCreateCommand": "npm install --workspaces && npx nx run-many -t build --all && pip install --upgrade pip && bash .github/setup-codespaces.sh && bash .github/init-copilot-workspace.sh",
-  "remoteUser": "node",
+  "forwardPorts": [3000, 3001, 3022, 5432, 6379],
+  "portsAttributes": {
+    "3000": { "label": "Frontend (React)", "onAutoForward": "notify" },
+    "3001": { "label": "Backend API", "onAutoForward": "notify" },
+    "3022": { "label": "Estimate Service", "onAutoForward": "notify" },
+    "5432": { "label": "PostgreSQL", "onAutoForward": "silent" },
+    "6379": { "label": "Redis", "onAutoForward": "silent" }
+  },
+  "postCreateCommand": "bash .github/setup-codespaces.sh",
+  "postStartCommand": "npm run post-start",
   "features": {
-    // "ghcr.io/devcontainers/features/zsh:1": {
-    //   "ohMyZsh": true,
-    //   "ohMyZshPlugins": "git,node,npm,command-not-found,docker,history,extract,web-search,fd,zsh-autosuggestions,zsh-syntax-highlighting",
-    //   "ohMyZshTheme": "agnoster",
-    //   "customZshrc": "# User custom zshrc\nexport ZSH=\"$HOME/.oh-my-zsh\"\nZSH_THEME=\"agnoster\"\nplugins=(git node npm command-not-found docker history extract web-search fd zsh-autosuggestions zsh-syntax-highlighting)\nsource $ZSH/oh-my-zsh.sh\n# Aliases\nalias ll='ls -lah'\nalias gs='git status'\nalias gp='git pull'\nalias gc='git commit'\n# Enable autosuggestions\nsource /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh 2>/dev/null || true\n# Enable syntax highlighting\nsource /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2>/dev/null || true\n# Prompt config\nexport PROMPT='%F{cyan}%n@%m%f %F{yellow}%~%f $(git_prompt_info) %F{green}$%f '",
-    // },
-    "ghcr.io/devcontainers/features/python:1": {
-      "version": "3.11",
-      "installMiniconda": true,
-      "condaChannels": "conda-forge"
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true
     }
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder}/.devcontainer/bashrc,target=/home/vscode/.bashrc,type=bind",
+    "source=${localWorkspaceFolder}/.devcontainer/gitconfig,target=/home/vscode/.gitconfig,type=bind"
+  ],
+  "remoteEnv": {
+    "TZ": "Europe/Moscow",
+    "NODE_ENV": "development",
+    "GITHUB_CODESPACE": "true"
   }
 }
