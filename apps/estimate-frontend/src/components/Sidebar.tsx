@@ -21,6 +21,7 @@ const navigation = [
   { name: 'Дашборд', href: '/', icon: HomeIcon },
   { name: 'Сметы', href: '/estimates', icon: DocumentTextIcon },
   { name: 'Проекты', href: '/projects', icon: FolderIcon },
+  { name: 'Документы', href: '/documents', icon: DocumentTextIcon },
   { name: 'ИИ-Ассистент', href: '/ai-assistant', icon: CpuChipIcon },
   { name: 'Настройки', href: '/settings', icon: Cog6ToothIcon },
 ]
