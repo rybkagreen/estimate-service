@@ -18,9 +18,7 @@
   "workspace": {
     "type": "nx",
     "version": "17.2.8",
-    "packageManager": "npm",
-    "nodeVersion": "20.x",
-    "npmScope": "estimate-service"
+    "packageManager": "npm"
   },
   "projects": [
     {
@@ -34,24 +32,6 @@
       "type": "application",
       "framework": "react",
       "path": "apps/estimate-frontend"
-    },
-    {
-      "name": "ai-assistant",
-      "type": "application",
-      "framework": "nestjs",
-      "path": "services/ai-assistant"
-    },
-    {
-      "name": "data-collector",
-      "type": "application",
-      "framework": "nestjs",
-      "path": "services/data-collector"
-    },
-    {
-      "name": "knowledge-base",
-      "type": "application",
-      "framework": "nestjs",
-      "path": "services/knowledge-base"
     },
     {
       "name": "mcp-server",
@@ -70,41 +50,23 @@
     {
       "name": "estimate-management",
       "description": "Управление строительными сметами",
-      "entities": ["Estimate", "EstimateItem", "Rate", "Material", "Work"],
-      "services": ["estimate-service"]
+      "entities": ["Estimate", "EstimateItem", "Rate", "Material", "Work"]
     },
     {
       "name": "pricing",
       "description": "Ценообразование и расчеты",
-      "entities": ["PriceItem", "RegionalCoefficient", "OverheadCost", "Profit"],
-      "services": ["estimate-service"]
+      "entities": ["PriceItem", "RegionalCoefficient", "OverheadCost", "Profit"]
     },
     {
       "name": "integration",
       "description": "Интеграция с внешними системами",
-      "entities": ["FSBTSIntegration", "GrandSmetaExport", "AIService"],
-      "services": ["estimate-service", "data-collector"]
-    },
-    {
-      "name": "ai-processing",
-      "description": "Обработка данных с помощью ИИ",
-      "entities": ["AIModel", "Prompt", "Response", "Context"],
-      "services": ["ai-assistant", "mcp-server"]
-    },
-    {
-      "name": "knowledge-management",
-      "description": "Управление базой знаний",
-      "entities": ["Document", "Index", "SearchResult", "Metadata"],
-      "services": ["knowledge-base", "data-collector"]
+      "entities": ["FSBTSIntegration", "GrandSmetaExport", "AIService"]
     }
   ],
   "copilot": {
     "context": ".github/COPILOT_CONTEXT.md",
     "prompts": ".github/copilot-prompts.json",
     "workspace": ".github/copilot-workspace.yml",
-    "patterns": ".github/copilot-patterns.json",
-    "tasks": ".github/copilot-tasks/common-tasks.json",
-    "configuration": ".github/COPILOT_CONFIGURATION.md",
     "settings": ".vscode/copilot.json"
   }
 }

@@ -34,41 +34,6 @@
       "prompt": "Создай comprehensive тесты для указанного модуля с покрытием позитивных, негативных сценариев и edge cases",
       "files": ["src/**/*.spec.ts", "test/"],
       "tags": ["testing", "quality"]
-    },
-    {
-      "name": "implement-ai-service",
-      "description": "Реализовать ИИ-сервис",
-      "prompt": "Создай сервис для интеграции с DeepSeek R1 или другими ИИ-моделями для анализа смет",
-      "files": ["services/ai-assistant/", "libs/ai-integration/"],
-      "tags": ["ai", "integration", "backend"]
-    },
-    {
-      "name": "setup-knowledge-base",
-      "description": "Настроить базу знаний",
-      "prompt": "Создай сервис управления базой знаний для хранения и поиска документации по ФСБЦ-2022",
-      "files": ["services/knowledge-base/", "libs/search/"],
-      "tags": ["knowledge", "search", "backend"]
-    },
-    {
-      "name": "implement-data-collector",
-      "description": "Реализовать сборщик данных",
-      "prompt": "Создай сервис для сбора и обработки данных из различных источников о расценках",
-      "files": ["services/data-collector/", "libs/parsers/"],
-      "tags": ["data", "etl", "backend"]
-    },
-    {
-      "name": "setup-mcp-server",
-      "description": "Настроить MCP сервер",
-      "prompt": "Настрой Model Context Protocol сервер для интеграции с ИИ-моделями и обмена контекстом",
-      "files": ["mcp-server/", "mcp-server/config/"],
-      "tags": ["mcp", "ai", "integration"]
-    },
-    {
-      "name": "create-estimate-export",
-      "description": "Создать экспорт смет",
-      "prompt": "Реализуй экспорт сметы в форматы Excel, PDF и Гранд Смета с сохранением всех формул и расчетов",
-      "files": ["services/estimate-service/src/export/", "libs/exporters/"],
-      "tags": ["export", "formats", "backend"]
     }
   ]
 }

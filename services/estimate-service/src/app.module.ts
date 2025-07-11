@@ -14,16 +14,17 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AiAssistantModule } from './modules/ai-assistant/ai-assistant.module';
 import { BackgroundJobsModule } from './modules/background-jobs/background-jobs.module';
 import { ClassificationModule } from './modules/classification/classification.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { EstimateModule } from './modules/estimate/estimate.module';
 import { GrandSmetaModule } from './modules/grand-smeta/grand-smeta.module';
 import { PredictionModule } from './modules/prediction/prediction.module';
+import { ProjectModule } from './modules/project/project.module';
 import { TemplatesModule } from './modules/templates/templates.module';
 import { ValidationModule } from './modules/validation/validation.module';
 
 // Shared modules
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { SharedCacheModule } from './shared/cache/cache.module';
-import { EnhancedCacheModule } from './shared/cache/enhanced-cache.module';
 import { CircuitBreakerModule } from './shared/circuit-breaker/circuit-breaker.module';
 import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
 import { LoggerMiddleware } from './shared/middleware/logger.middleware';
@@ -40,10 +41,12 @@ import { StreamingModule } from './shared/streaming/streaming.module';
     }),
 
     // Security and performance
-    ThrottlerModule.forRoot([{
-      ttl: 60000, // 1 minute
-      limit: 100, // 100 requests per minute
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minute
+        limit: 100, // 100 requests per minute
+      },
+    ]),
 
     CacheModule.register({
       isGlobal: true,
@@ -54,7 +57,6 @@ import { StreamingModule } from './shared/streaming/streaming.module';
     // Core modules
     PrismaModule,
     SharedCacheModule,
-    EnhancedCacheModule,
     StreamingModule,
     CircuitBreakerModule,
     MonitoringModule,
@@ -72,6 +74,8 @@ import { StreamingModule } from './shared/streaming/streaming.module';
     BackgroundJobsModule,
     PredictionModule,
     ValidationModule,
+    DashboardModule,
+    ProjectModule,
   ],
   providers: [
     {
@@ -90,8 +94,6 @@ import { StreamingModule } from './shared/streaming/streaming.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(CorrelationIdMiddleware, LoggerMiddleware)
-      .forRoutes('*');
+    consumer.apply(CorrelationIdMiddleware, LoggerMiddleware).forRoutes('*');
   }
 }
