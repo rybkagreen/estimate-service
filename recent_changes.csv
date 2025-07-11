@@ -1,0 +1,9 @@
+200a2fc|2025-07-11 13:22:25 +0300|Alex|feat: интеграция всех основных страниц, api и backend endpoints; исправления сборки и новые модули (dashboard, projects, knowledge base, settings и др.)
+d9cd9e5|2025-07-10 19:21:12 +0300|Alex|feat: интеграция AI-проверки смет, массовые действия, контекстное меню, расширенный экспорт PDF, исправления типов
+d227dcc|2025-07-10 10:05:23 +0300|Alex|feat: интеграция системы работы с документами (загрузка, просмотр, редактирование, redux, роутинг)
+9830d10|2025-07-09 11:59:34 +0300|Белин Александр Дмитриевич|fix: CI/CD workflow - remove --workspaces flag and add missing test:unit script
+19cc187|2025-07-09 08:00:34 +0000|Alex|feat: добавлены Dockerfile для всех сервисов и frontend, теперь compose build не падает
+bab40dc|2025-07-09 07:55:09 +0000|Alex|fix: отключена проблемная zsh feature в devcontainer.json для успешной сборки Codespaces
+09ee9e0|2025-07-09 07:51:03 +0000|Alex|fix: полностью убран Node 18 из Dockerfile и docker-compose, теперь только Node 20
+5cf57a6|2025-07-09 06:57:18 +0000|Alex|fix: используем setup-codespaces.sh вместо setup.sh в postCreateCommand
+079ca20|2025-07-09 06:41:00 +0000|Alex|fix: исправлен путь к docker-compose.yml в devcontainer.json

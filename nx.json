@@ -1,4 +1,9 @@
 {
+  "pluginsConfig": {
+    "@nx/js": {
+      "analyzeSourceFiles": true
+    }
+  },
   "npmScope": "estimate-service",
   "extends": "nx/presets/npm.json",
   "tasksRunnerOptions": {
@@ -19,9 +24,6 @@
     "projectNameAndRootFormat": "as-provided",
     "appsDir": "apps",
     "libsDir": "libs"
-  },
-  "affected": {
-    "defaultBase": "main"
   },
   "defaultBase": "main",
   "cli": {
@@ -59,9 +61,6 @@
     }
   },
   "defaultProject": "estimate-service",
-  "pluginsConfig": {
-    "@nx/js": {
-      "analyzeSourceFiles": true
-    }
-  }
+  "nxCloudId": "6870ed93fb3abf29cde1ba32",
+  "useInferencePlugins": false
 }

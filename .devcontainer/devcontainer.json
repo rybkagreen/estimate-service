@@ -28,7 +28,8 @@
         "formulahendry.auto-rename-tag",
         "christian-kohler.path-intellisense",
         "visualstudioexptteam.vscodeintellicode",
-        "ms-vscode.vscode-mcp"
+        "ms-vscode.vscode-mcp",
+        "RooVeterinaryInc.roo-cline"
       ],
       "settings": {
         "github.copilot.enable": {
