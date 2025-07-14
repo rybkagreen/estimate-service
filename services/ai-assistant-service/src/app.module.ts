@@ -6,6 +6,8 @@ import { DeepSeekModule } from './deepseek/deepseek.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { ContextModule } from './context/context.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { VectorStoreModule } from './vector-store/vector-store.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { PrismaModule } from './prisma/prisma.module';
     DeepSeekModule,
     ConversationModule,
     ContextModule,
+    VectorStoreModule,
+    ChatModule,
   ],
 })
 export class AppModule {}

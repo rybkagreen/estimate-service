@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import weaviate, { WeaviateClient, ApiKey } from 'weaviate-ts-client';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class WeaviateService implements OnModuleInit {
@@ -10,32 +10,32 @@ export class WeaviateService implements OnModuleInit {
   constructor(private configService: ConfigService) {}
 
   async onModuleInit() {
+    await this.initializeClient();
+    await this.ensureSchema();
+  }
+
+  private async initializeClient() {
     try {
-      const scheme = this.configService.get<string>('WEAVIATE_SCHEME', 'http');
-      const host = this.configService.get<string>('WEAVIATE_HOST', 'localhost:8080');
-      const apiKey = this.configService.get<string>('WEAVIATE_API_KEY', 'estimate-service-key');
+      const scheme = this.configService.get('WEAVIATE_SCHEME', 'http');
+      const host = this.configService.get('WEAVIATE_HOST', 'localhost:8080');
+      const apiKey = this.configService.get('WEAVIATE_API_KEY', 'estimate-service-key');
 
       this.client = weaviate.client({
         scheme,
         host,
-        apiKey: new ApiKey(apiKey),
+        ...(apiKey && {
+          apiKey: new ApiKey(apiKey),
+        }),
       });
 
-      // Проверка подключения
-      const meta = await this.client.misc.metaGetter().do();
-      this.logger.log(`Connected to Weaviate version: ${meta.version}`);
-
-      // Создание схемы для ФСБЦ-2022
-      await this.ensureSchema();
+      // Test connection
+      const meta = await this.client.meta.getter().do();
+      this.logger.log(`Connected to Weaviate v${meta.version}`);
     } catch (error) {
       this.logger.error('Failed to connect to Weaviate', error);
       throw error;
     }
   }
-
-  private async ensureSchema() {
-    try {
-      // Проверяем существование классов
       const schema = await this.client.schema.getter().do();
       const existingClasses = schema.classes?.map((c) => c.class) || [];
 
