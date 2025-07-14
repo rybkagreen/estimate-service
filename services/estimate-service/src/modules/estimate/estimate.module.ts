@@ -6,6 +6,7 @@ import { StreamingModule } from '../../shared/streaming/streaming.module';
 import { EstimateController } from './estimate.controller';
 import { EstimateService } from './estimate.service';
 import { EstimateExtendedService } from './estimate-extended.service';
+import { FSBTSPricingService } from './fsbts-pricing.service';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { EstimateExtendedService } from './estimate-extended.service';
     CircuitBreakerModule,
   ],
   controllers: [EstimateController],
-  providers: [EstimateService, EstimateExtendedService, PrismaService],
+providers: [EstimateService, EstimateExtendedService, FSBTSPricingService, PrismaService],
   exports: [EstimateService, EstimateExtendedService],
 })
 export class EstimateModule {}

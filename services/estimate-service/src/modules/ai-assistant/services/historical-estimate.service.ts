@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BuildingType } from '@ez-eco/shared-contracts';
+import { ConstructionObjectType } from '@ez-eco/shared-contracts';
 
 /**
  * Represents a deviation from historical norms
@@ -39,7 +39,7 @@ export interface HistoricalRange {
 export interface SimilarProject {
   id: string;
   name: string;
-  type: BuildingType;
+  type: ConstructionObjectType;
   similarity: number; // 0-1 similarity score
   value: number;
   completedDate?: Date;
@@ -379,21 +379,21 @@ export class HistoricalEstimateService {
       {
       id: 'proj-001',
       name: 'Downtown Office Complex',
-      type: BuildingType.COMMERCIAL,
+      type: ConstructionObjectType.COMMERCIAL,
       similarity: 0.85,
       value: extractedValues.get('totalCost') || 5000000,
       },
       {
       id: 'proj-002',
       name: 'Suburban Residential Development',
-      type: BuildingType.RESIDENTIAL,
+      type: ConstructionObjectType.RESIDENTIAL,
       similarity: 0.78,
       value: (extractedValues.get('totalCost') || 5000000) * 0.9,
       },
       {
       id: 'proj-003',
       name: 'Mixed-Use Building Project',
-      type: BuildingType.MIXED_USE,
+      type: ConstructionObjectType.MIXED_USE,
       similarity: 0.72,
       value: (extractedValues.get('totalCost') || 5000000) * 1.1,
       },
@@ -423,7 +423,7 @@ export class HistoricalEstimateService {
     options?: {
       location?: string;
       dateRange?: { start: Date; end: Date };
-      buildingType?: BuildingType;
+      buildingType?: ConstructionObjectType;
     },
   ): Promise<{
     metric: string;
@@ -572,7 +572,7 @@ export class HistoricalEstimateService {
    * @returns Benchmark data for comparison
    */
   async getBenchmarkData(
-    projectType: BuildingType,
+    projectType: ConstructionObjectType,
     location?: string,
   ): Promise<{
     benchmarks: Record<string, HistoricalRange>;

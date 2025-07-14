@@ -3,7 +3,7 @@ import { Process, Processor } from '@nestjs/bull';
 import { Job, Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bull';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PrismaService } from '../../../prisma.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import { 
   AIFeedback, 
   AIInteraction, 

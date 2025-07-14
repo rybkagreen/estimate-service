@@ -544,7 +544,7 @@ interface UserProfileCardProps { }
 echo "🚀 Настройка окружения разработки..."
 
 # Проверка Node.js версии
-required_node_version="18"
+required_node_version="20"
 current_node_version=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
 
 if [ "$current_node_version" -lt "$required_node_version" ]; then

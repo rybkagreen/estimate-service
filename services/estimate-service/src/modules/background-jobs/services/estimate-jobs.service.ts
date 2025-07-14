@@ -15,6 +15,14 @@ export interface BulkEstimateJobData {
   operationType: 'recalculate' | 'approve' | 'export';
 }
 
+export interface FSBTSCalculationJobData {
+  estimateId: string;
+  regionCode: string;
+  includeAllVariants?: boolean;
+  optimizeForCost?: boolean;
+  userId?: string;
+}
+
 @Injectable()
 export class EstimateJobsService {
   private readonly logger = new Logger(EstimateJobsService.name);
@@ -139,6 +147,61 @@ export class EstimateJobsService {
     await this.estimateQueue.clean(24 * 60 * 60 * 1000, 'completed'); // Удаляем завершенные задачи старше суток
     await this.estimateQueue.clean(24 * 60 * 60 * 1000, 'failed'); // Удаляем упавшие задачи старше суток
     this.logger.log('Очередь расчетов смет очищена');
+  }
+
+/**
+   * Добавить задачу расчета по ФСБЦ-2022
+   */
+  async addFSBTSCalculationJob(
+    data: FSBTSCalculationJobData,
+    options?: {
+      delay?: number;
+      priority?: number;
+    }
+  ): Promise<void> {
+    try {
+      const job = await this.estimateQueue.add('calculate-fsbts', data, {
+        priority: options?.priority || 2, // Высокий приоритет для ФСБЦ расчетов
+        delay: options?.delay,
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 5000,
+        },
+        timeout: 300000, // 5 минут на расчет
+      });
+
+      this.logger.log(`Задача ФСБЦ-2022 расчета добавлена: ${job.id} для сметы ${data.estimateId}`);
+    } catch (error) {
+      this.logger.error(`Ошибка добавления задачи ФСБЦ расчета для сметы ${data.estimateId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Добавить задачу оптимизации сметы
+   */
+  async addOptimizationJob(
+    estimateId: string,
+    optimizationCriteria: 'cost' | 'time' | 'balanced',
+    userId?: string
+  ): Promise<void> {
+    try {
+      const job = await this.estimateQueue.add('optimize-estimate', {
+        estimateId,
+        optimizationCriteria,
+        userId,
+      }, {
+        priority: 4,
+        attempts: 2,
+        timeout: 600000, // 10 минут на оптимизацию
+      });
+
+      this.logger.log(`Задача оптимизации сметы добавлена: ${job.id} для сметы ${estimateId}`);
+    } catch (error) {
+      this.logger.error(`Ошибка добавления задачи оптимизации сметы ${estimateId}:`, error);
+      throw error;
+    }
   }
 
   /**

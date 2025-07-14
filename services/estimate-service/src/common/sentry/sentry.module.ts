@@ -1,6 +1,6 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import { ProfilingIntegration } from '@sentry/profiling-node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 
@@ -32,9 +32,8 @@ export class SentryModule implements OnModuleInit {
       tracesSampleRate: this.configService.get<number>('SENTRY_TRACE_RATE', 0.1),
       profilesSampleRate: this.configService.get<number>('SENTRY_PROFILE_RATE', 0.1),
       integrations: [
-        // Automatically instrument Node.js libraries and frameworks
-        ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
-        new ProfilingIntegration(),
+        // Node profiling integration
+        nodeProfilingIntegration(),
       ],
       beforeSend: (event, hint) => {
         // Filter out non-critical errors in production

@@ -376,7 +376,7 @@ VITE_SENTRY_DSN=your_sentry_dsn
 ### Docker
 ```dockerfile
 # Multi-stage build для оптимизации
-FROM node:18-alpine as builder
+FROM node:20-alpine as builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci

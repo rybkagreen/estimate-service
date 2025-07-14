@@ -259,11 +259,6 @@ describe('AuthService', () => {
     });
   });
 });
-      refreshToken: {
-        create: jest.fn(),
-        findFirst: jest.fn(),
-      },
-    };
 
     const mockJwtService = {
       sign: jest.fn(),

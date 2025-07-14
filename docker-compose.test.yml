@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Prisma ORM
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: postgres-test
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-testuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-testpass}
+      POSTGRES_DB: ${POSTGRES_DB:-testdb}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts with dev DB
+    volumes:
+      - postgres-test-data:/var/lib/postgresql/data
+      - ./scripts/init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-testuser} -d ${POSTGRES_DB:-testdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test-network
+
+  # Redis for caching and session management
+  redis-test:
+    image: redis:7-alpine
+    container_name: redis-test
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-testredispass}
+    ports:
+      - "6380:6379"  # Different port to avoid conflicts with dev Redis
+    volumes:
+      - redis-test-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test-network
+
+  # MinIO for file storage (S3-compatible)
+  minio-test:
+    image: minio/minio:latest
+    container_name: minio-test
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin123}
+      MINIO_DEFAULT_BUCKETS: ${MINIO_DEFAULT_BUCKETS:-test-files}
+    ports:
+      - "9001:9000"  # MinIO API
+      - "9002:9001"  # MinIO Console
+    volumes:
+      - minio-test-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test-network
+
+  # MinIO Client for bucket initialization
+  minio-mc-test:
+    image: minio/mc:latest
+    container_name: minio-mc-test
+    depends_on:
+      minio-test:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set minio-test http://minio-test:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin123};
+      mc mb --ignore-existing minio-test/${MINIO_DEFAULT_BUCKETS:-test-files};
+      mc anonymous set public minio-test/${MINIO_DEFAULT_BUCKETS:-test-files};
+      exit 0;
+      "
+    networks:
+      - test-network
+
+# Volumes for data persistence
+volumes:
+  postgres-test-data:
+    driver: local
+  redis-test-data:
+    driver: local
+  minio-test-data:
+    driver: local
+
+# Network configuration for inter-service communication
+networks:
+  test-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

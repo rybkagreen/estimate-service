@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, Post, Put, Delete, Query, UseInterceptors, UseGuards, Patch, Req, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete, Query, UseInterceptors, UseGuards, Patch, Req, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
 import { Cacheable } from '../../shared/cache/cache.decorators';
 import { CacheInterceptor } from '../../shared/cache/cache.interceptor';
 import { EstimateService } from './estimate.service';
 import { EstimateExtendedService } from './estimate-extended.service';
+import { FSBTSPricingService } from './fsbts-pricing.service';
 import {
   CreateEstimateDto,
   UpdateEstimateDto,
@@ -24,7 +25,8 @@ import { EstimateStatus } from '@prisma/client';
 export class EstimateController {
   constructor(
     private readonly estimateService: EstimateService,
-    private readonly extendedService: EstimateExtendedService,
+private readonly extendedService: EstimateExtendedService,
+    private readonly fsbtsPricingService: FSBTSPricingService,
   ) {}
 
   /**
@@ -173,5 +175,40 @@ export class EstimateController {
   ): Promise<ExportResponseDto> {
     // TODO: Implement export functionality
     return { message: 'Экспорт будет реализован в следующей версии' };
+}
+
+  /**
+   * Рассчитать смету по стандартам ФСБЦ-2022
+   */
+  @Post(':id/calculate-fsbts')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Рассчитать смету по стандартам ФСБЦ-2022' })
+  @ApiResponse({ status: 200, description: 'Расчет выполнен' })
+  @ApiResponse({ status: 404, description: 'Смета не найдена' })
+  async calculateFSBTS(
+    @Param('id') id: string,
+    @Query('regionCode') regionCode: string = '77'
+  ) {
+    const result = await this.fsbtsPricingService.calculateEstimateTotal(id, regionCode);
+    return {
+      success: true,
+      data: result,
+      message: 'Расчет сметы по ФСБЦ-2022 выполнен успешно'
+    };
+  }
+
+  /**
+   * Получить цену по коду ФСБЦ-2022
+   */
+  @Get('fsbts/price/:code')
+  @ApiOperation({ summary: 'Получить базовую цену по коду ФСБЦ-2022' })
+  @ApiResponse({ status: 200, description: 'Цена найдена' })
+  @ApiResponse({ status: 404, description: 'Цена не найдена' })
+  async getFSBTSPrice(@Param('code') code: string) {
+    const price = await this.fsbtsPricingService.getBasePrice(code);
+    if (!price) {
+      throw new NotFoundException(`Цена для кода ${code} не найдена`);
+    }
+    return price;
   }
 }

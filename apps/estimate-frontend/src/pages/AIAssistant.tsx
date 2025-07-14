@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { sendAIMessage, AIMessage } from '../services/aiService';
+import { aiService, AIMessage } from '../services/aiServiceNew';
 
 const AIAssistant: React.FC = () => {
   const [messages, setMessages] = useState<AIMessage[]>([]);
@@ -7,7 +7,7 @@ const AIAssistant: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const handleSend = async () => {
+const handleSend = async () => {
     if (!input.trim()) return;
     const userMsg: AIMessage = {
       id: Date.now().toString(),
@@ -19,7 +19,7 @@ const AIAssistant: React.FC = () => {
     setInput('');
     setLoading(true);
     try {
-      const aiMsg = await sendAIMessage(userMsg.content, [...messages, userMsg]);
+      const aiMsg = await aiService.sendMessage(userMsg.content);
       setMessages(prev => [...prev, aiMsg]);
     } catch (e) {
       setMessages(prev => [
@@ -34,6 +34,29 @@ const AIAssistant: React.FC = () => {
     } finally {
       setLoading(false);
       setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    }
+  };
+
+  const handleVoiceInput = async (audioBlob: Blob) => {
+    setLoading(true);
+    try {
+      const text = await aiService.speechToText(audioBlob);
+      setInput(text);
+    } catch (e) {
+      console.error('Voice input error', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVoiceOutput = async (text: string) => {
+    try {
+      const audioBlob = await aiService.textToSpeech(text);
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+    } catch (e) {
+      console.error('Voice output error', e);
     }
   };
 

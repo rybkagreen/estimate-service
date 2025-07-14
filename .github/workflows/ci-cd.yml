@@ -160,7 +160,8 @@ jobs:
         run: npm run docs:check
 
       - name: Ensure README is up to date
-        run: test -f README.md || echo "Warning: README.md missing"
+        run: |
+          test -f README.md || echo "Warning: README.md missing"
 
       - name: Generate API docs
         run: npm run docs:generate-api

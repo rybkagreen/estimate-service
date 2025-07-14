@@ -245,6 +245,10 @@ model User {
   knowledgeFeedbacks UserFeedback[]     @relation("UserKnowledgeFeedback")
   expertValidations  ExpertValidation[] @relation("ExpertKnowledgeValidation")
 
+  // AI relations
+  aiConversations AIConversation[]
+  fileAttachments FileAttachment[]
+
   // Timestamps
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
@@ -2022,7 +2026,6 @@ model KnowledgeEntry {
   @@index([authorId])
   @@index([tags])
   @@index([createdAt(sort: Desc)])
-  @@fulltext([title, content, summary])
   @@map("knowledge_entries")
 }
 
@@ -2138,8 +2141,177 @@ model EstimateTemplate {
   @@map("estimate_templates")
 }
 
-// Добавить обратную связь в User
-model User {
-  // ...existing fields...
-  estimateTemplates EstimateTemplate[]
+// ================================
+// AI CONVERSATION HISTORY
+// ================================
+
+model AIConversation {
+  id String @id @default(cuid())
+  
+  /// User who initiated the conversation
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  
+  /// Context of the conversation
+  contextType String? // estimate, project, document, general
+  contextId   String? // ID of the related entity
+  
+  /// Conversation metadata
+  title    String?
+  summary  String? @db.Text
+  tags     String[] @default([])
+  
+  /// AI model used
+  modelName    String
+  modelVersion String?
+  
+  /// Session tracking
+  sessionId String?
+  isActive  Boolean @default(true)
+  
+  /// Messages in this conversation
+  messages AIMessage[]
+  
+  /// Usage statistics
+  totalTokens     Int @default(0)
+  promptTokens    Int @default(0)
+  completionTokens Int @default(0)
+  
+  /// Cost tracking (if applicable)
+  estimatedCost Decimal? @db.Decimal(10, 4)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  endedAt   DateTime?
+  
+  @@index([userId])
+  @@index([contextType, contextId])
+  @@index([sessionId])
+  @@index([isActive])
+  @@index([createdAt(sort: Desc)])
+  @@map("ai_conversations")
 }
+
+model AIMessage {
+  id String @id @default(cuid())
+  
+  /// Conversation this message belongs to
+  conversationId String
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  
+  /// Message details
+  role    String // user, assistant, system, function
+  content String @db.Text
+  
+  /// For function calls
+  functionName String?
+  functionArgs Json?
+  functionResult Json?
+  
+  /// Message metadata
+  metadata Json?
+  
+  /// Token usage for this message
+  promptTokens     Int?
+  completionTokens Int?
+  totalTokens      Int?
+  
+  /// Processing time
+  processingTime Int? // milliseconds
+  
+  /// Error tracking
+  error        String?
+  errorDetails Json?
+  
+  /// Attachments
+  attachments FileAttachment[]
+  
+  createdAt DateTime @default(now())
+  
+  @@index([conversationId])
+  @@index([role])
+  @@index([createdAt])
+  @@map("ai_messages")
+}
+
+// ================================
+// FILE ATTACHMENTS
+// ================================
+
+model FileAttachment {
+  id String @id @default(cuid())
+  
+  /// File information
+  filename     String
+  originalName String
+  mimeType     String
+  fileSize     BigInt
+  filePath     String // Storage path
+  
+  /// Storage details
+  storageType String @default("local") // local, s3, azure, etc.
+  bucketName  String?
+  objectKey   String?
+  
+  /// Security
+  checksum    String // SHA-256 hash
+  isEncrypted Boolean @default(false)
+  
+  /// Access control
+  isPublic    Boolean @default(false)
+  accessToken String? // For secure access
+  expiresAt   DateTime?
+  
+  /// Ownership
+  uploadedById String
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
+  
+  /// Polymorphic associations
+  entityType String? // estimate, project, message, document, etc.
+  entityId   String?
+  
+  /// Specific associations
+  aiMessageId String?
+  aiMessage   AIMessage? @relation(fields: [aiMessageId], references: [id], onDelete: Cascade)
+  
+  /// Processing status
+  status           String @default("uploaded") // uploaded, processing, ready, failed
+  processingError  String?
+  
+  /// Virus scanning
+  isScanned     Boolean @default(false)
+  scanResult    String? // clean, infected, error
+  scannedAt     DateTime?
+  
+  /// AI processing
+  aiProcessed  Boolean @default(false)
+  aiMetadata   Json? // Extracted text, detected objects, etc.
+  aiProcessedAt DateTime?
+  
+  /// Preview generation
+  hasPreview   Boolean @default(false)
+  previewPath  String?
+  thumbnailPath String?
+  
+  /// Metadata
+  metadata     Json?
+  tags         String[] @default([])
+  description  String?
+  
+  /// Soft delete
+  deletedAt    DateTime?
+  deletedBy    String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([uploadedById])
+  @@index([entityType, entityId])
+  @@index([aiMessageId])
+  @@index([status])
+  @@index([mimeType])
+  @@index([createdAt(sort: Desc)])
+  @@index([deletedAt])
+  @@map("file_attachments")
+}
+
