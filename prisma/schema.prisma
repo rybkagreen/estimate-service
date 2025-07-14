@@ -2315,3 +2315,56 @@ model FileAttachment {
   @@map("file_attachments")
 }
 
+// ============================================
+// AI Assistant Models
+// ============================================
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  userId    String
+  role      String   // 'user' | 'assistant' | 'system'
+  content   String   @db.Text
+  metadata  Json?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([sessionId])
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@map("chat_messages")
+}
+
+model EstimateAnalysis {
+  id        String   @id @default(cuid())
+  userId    String
+  content   String   @db.Text // Original estimate content
+  analysis  String   @db.Text // AI analysis result
+  context   String?  @db.Text // Additional context (JSON)
+  metadata  Json?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@map("estimate_analyses")
+}
+
+model GeneratedEstimate {
+  id          String   @id @default(cuid())
+  userId      String
+  description String   @db.Text // Project description
+  content     String   @db.Text // Generated estimate content
+  rates       String?  @db.Text // Relevant FSBC rates (JSON)
+  metadata    Json?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([createdAt(sort: Desc)])
+  @@map("generated_estimates")
+}
+

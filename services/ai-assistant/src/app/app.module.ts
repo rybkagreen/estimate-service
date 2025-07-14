@@ -8,7 +8,9 @@ import { CoreModule } from './modules/core/core.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { KnowledgeModule } from './modules/knowledge/knowledge.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
-import { PrismaModule } from './prisma/prisma.module';
+import { PrismaModule } from '../prisma/prisma.module';
+import { VectorStoreModule } from '../vector-store/vector-store.module';
+import { DeepseekModule } from '../deepseek/deepseek.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { PrismaModule } from './prisma/prisma.module';
     ChatModule,
     KnowledgeModule,
     AnalyticsModule,
+    VectorStoreModule,
+    DeepseekModule,
   ],
   controllers: [AppController],
   providers: [AppService],
