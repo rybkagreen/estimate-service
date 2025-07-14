@@ -8,6 +8,7 @@ import { DatabaseService } from './database.js';
 import { AIService } from './ai.js';
 import { ExternalService } from './external.js';
 import { ProjectService } from './project.js';
+import { EstimateAIService } from './estimate-ai.service.js';
 
 export interface Services {
   database: DatabaseService;
@@ -85,3 +86,6 @@ export async function shutdownServices(): Promise<void> {
     throw error;
   }
 }
+
+// Экспорт дополнительных сервисов
+export { EstimateAIService, estimateAI } from './estimate-ai.service.js';
