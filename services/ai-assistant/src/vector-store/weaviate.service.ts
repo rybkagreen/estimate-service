@@ -29,13 +29,16 @@ export class WeaviateService implements OnModuleInit {
       });
 
       // Test connection
-      const meta = await this.client.meta.getter().do();
+      const meta = await this.client.misc.metaGetter().do();
       this.logger.log(`Connected to Weaviate v${meta.version}`);
     } catch (error) {
       this.logger.error('Failed to connect to Weaviate', error);
       throw error;
     }
   }
+
+  async ensureSchema() {
+    try {
       const schema = await this.client.schema.getter().do();
       const existingClasses = schema.classes?.map((c) => c.class) || [];
 
@@ -252,5 +255,52 @@ export class WeaviateService implements OnModuleInit {
 
   getClient(): WeaviateClient {
     return this.client;
+  }
+
+  async search(query: string, className: string, limit = 10) {
+    try {
+      const result = await this.client.graphql
+        .get()
+        .withClassName(className)
+        .withFields('_additional { id distance } code name description')
+        .withNearText({ concepts: [query] })
+        .withLimit(limit)
+        .do();
+
+      return result.data?.Get?.[className] || [];
+    } catch (error) {
+      this.logger.error(`Error searching in ${className}:`, error);
+      throw error;
+    }
+  }
+
+  async upsert(className: string, data: any) {
+    try {
+      const result = await this.client.data
+        .creator()
+        .withClassName(className)
+        .withProperties(data)
+        .do();
+
+      return result;
+    } catch (error) {
+      this.logger.error(`Error upserting to ${className}:`, error);
+      throw error;
+    }
+  }
+
+  async delete(className: string, id: string) {
+    try {
+      await this.client.data
+        .deleter()
+        .withClassName(className)
+        .withId(id)
+        .do();
+
+      return { success: true };
+    } catch (error) {
+      this.logger.error(`Error deleting from ${className}:`, error);
+      throw error;
+    }
   }
 }

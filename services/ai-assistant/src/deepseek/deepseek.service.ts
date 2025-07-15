@@ -151,10 +151,18 @@ export class DeepSeekService {
   /**
    * Analyze estimate data with AI
    */
-  async analyzeEstimate(estimateData: any): Promise<string> {
+  async analyzeEstimate(params: {
+    estimateText: string;
+    documentType?: string;
+    regionCode?: string;
+    year?: number;
+  }): Promise<string> {
     const prompt = `Проанализируй следующую смету и предоставь рекомендации по оптимизации:
     
-    ${JSON.stringify(estimateData, null, 2)}
+    Смета: ${params.estimateText}
+    Тип документа: ${params.documentType || 'Не указан'}
+    Регион: ${params.regionCode || 'Не указан'}
+    Год: ${params.year || 'Не указан'}
     
     Пожалуйста, обрати внимание на:
     1. Возможности снижения затрат
@@ -163,6 +171,33 @@ export class DeepSeekService {
     4. Рекомендации по улучшению`;
 
     return this.generateWithContext(prompt, 'Анализ строительной сметы');
+  }
+
+  /**
+   * Generate estimate based on project parameters
+   */
+  async generateEstimate(params: {
+    projectDescription: string;
+    workTypes: string[];
+    area?: number;
+    region?: string;
+    priceLevel?: string;
+  }): Promise<string> {
+    const prompt = `Создай детальную смету для строительного проекта:
+    
+    Описание проекта: ${params.projectDescription}
+    Типы работ: ${params.workTypes.join(', ')}
+    Площадь: ${params.area ? params.area + ' м²' : 'Не указана'}
+    Регион: ${params.region || 'Не указан'}
+    Уровень цен: ${params.priceLevel || 'Средний'}
+    
+    Сгенерируй смету в формате:
+    1. Перечень работ с указанием объемов
+    2. Расценки по ФСБЦ-2022
+    3. Итоговая стоимость с разбивкой по разделам
+    4. Рекомендации по оптимизации`;
+
+    return this.generateWithContext(prompt, 'Генерация строительной сметы');
   }
 
   /**

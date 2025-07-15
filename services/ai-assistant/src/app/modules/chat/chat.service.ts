@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DeepseekService } from '../deepseek/deepseek.service';
-import { WeaviateService } from '../vector-store/weaviate.service';
-import { PrismaService } from '../prisma/prisma.service';
+import { DeepSeekService } from '../../../deepseek/deepseek.service';
+import { WeaviateService } from '../../../vector-store/weaviate.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class ChatService {
   private readonly logger = new Logger(ChatService.name);
 
   constructor(
-    private readonly deepseekService: DeepseekService,
+    private readonly deepSeekService: DeepSeekService,
     private readonly weaviateService: WeaviateService,
     private readonly prisma: PrismaService,
   ) {}
@@ -42,31 +42,34 @@ export class ChatService {
 
       // Формируем сообщения для DeepSeek
       const messages = [
-        { role: 'system', content: systemPrompt },
+        { role: 'system' as const, content: systemPrompt },
         ...chatHistory.map(msg => ({
           role: msg.role as 'user' | 'assistant',
           content: msg.content,
         })),
-        { role: 'user', content: params.message },
+        { role: 'user' as const, content: params.message },
       ];
 
       // Получаем ответ от DeepSeek
-      const response = await this.deepseekService.chat(messages, {
+      const response = await this.deepSeekService.chat(messages, {
         temperature: 0.3,
         maxTokens: 2000,
       });
+
+      // Извлекаем текст из ответа
+      const responseText = typeof response === 'string' ? response : response.choices?.[0]?.message?.content || JSON.stringify(response);
 
       // Сохраняем ответ ассистента
       await this.saveChatMessage({
         sessionId,
         userId: params.userId,
         role: 'assistant',
-        content: response,
+        content: responseText,
       });
 
       return {
         sessionId,
-        response,
+        response: responseText,
         context: relevantContext,
       };
     } catch (error) {
@@ -97,7 +100,7 @@ export class ChatService {
       };
 
       // Анализируем через DeepSeek
-      const analysis = await this.deepseekService.analyzeEstimate({
+      const analysis = await this.deepSeekService.analyzeEstimate({
         estimateText: params.estimateContent,
         documentType: params.documentType as any,
         regionCode: params.regionCode,
@@ -144,7 +147,7 @@ export class ChatService {
       );
 
       // Генерация сметы через DeepSeek
-      const estimate = await this.deepseekService.generateEstimate({
+      const estimate = await this.deepSeekService.generateEstimate({
         projectDescription: params.projectDescription,
         workTypes: params.workTypes,
         area: params.area,
@@ -219,6 +222,27 @@ export class ChatService {
     }
   }
 
+  async createSession(userId: string) {
+    const sessionId = uuidv4();
+    return {
+      id: sessionId,
+      userId,
+      createdAt: new Date(),
+    };
+  }
+
+  async sendMessage(sessionId: string, message: string) {
+    // This is a simplified version - in real implementation 
+    // you'd want to get userId from session
+    const userId = 'default-user'; // TODO: Get from session
+    
+    return this.processMessage({
+      sessionId,
+      message,
+      userId,
+    });
+  }
+
   private async saveChatMessage(params: {
     sessionId: string;
     userId: string;
@@ -231,6 +255,7 @@ export class ChatService {
       });
     } catch (error) {
       this.logger.error('Error saving chat message:', error);
+      return null;
     }
   }
 

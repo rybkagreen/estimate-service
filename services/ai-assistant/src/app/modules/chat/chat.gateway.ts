@@ -35,10 +35,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('createSession')
   async handleCreateSession(
-    @MessageBody() data: { userId: string },
+    @MessageBody() data: any,
     @ConnectedSocket() client: Socket,
   ) {
-    const session = this.chatService.createSession(data.userId);
+    const session = await this.chatService.createSession(data.userId);
     client.join(session.id);
     return session;
   }

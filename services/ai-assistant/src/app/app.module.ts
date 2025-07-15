@@ -10,7 +10,7 @@ import { KnowledgeModule } from './modules/knowledge/knowledge.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { VectorStoreModule } from '../vector-store/vector-store.module';
-import { DeepseekModule } from '../deepseek/deepseek.module';
+import { DeepSeekModule } from '../deepseek/deepseek.module';
 
 @Module({
   imports: [
@@ -24,7 +24,7 @@ import { DeepseekModule } from '../deepseek/deepseek.module';
     KnowledgeModule,
     AnalyticsModule,
     VectorStoreModule,
-    DeepseekModule,
+    DeepSeekModule,
   ],
   controllers: [AppController],
   providers: [AppService],

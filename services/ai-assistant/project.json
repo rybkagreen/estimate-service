@@ -36,7 +36,7 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "ai-assistant:build",
-        "port": 3005
+        "port": 3008
       },
       "configurations": {
         "development": {

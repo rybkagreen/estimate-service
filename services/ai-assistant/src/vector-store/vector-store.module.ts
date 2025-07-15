@@ -6,6 +6,6 @@ import { WeaviateService } from './weaviate.service';
 @Module({
   imports: [ConfigModule],
   providers: [VectorStoreService, WeaviateService],
-  exports: [VectorStoreService],
+  exports: [VectorStoreService, WeaviateService],
 })
 export class VectorStoreModule {}
