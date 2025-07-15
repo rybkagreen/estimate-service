@@ -59,6 +59,17 @@ const configSchema = z.object({
       apiUrl: z.string().default('https://api.grandsmeta.ru'),
       apiKey: z.string().optional(),
     }),
+    fsbc: z.object({
+      apiUrl: z.string().default('https://api.fsbc.ru/v2'),
+      apiKey: z.string().optional(),
+      apiSecret: z.string().optional(),
+      regionCode: z.string().default('77'),
+      priceLevel: z.enum(['current', 'base']).default('current'),
+      cacheTtl: z.number().default(86400),
+      requestTimeout: z.number().default(30000),
+      maxRetryAttempts: z.number().default(3),
+      retryDelay: z.number().default(1000),
+    }),
   }),
 
   // Development tools
@@ -114,6 +125,17 @@ const rawConfig = {
     grandSmeta: {
       apiUrl: process.env.GRAND_SMETA_API_URL || 'https://api.grandsmeta.ru',
       apiKey: process.env.GRAND_SMETA_API_KEY,
+    },
+    fsbc: {
+      apiUrl: process.env.FSBC_API_URL || 'https://api.fsbc.ru/v2',
+      apiKey: process.env.FSBC_API_KEY,
+      apiSecret: process.env.FSBC_API_SECRET,
+      regionCode: process.env.FSBC_REGION_CODE || '77',
+      priceLevel: (process.env.FSBC_PRICE_LEVEL as 'current' | 'base') || 'current',
+      cacheTtl: parseInt(process.env.FSBC_CACHE_TTL || '86400'),
+      requestTimeout: parseInt(process.env.FSBC_REQUEST_TIMEOUT || '30000'),
+      maxRetryAttempts: parseInt(process.env.FSBC_MAX_RETRY_ATTEMPTS || '3'),
+      retryDelay: parseInt(process.env.FSBC_RETRY_DELAY || '1000'),
     },
   },
   development: {
