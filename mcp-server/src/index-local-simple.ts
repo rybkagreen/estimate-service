@@ -12,6 +12,8 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { logger } from './utils/logger.js';
+import { deepSeekService } from './services/deepseek.service.js';
+import { config } from './config/index.js';
 
 /**
  * Простые инструменты для локальной модели
@@ -24,10 +26,10 @@ const LOCAL_TOOLS = [
       type: 'object',
       properties: {
         message: { type: 'string', description: 'Сообщение для модели' },
-        context: { type: 'string', description: 'Дополнительный контекст' }
+        context: { type: 'string', description: 'Дополнительный контекст' },
       },
-      required: ['message']
-    }
+      required: ['message'],
+    },
   },
   {
     name: 'local_deepseek_health_check',
@@ -35,51 +37,112 @@ const LOCAL_TOOLS = [
     inputSchema: {
       type: 'object',
       properties: {},
-      additionalProperties: false
-    }
-  }
+      additionalProperties: false,
+    },
+  },
 ];
 
 /**
- * Простая эмуляция локальной модели
+ * Управление DeepSeek сервисом
  */
-class SimpleLocalModel {
+class DeepSeekManager {
   private initialized = false;
 
+  private isShuttingDown = false;
+
   async initialize() {
-    if (!this.initialized) {
-      logger.info('🤗 Инициализация локальной модели DeepSeek R1...');
-      // Эмуляция инициализации
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      this.initialized = true;
-      logger.info('✅ Локальная модель готова (режим эмуляции)');
+    if (!this.initialized && !this.isShuttingDown) {
+      try {
+        logger.info('🤗 Инициализация DeepSeek сервиса...');
+        logger.info(`📋 Конфигурация: ${config.ai.deepseek.mockMode ? 'Mock Mode' : 'API Mode'}`);
+        logger.info(`🔧 Модель: ${config.ai.deepseek.model}`);
+        logger.info(`🌐 API URL: ${config.ai.deepseek.baseUrl}`);
+
+        // Проверка здоровья сервиса
+        const health = await deepSeekService.healthCheck();
+
+        if (health.status === 'ok') {
+          this.initialized = true;
+          logger.info(`✅ DeepSeek сервис готов к работе (latency: ${health.latency}ms)`);
+        } else {
+          throw new Error(`DeepSeek health check failed: ${health.message}`);
+        }
+      } catch (error) {
+        logger.error('❌ Ошибка инициализации DeepSeek:', error);
+        // В случае ошибки переключаемся в mock режим
+        logger.warn('⚠️ Переключение в mock режим из-за ошибки инициализации');
+        this.initialized = true; // Позволяем серверу работать в mock режиме
+      }
     }
   }
 
   async generateResponse(message: string, context?: string): Promise<string> {
-    await this.initialize();
+    if (!this.initialized) {
+      await this.initialize();
+    }
 
-    // Простая эмуляция ответа
-    const responses = [
-      `🤖 Локальная DeepSeek R1: Получил ваше сообщение "${message}". ${context ? `Контекст: ${context}` : ''}`,
-      `🧠 Анализ завершен. Ваш запрос "${message}" обработан локальной моделью.`,
-      `💬 DeepSeek R1 (Local): ${message.includes('код') ? 'Для анализа кода я готов помочь!' : 'Готов ответить на ваш вопрос.'}`,
-    ];
+    if (this.isShuttingDown) {
+      throw new Error('Сервер завершает работу');
+    }
 
-    return responses[Math.floor(Math.random() * responses.length)];
+    try {
+      const messages = [
+        {
+          role: 'system' as const,
+          content: `Ты - ИИ-ассистент для разработки Estimate Service.
+          Помогаешь с архитектурой, кодом и решением технических задач.
+          ${context ? `\nКонтекст: ${context}` : ''}`,
+        },
+        {
+          role: 'user' as const,
+          content: message,
+        },
+      ];
+
+      const response = await deepSeekService.chat(messages, {
+        temperature: 0.3,
+        maxTokens: 2000,
+      });
+
+      return response;
+    } catch (error) {
+      logger.error('❌ Ошибка генерации ответа:', error);
+      throw error;
+    }
   }
 
-  getStatus() {
-    return {
-      status: this.initialized ? 'ready' : 'initializing',
-      model: 'deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B',
-      mode: 'local_emulation',
-      initialized: this.initialized
-    };
+  async getStatus() {
+    try {
+      const health = await deepSeekService.healthCheck();
+
+      return {
+        status: health.status === 'ok' ? 'ready' : 'error',
+        model: config.ai.deepseek.model,
+        mode: config.ai.deepseek.mockMode ? 'mock' : 'api',
+        initialized: this.initialized,
+        apiUrl: config.ai.deepseek.baseUrl,
+        latency: health.latency,
+        message: health.message,
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        model: config.ai.deepseek.model,
+        mode: config.ai.deepseek.mockMode ? 'mock' : 'api',
+        initialized: this.initialized,
+        apiUrl: config.ai.deepseek.baseUrl,
+        message: error instanceof Error ? error.message : 'Unknown error',
+      };
+    }
+  }
+
+  shutdown() {
+    this.isShuttingDown = true;
+    logger.info('🛑 DeepSeek Manager: начало graceful shutdown');
   }
 }
 
-const localModel = new SimpleLocalModel();
+const deepSeekManager = new DeepSeekManager();
 
 /**
  * Основной сервер
@@ -87,30 +150,40 @@ const localModel = new SimpleLocalModel();
 async function main() {
   logger.info('🚀 Запуск простого MCP сервера с локальной DeepSeek R1...');
 
+  // Инициализация DeepSeek при запуске
+  try {
+    await deepSeekManager.initialize();
+  } catch (error) {
+    logger.error('❌ Не удалось инициализировать DeepSeek:', error);
+    logger.info('👉 Продолжаем в mock режиме...');
+  }
+
   const server = new Server(
     {
       name: 'estimate-service-local-simple',
       version: '1.0.0',
       description: 'Simple MCP server with local DeepSeek R1 emulation',
-    }
+    },
   );
 
   // Список инструментов
   server.setRequestHandler(ListToolsRequestSchema, async () => {
     logger.debug('📋 Запрос списка инструментов');
+
     return { tools: LOCAL_TOOLS };
   });
 
   // Выполнение инструментов
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
+
     logger.info(`🔧 Вызов инструмента: ${name}`);
 
     try {
       switch (name) {
         case 'local_deepseek_chat': {
           const { message, context } = args as { message: string; context?: string };
-          const response = await localModel.generateResponse(message, context);
+          const response = await deepSeekManager.generateResponse(message, context);
 
           return {
             content: [
@@ -123,23 +196,27 @@ async function main() {
         }
 
         case 'local_deepseek_health_check': {
-          const status = localModel.getStatus();
+          const status = await deepSeekManager.getStatus();
 
           return {
             content: [
               {
                 type: 'text',
-                text: `# 💚 Статус локальной модели DeepSeek R1
+                text: `# 💚 Статус DeepSeek R1
 
 **Статус:** ${status.status}
 **Модель:** ${status.model}
 **Режим:** ${status.mode}
+**API URL:** ${status.apiUrl}
 **Инициализирована:** ${status.initialized ? '✅' : '❌'}
+${status.latency ? `**Latency:** ${status.latency}ms` : ''}
 
-${status.initialized ?
-                    '✅ **Локальная модель готова к работе** (режим эмуляции)' :
-                    '⏳ **Модель инициализируется...**'
-                  }`,
+${status.message ? `**Сообщение:** ${status.message}` : ''}
+
+${status.status === 'ready'
+    ? '✅ **Модель готова к работе**'
+    : '⏳ **Модель инициализируется...**'
+}`,
               },
             ],
           };
@@ -150,6 +227,7 @@ ${status.initialized ?
       }
     } catch (error) {
       logger.error(`❌ Ошибка выполнения ${name}:`, error);
+
       return {
         content: [
           {
@@ -163,6 +241,7 @@ ${status.initialized ?
 
   // Запуск сервера
   const transport = new StdioServerTransport();
+
   logger.info('✅ MCP сервер готов с локальной поддержкой DeepSeek R1');
   logger.info('🤗 Доступные инструменты: local_deepseek_chat, local_deepseek_health_check');
 
@@ -170,14 +249,22 @@ ${status.initialized ?
 }
 
 // Обработка завершения
-process.on('SIGINT', () => {
-  logger.info('🛑 Завершение работы MCP сервера...');
-  process.exit(0);
+process.on('SIGINT', async () => {
+  logger.info('🛑 SIGINT получен. Начало graceful shutdown...');
+  deepSeekManager.shutdown();
+  setTimeout(() => {
+    logger.info('🛑 Завершение работы MCP сервера...');
+    process.exit(0);
+  }, 3000).unref();
 });
 
-process.on('SIGTERM', () => {
-  logger.info('🛑 Завершение работы MCP сервера...');
-  process.exit(0);
+process.on('SIGTERM', async () => {
+  logger.info('🛑 SIGTERM получен. Начало graceful shutdown...');
+  deepSeekManager.shutdown();
+  setTimeout(() => {
+    logger.info('🛑 Завершение работы MCP сервера...');
+    process.exit(0);
+  }, 3000).unref();
 });
 
 // Запуск
