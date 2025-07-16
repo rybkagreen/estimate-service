@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConstructionObjectType } from '@ez-eco/shared-contracts';
+import { ConstructionObjectType, ConfidenceLevel } from '../../../types/shared-contracts';
 
 /**
  * Represents a deviation from historical norms
@@ -165,11 +165,11 @@ export class HistoricalEstimateService {
         similarProjects,
       };
     } catch (error) {
-      this.logger.error('Error in historical comparison', error.stack);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error('Error in historical comparison', errorStack);
       return {
         isWithinRange: true,
         confidence: 0.5,
-        deviations: [],
       };
     }
   }
@@ -261,7 +261,7 @@ export class HistoricalEstimateService {
     const [category, subCategory] = projectType.split('.');
 
     if (category === 'construction') {
-      const data = this.historicalData.construction[subCategory];
+      const data = (this.historicalData.construction as any)[subCategory];
       
       // Select appropriate metric based on extracted values
       if (extractedValues.has('costPerSqm')) {
@@ -316,7 +316,8 @@ export class HistoricalEstimateService {
     // Compare duration
     if (extractedValues.has('duration')) {
       const value = extractedValues.get('duration')!;
-      const durationRange = this.historicalData.construction[projectType.split('.')[1]]?.duration;
+      const subCategory = projectType.split('.')[1];
+      const durationRange = subCategory ? (this.historicalData.construction as any)[subCategory]?.duration : undefined;
       
       if (durationRange) {
         const deviation = this.calculateDeviation(value, durationRange);

@@ -182,12 +182,14 @@ export class ResponseBuilderService {
         },
       };
     } catch (error) {
-      this.logger.error('Error in Level 1 validation', error.stack);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('Error in Level 1 validation', errorStack);
       return {
         level: 1,
         passed: false,
         confidence: 0,
-        issues: [`Validation error: ${error.message}`],
+        issues: [`Validation error: ${errorMessage}`],
       };
     }
   }
@@ -215,13 +217,15 @@ export class ResponseBuilderService {
         details: result,
       };
     } catch (error) {
-      this.logger.error('Error in Level 2 validation', error.stack);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('Error in Level 2 validation', errorStack);
       return {
         level: 2,
         passed: true, // Pass by default if historical data unavailable
         confidence: 0.5,
         issues: ['Historical comparison unavailable'],
-        details: { error: error.message },
+        details: { error: errorMessage },
       };
     }
   }
@@ -245,17 +249,19 @@ export class ResponseBuilderService {
         level: 3,
         passed: result.isValid,
         confidence: result.confidence,
-        issues: result.issues,
+        issues: result.issues?.map((issue: any) => typeof issue === 'string' ? issue : issue.description),
         details: result,
       };
     } catch (error) {
-      this.logger.error('Error in Level 3 validation', error.stack);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('Error in Level 3 validation', errorStack);
       return {
         level: 3,
         passed: true, // Pass by default if Claude unavailable
         confidence: 0.5,
         issues: ['Claude validation unavailable'],
-        details: { error: error.message },
+        details: { error: errorMessage },
       };
     }
   }
@@ -294,13 +300,16 @@ export class ResponseBuilderService {
       const matches = [...text.matchAll(pattern)];
       matches.forEach((match) => {
         const context = match[0];
-        const value = parseFloat(match[1].replace(/,/g, ''));
-        const key = context.replace(/[\d.,]/g, '').trim();
+        const matchValue = match[1];
+        if (matchValue) {
+          const value = parseFloat(matchValue.replace(/,/g, ''));
+          const key = context.replace(/[\d.,]/g, '').trim();
 
-        if (!numberContexts.has(key)) {
-          numberContexts.set(key, []);
+          if (!numberContexts.has(key)) {
+            numberContexts.set(key, []);
+          }
+          numberContexts.get(key)!.push(value);
         }
-        numberContexts.get(key)!.push(value);
       });
     });
 
@@ -354,9 +363,12 @@ export class ResponseBuilderService {
     // Check for impossible percentages
     const percentages = [...text.matchAll(/(\d+(?:\.\d+)?)\s*%/gi)];
     percentages.forEach((match) => {
-      const value = parseFloat(match[1]);
-      if (value > 100 && !text.includes('increase') && !text.includes('growth')) {
-        issues.push(`Impossible percentage value: ${value}%`);
+      const matchValue = match[1];
+      if (matchValue) {
+        const value = parseFloat(matchValue);
+        if (value > 100 && !text.includes('increase') && !text.includes('growth')) {
+          issues.push(`Impossible percentage value: ${value}%`);
+        }
       }
     });
 
@@ -465,8 +477,11 @@ export class ResponseBuilderService {
           penaltyFactor *= 0.8; // 20% penalty for each failed validation
         }
         
-        weightedSum += result.confidence * weights[index];
-        totalWeight += weights[index];
+        const weight = weights[index];
+        if (weight !== undefined) {
+          weightedSum += result.confidence * weight;
+          totalWeight += weight;
+        }
       }
     });
 
@@ -520,9 +535,9 @@ export class ResponseBuilderService {
     const maxRetries = 3;
     
     // Analyze which levels failed or have low confidence
-    const level1Failed = !results[0].passed || results[0].confidence < 0.6;
-    const level2Failed = !results[1].passed || results[1].confidence < 0.6;
-    const level3Failed = !results[2].passed || results[2].confidence < 0.6;
+    const level1Failed = results[0] ? (!results[0].passed || results[0].confidence < 0.6) : false;
+    const level2Failed = results[1] ? (!results[1].passed || results[1].confidence < 0.6) : false;
+    const level3Failed = results[2] ? (!results[2].passed || results[2].confidence < 0.6) : false;
     
     // Critical failure in Level 1 (internal contradictions)
     if (level1Failed && confidence < 0.5) {
@@ -629,18 +644,20 @@ export class ResponseBuilderService {
       // Format and return the validated response
       return this.formatResponse(rawAnswer, validated);
     } catch (error) {
-      this.logger.error('Error building response', error.stack);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error('Error building response', errorStack);
       
       // Emergency fallback
       return {
         success: false,
         error: 'Failed to build validated response',
-        details: error.message,
+        details: errorMessage,
         rawAnswer,
         validation: {
           isValid: false,
-          overallConfidence: 0,
-          requiresFallback: true,
+          confidence: 0.3,
+          issues: ['Critical error during response generation'],
         },
       };
     }
@@ -659,7 +676,7 @@ export class ResponseBuilderService {
     switch (fallbackAction.type) {
       case 'retry':
         this.logger.log(
-          `Retry attempt ${fallbackAction.retryCount + 1}/${fallbackAction.maxRetries}`,
+          `Retry attempt ${(fallbackAction.retryCount || 0) + 1}/${fallbackAction.maxRetries}`,
         );
         
         // Add retry context to help improve the response
@@ -675,7 +692,7 @@ export class ResponseBuilderService {
         return {
           success: false,
           action: 'retry_required',
-          retryCount: fallbackAction.retryCount + 1,
+          retryCount: (fallbackAction.retryCount || 0) + 1,
           maxRetries: fallbackAction.maxRetries,
           reason: fallbackAction.reason,
           enhancedContext,

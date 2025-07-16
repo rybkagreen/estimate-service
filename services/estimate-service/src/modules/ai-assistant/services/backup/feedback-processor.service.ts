@@ -63,14 +63,15 @@ export class FeedbackProcessorService {
       // Log feedback processing completion
       this.logger.log(`Successfully processed feedback ${feedbackData.id}`);
     } catch (error) {
-      this.logger.error(`Error processing feedback ${feedbackData.id}:`, error.stack);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Error processing feedback ${feedbackData.id}:`, errorStack);
       
       // Retry logic - maximum 3 attempts
       if (job.attemptsMade < 3) {
         throw error; // This will trigger a retry
       } else {
         // After max retries, mark as failed and notify
-        await this.handleFailedFeedback(feedbackData, error);
+        await this.handleFailedFeedback(feedbackData, error instanceof Error ? error : new Error('Unknown error'));
       }
     }
   }
@@ -243,7 +244,8 @@ export class FeedbackProcessorService {
       
       this.logger.log('Weekly retraining job queued successfully');
     } catch (error) {
-      this.logger.error('Failed to schedule weekly retraining:', error.stack);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error('Failed to schedule weekly retraining:', errorStack);
     }
   }
 
@@ -291,7 +293,8 @@ export class FeedbackProcessorService {
       
       this.logger.log('Weekly retraining completed successfully');
     } catch (error) {
-      this.logger.error('Error during weekly retraining:', error.stack);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error('Error during weekly retraining:', errorStack);
       throw error;
     }
   }
@@ -383,7 +386,7 @@ export class FeedbackProcessorService {
   }
 
   private getPriorityValue(priority: string): number {
-    const priorityMap = {
+    const priorityMap: Record<string, number> = {
       'critical': 4,
       'high': 3,
       'medium': 2,
@@ -441,7 +444,7 @@ Please review and take appropriate action.
       return feedback.comment;
     }
     
-    const reasons = {
+    const reasons: Record<string, string> = {
       'accuracy': 'Response contained inaccurate information',
       'relevance': 'Response was not relevant to the question',
       'completeness': 'Response was incomplete or missing key information',
@@ -449,7 +452,7 @@ Please review and take appropriate action.
       'other': 'General quality issues with the response',
     };
     
-    return reasons[feedback.feedbackType] || reasons['other'];
+    return feedback.feedbackType && reasons[feedback.feedbackType] ? reasons[feedback.feedbackType] : reasons['other'];
   }
 
   private generateImprovedPrompt(originalPrompt: string, analysis: any): string {

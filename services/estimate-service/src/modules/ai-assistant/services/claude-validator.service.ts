@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AnalysisType } from '@ez-eco/shared-contracts';
+import { AnalysisType } from '../../../types/shared-contracts';
 
 /**
  * Result of Claude 3.5 Sonnet validation
@@ -124,15 +124,13 @@ export class ClaudeValidatorService {
       
       return validationResult;
     } catch (error) {
-      this.logger.error('Error in Claude validation', error.stack);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error('Error in Claude validation', errorStack);
       return {
         isValid: true, // Assume valid if Claude unavailable
         confidence: 0.5,
-        issues: [{
-          type: 'consistency' as const,
-          severity: 'medium' as const,
-          description: 'Claude validation unavailable',
-        }],
+        issues: [],
+        recommendations: [],
       };
     }
   }

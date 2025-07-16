@@ -29,7 +29,7 @@
         "christian-kohler.path-intellisense",
         "visualstudioexptteam.vscodeintellicode",
         "ms-vscode.vscode-mcp",
-        "RooVeterinaryInc.roo-cline"
+        "ms-vscode.remote-server"
       ],
       "settings": {
         "github.copilot.enable": {

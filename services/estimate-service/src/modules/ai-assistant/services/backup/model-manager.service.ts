@@ -1,9 +1,9 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { AiProvider, AiProviderConfig, AiRequest, AiResponse } from '../providers/ai-provider.interface';
 import { ConfigService } from '@nestjs/config';
-import { CacheService } from '../../cache';
-import { PrismaService } from '../../../prisma/prisma.service';
-import { ConfidenceLevel } from '../../../types/shared-contracts';
+import { CacheService } from '../../../cache/cache.service';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { ConfidenceLevel } from '@ez-eco/shared-contracts';
 
 /**
  * Enumeration of supported AI models with their unique identifiers.
@@ -90,7 +90,19 @@ export interface ModelMetrics {
  * @interface ModelConfig
  * @extends {AiProviderConfig}
  */
-export interface ModelConfig extends AiProviderConfig {
+export interface ModelConfig {
+  /** Provider type */
+  provider: string;
+  /** Model identifier */
+  model: string;
+  /** API Key for the model */
+  apiKey: string;
+  /** Base URL for the API */
+  baseUrl?: string;
+  /** Maximum tokens */
+  maxTokens?: number;
+  /** Temperature setting */
+  temperature?: number;
   /** Priority level for model selection (lower number = higher priority) */
   priority: number;
   /** Whether the model is currently active and available for use */

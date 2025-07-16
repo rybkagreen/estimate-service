@@ -68,6 +68,26 @@ export interface AiAssistantResponse {
   error?: string;
 }
 
+export enum AnalysisType {
+  COST_ESTIMATION = 'COST_ESTIMATION',       // Оценка стоимости
+  MATERIAL_ANALYSIS = 'MATERIAL_ANALYSIS',   // Анализ материалов
+  RISK_ASSESSMENT = 'RISK_ASSESSMENT',       // Оценка рисков
+  TIME_ESTIMATION = 'TIME_ESTIMATION',       // Оценка сроков
+  OPTIMIZATION = 'OPTIMIZATION',             // Оптимизация
+  COMPARISON = 'COMPARISON',                 // Сравнительный анализ
+  VALIDATION = 'VALIDATION',                 // Валидация данных
+}
+
+export enum ConstructionObjectType {
+  RESIDENTIAL = 'RESIDENTIAL',               // Жилая недвижимость
+  COMMERCIAL = 'COMMERCIAL',                 // Коммерческая недвижимость
+  INDUSTRIAL = 'INDUSTRIAL',                 // Промышленные объекты
+  INFRASTRUCTURE = 'INFRASTRUCTURE',         // Инфраструктура
+  MIXED_USE = 'MIXED_USE',                   // Многофункциональные объекты
+  RENOVATION = 'RENOVATION',                 // Реконструкция
+  PUBLIC = 'PUBLIC',                         // Общественные здания
+}
+
 export interface AiAnalysis {
   id: string;
   projectId: string;
