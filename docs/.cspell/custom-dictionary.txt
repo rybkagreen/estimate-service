@@ -1,105 +1,450 @@
-# Пользовательский словарь для проверки орфографии
+# Пользовательский словарь для проверки орфографии / Custom Dictionary for Spell Checking
+# Version: 2.0
+# Last Updated: 06.07.2025
 
-# Технические термины проекта
+# ===== БИЗНЕС-ТЕРМИНЫ / BUSINESS TERMS =====
+
+# Сметное дело / Cost Estimation
 сметы
 сметная
+сметную
+сметной
+сметного
 смет
 сметчик
 сметчики
-ФСБЦ
-ФГИС
+сметчика
 расценка
 расценки
+расценок
+позиция
+позиции
 коэффициенты
+коэффициент
 накладные
+накладных
+прибыль
 строительные
 строительство
+строительных
+подрядчик
+подрядчика
+заказчик
+заказчика
 
-# Названия систем и сервисов
+# Федеральные базы / Federal Databases
+ФСБЦ
+ФГИС
+ФЕР
+ТЕР
+ГЭСН
+ФССЦ
+
+# Единицы измерения / Units
+чел
+час
+кв
+куб
+пог
+шт
+
+# ===== ТЕХНИЧЕСКИЕ ТЕРМИНЫ / TECHNICAL TERMS =====
+
+# Архитектура / Architecture
 estimate
+EstimateService
 frontend
 backend
 микросервис
 микросервисы
+микросервисная
 монорепо
+monorepo
 monorepository
+монолит
+монолитная
 
-# DevOps и инфраструктура
+# Технологии / Technologies
+NestJS
+Prisma
+TypeScript
+NextJS
+React
+Redis
+PostgreSQL
+Docker
+Kubernetes
+Swagger
+OpenAPI
+GraphQL
+WebSocket
+Jest
+Cypress
+Playwright
+Vitest
+
+# DevOps и инфраструктура / DevOps & Infrastructure
 контейнеризация
+контейнер
+контейнеры
 докеризация
 оркестрация
+оркестратор
 развертывание
+деплой
+деплоймент
 мониторинг
 логирование
+логи
+метрики
+автоскейлинг
+балансировщик
+кластер
+под
+нода
 
-# Архитектурные паттерны
+# Паттерны и принципы / Patterns & Principles
 архитектура
+архитектурный
 рефакторинг
+рефакторинга
 dependency
 injection
+singleton
+factory
+repository
+observer
+стратегия
+фасад
+адаптер
+декоратор
 
-# API и интеграции
+# API термины / API Terms
 endpoint
 endpoints
+эндпоинт
+эндпоинты
 webhook
 webhooks
+вебхук
+вебхуки
 middleware
+мидлвар
 interceptor
 interceptors
+интерсептор
+интерсепторы
+роутинг
+роутер
+маршрутизация
 
-# База данных
+# База данных / Database
 миграция
 миграции
+мигрировать
+схема
+схемы
+индекс
+индексы
 индексирование
+индексировать
 репликация
+реплика
+реплики
 партиционирование
+партиция
+транзакция
+транзакции
+триггер
+триггеры
+констрейнт
+констрейнты
 
-# Безопасность
+# Безопасность / Security
 аутентификация
+аутентифицировать
 авторизация
+авторизовать
+токен
+токены
 токенизация
 шифрование
+шифровать
+хеширование
+хешировать
+сертификат
+сертификаты
+валидация
+валидировать
+санитизация
+санитизировать
 
-# Пользовательский интерфейс
+# UI/UX термины / UI/UX Terms
 responsive
+адаптивность
+адаптивный
 adaptive
 компонент
 компоненты
+компонентный
 интерфейс
 интерфейсы
+пользовательский
+виджет
+виджеты
+макет
+макеты
+прототип
+прототипы
+вайрфрейм
+вайрфреймы
 
-# Процессы разработки
-code-review
+# Процессы разработки / Development Processes
+ревью
 код-ревью
+пул-реквест
+коммит
+коммиты
+ветка
+ветки
+мердж
+мерджить
+ребейз
+ребейзить
 тестирование
-валидация
-верификация
+тестировать
+дебаг
+дебаггинг
+дебажить
+линтинг
+линтер
+форматирование
+билд
+билдить
+сборка
 
-# Специфические аббревиатуры
+# ===== АББРЕВИАТУРЫ / ABBREVIATIONS =====
+
+# Технические / Technical
 API
+APIs
 REST
+RESTful
 GraphQL
+GQL
 HTTP
 HTTPS
 JSON
 XML
 YAML
+YML
 SQL
 NoSQL
+ORM
+ODM
 JWT
 OAuth
+OAuth2
+SAML
 CORS
 CSRF
+XSS
+DDoS
+SSL
+TLS
+SSH
+FTP
+SFTP
+TCP
+UDP
+IP
+DNS
+CDN
+VPN
+VM
+VPS
+AWS
+GCP
+CI
+CD
 CI/CD
 DevOps
+DevSecOps
+GitOps
+MLOps
+UI
+UX
 UI/UX
 SPA
+MPA
 PWA
 SSR
 CSR
+ISR
+SSG
 MVC
 MVP
 MVVM
 DDD
 TDD
 BDD
+ADD
+DTO
+DAO
+POJO
+CRUD
+ACID
+BASE
+CAP
+SOLID
+DRY
+KISS
+YAGNI
+CQRS
+SAGA
+
+# Бизнес / Business
+НДС
+ПСД
+СМР
+ТЭО
+КС
+М11
+М29
+КБ
+ОС
+ТМЦ
+ФОТ
+ЕСН
+РСН
+МДС
+СНиП
+ГОСТ
+СП
+ЕНиР
+ГЭСН
+ФЕР
+ТЕР
+ОЕР
+
+# ===== СПЕЦИАЛЬНЫЕ ТЕРМИНЫ / SPECIAL TERMS =====
+
+# Имена и названия / Names
+Estimate
+Service
+Nest
+Prisma
+Redis
+Postgres
+TypeORM
+Sequelize
+Express
+Fastify
+Vite
+Webpack
+Babel
+ESLint
+Prettier
+Husky
+GitHub
+GitLab
+Bitbucket
+Jira
+Confluence
+Slack
+Mattermost
+Prometheus
+Grafana
+Elastic
+Logstash
+Kibana
+Datadog
+Sentry
+Rollbar
+
+# Команды и скрипты / Commands & Scripts
+npm
+npx
+yarn
+pnpm
+bun
+deno
+node
+nodemon
+ts-node
+tsc
+jest
+vitest
+cypress
+playwright
+eslint
+prettier
+husky
+lint-staged
+dotenv
+concurrently
+cross-env
+rimraf
+
+# Файлы и расширения / Files & Extensions
+md
+ts
+tsx
+js
+jsx
+json
+yaml
+yml
+env
+gitignore
+dockerignore
+editorconfig
+prettierrc
+eslintrc
+tsconfig
+webpack
+babel
+postcss
+tailwind
+vite
+next
+nuxt
+
+# ===== ФРАЗЫ И СОСТАВНЫЕ ТЕРМИНЫ / PHRASES & COMPOUND TERMS =====
+
+# Русские составные термины
+базовая стоимость
+единичная расценка
+локальная смета
+объектная смета
+сводная смета
+ресурсная смета
+базисно-индексный метод
+ресурсный метод
+укрупненные показатели
+прямые затраты
+косвенные затраты
+лимитированные затраты
+непредвиденные расходы
+временные здания
+зимнее удорожание
+транспортные расходы
+заготовительно-складские расходы
+
+# English compound terms
+cost estimation
+construction estimate
+unit price
+overhead costs
+profit margin
+regional coefficient
+base price
+total cost
+line item
+work volume
+measurement unit
+project type
+residential construction
+commercial construction
+industrial construction
+infrastructure construction
