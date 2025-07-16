@@ -94,7 +94,7 @@ export function IsValidCoefficient(validationOptions?: ValidationOptions) {
  */
 @ValidatorConstraint({ async: false })
 export class IsValidStatusTransitionConstraint implements ValidatorConstraintInterface {
-  private allowedTransitions = {
+  private allowedTransitions: Record<string, string[]> = {
     DRAFT: ['IN_REVIEW', 'CANCELLED'],
     IN_REVIEW: ['APPROVED', 'DRAFT', 'CANCELLED'],
     APPROVED: ['ARCHIVED'],

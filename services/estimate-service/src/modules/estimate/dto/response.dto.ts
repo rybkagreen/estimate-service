@@ -160,7 +160,7 @@ export class PaginatedResponseDto<T> {
 // Estimate list response
 export class EstimateListResponseDto extends PaginatedResponseDto<EstimateResponseDto> {
   @ApiProperty({ description: 'Список смет', type: [EstimateResponseDto] })
-  data: EstimateResponseDto[];
+  override data: EstimateResponseDto[];
 }
 
 // Delete response

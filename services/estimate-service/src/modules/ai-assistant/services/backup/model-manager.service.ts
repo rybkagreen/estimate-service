@@ -3,7 +3,7 @@ import { AiProvider, AiProviderConfig, AiRequest, AiResponse } from '../provider
 import { ConfigService } from '@nestjs/config';
 import { CacheService } from '../../../cache/cache.service';
 import { PrismaService } from '../../../../prisma/prisma.service';
-import { ConfidenceLevel } from '@ez-eco/shared-contracts';
+import { ConfidenceLevel } from '../../types/confidence.types';
 
 /**
  * Enumeration of supported AI models with their unique identifiers.
@@ -186,7 +186,7 @@ export class ModelManagerService {
       {
         provider: 'deepseek-r1',
         model: ModelType.DEEPSEEK_R1,
-        apiKey: this.configService.get('DEEPSEEK_API_KEY'),
+        apiKey: this.configService.get('DEEPSEEK_API_KEY') || '',
         baseUrl: this.configService.get('DEEPSEEK_BASE_URL', 'https://api.deepseek.com/v1'),
         maxTokens: 4000,
         temperature: 0.3,
@@ -205,7 +205,7 @@ export class ModelManagerService {
       {
         provider: 'anthropic',
         model: ModelType.CLAUDE_3_SONNET,
-        apiKey: this.configService.get('ANTHROPIC_API_KEY'),
+        apiKey: this.configService.get('ANTHROPIC_API_KEY') || '',
         baseUrl: 'https://api.anthropic.com/v1',
         maxTokens: 4096,
         temperature: 0.3,

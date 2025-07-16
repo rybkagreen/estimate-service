@@ -95,15 +95,19 @@ export default registerAs('redis', () => {
           { host: 'localhost', port: 6379 }
         ],
         clusterOptions: {
-          enableOfflineQueue: true,
-          enableReadyCheck: true,
           scaleReads: 'slave',
           maxRedirections: 16,
           retryDelayOnFailover: 100,
           retryDelayOnClusterDown: 300,
           slotsRefreshTimeout: 2000,
           slotsRefreshInterval: 5000,
-          ...baseConfig,
+          // Connection options from baseConfig are already applied at the node level
+          password: baseConfig.password,
+          family: baseConfig.family,
+          tls: baseConfig.tls,
+          connectTimeout: baseConfig.connectTimeout,
+          commandTimeout: baseConfig.commandTimeout,
+          retryStrategy: baseConfig.retryStrategy,
         },
       };
       break;

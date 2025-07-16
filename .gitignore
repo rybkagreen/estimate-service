@@ -45,6 +45,21 @@ Thumbs.db
 tmp/
 temp/
 uploads/
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# Backup directories
+backup-*/
+backups/
+
+# Temporary reports and analysis files
+*_temp.txt
+*_temp.md
+.analysis/
+.temp/
 
 # Database
 *.sqlite

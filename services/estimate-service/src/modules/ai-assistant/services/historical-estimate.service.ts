@@ -187,7 +187,7 @@ export class HistoricalEstimateService {
     const costPerSqmMatch = responseText.match(
       /(\d+(?:,\d{3})*(?:\.\d+)?)\s*(?:USD|EUR|$)?\s*(?:per|\/)\s*(?:m²|sqm|square\s*meter)/i,
     );
-    if (costPerSqmMatch) {
+    if (costPerSqmMatch && costPerSqmMatch[1]) {
       values.set('costPerSqm', parseFloat(costPerSqmMatch[1].replace(/,/g, '')));
     }
 
@@ -195,7 +195,7 @@ export class HistoricalEstimateService {
     const totalCostMatch = responseText.match(
       /total\s*(?:cost|price|budget)[\s:]*(\d+(?:,\d{3})*(?:\.\d+)?)/i,
     );
-    if (totalCostMatch) {
+    if (totalCostMatch && totalCostMatch[1]) {
       values.set('totalCost', parseFloat(totalCostMatch[1].replace(/,/g, '')));
     }
 
@@ -203,7 +203,7 @@ export class HistoricalEstimateService {
     const durationMatch = responseText.match(
       /(\d+(?:\.\d+)?)\s*(?:months?|years?)/i,
     );
-    if (durationMatch) {
+    if (durationMatch && durationMatch[1]) {
       let duration = parseFloat(durationMatch[1]);
       if (responseText.toLowerCase().includes('year')) {
         duration *= 12; // Convert to months
@@ -213,13 +213,13 @@ export class HistoricalEstimateService {
 
     // Extract area
     const areaMatch = responseText.match(/(\d+(?:,\d{3})*(?:\.\d+)?)\s*(?:m²|sqm)/i);
-    if (areaMatch) {
+    if (areaMatch && areaMatch[1]) {
       values.set('area', parseFloat(areaMatch[1].replace(/,/g, '')));
     }
 
     // Extract labor cost percentage
     const laborMatch = responseText.match(/labor\s*(?:cost)?[\s:]*(\d+(?:\.\d+)?)\s*%/i);
-    if (laborMatch) {
+    if (laborMatch && laborMatch[1]) {
       values.set('laborCostPercentage', parseFloat(laborMatch[1]));
     }
 
@@ -260,18 +260,21 @@ export class HistoricalEstimateService {
   ): any {
     const [category, subCategory] = projectType.split('.');
 
-    if (category === 'construction') {
-      const data = (this.historicalData.construction as any)[subCategory];
+    if (category === 'construction' && subCategory) {
+      const constructionData = this.historicalData.construction as any;
+      const data = constructionData[subCategory];
       
-      // Select appropriate metric based on extracted values
-      if (extractedValues.has('costPerSqm')) {
-        return data.costPerSqm;
-      }
-      if (extractedValues.has('duration')) {
-        return data.duration;
-      }
-      if (extractedValues.has('laborCostPercentage')) {
-        return data.laborCost;
+      if (data) {
+        // Select appropriate metric based on extracted values
+        if (extractedValues.has('costPerSqm')) {
+          return data.costPerSqm;
+        }
+        if (extractedValues.has('duration')) {
+          return data.duration;
+        }
+        if (extractedValues.has('laborCostPercentage')) {
+          return data.laborCost;
+        }
       }
     }
 

@@ -119,7 +119,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     return messages.map((message) => {
       // Try to parse validation error format
       const match = message.match(/^(\w+)\s(.+)$/);
-      if (match) {
+      if (match && match[1] && match[2]) {
         return {
           field: match[1],
           message: match[2],

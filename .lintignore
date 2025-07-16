@@ -1,0 +1,128 @@
+# Ignore environment files with secrets
+.env
+.env.*
+.env.local
+.env.production
+.env.development
+.env.test
+
+# Ignore secret configuration files
+**/secrets/**
+**/credentials/**
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# Ignore API keys and tokens
+**/api-keys/**
+**/tokens/**
+**/auth/**
+
+# Ignore sensitive configuration
+**/config/secrets.json
+**/config/credentials.json
+**/config/private/**
+
+# Ignore generated files
+dist/
+build/
+node_modules/
+coverage/
+*.log
+
+# Ignore temporary files
+*.tmp
+*.temp
+.temp/
+tmp/
+temp/
+
+# Ignore IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS specific files
+.DS_Store
+Thumbs.db
+
+# Ignore package manager files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Ignore test coverage
+coverage/
+.nyc_output/
+
+# Ignore build artifacts
+*.tsbuildinfo
+.next/
+out/
+
+# Ignore cache directories
+.cache/
+.turbo/
+.nx/
+
+# Ignore database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Ignore backup files
+*.bak
+*.backup
+
+# Ignore private documents
+**/private/**
+**/confidential/**
+
+# Ignore AWS and cloud credentials
+.aws/
+.gcp/
+.azure/
+**/credentials/**
+
+# Ignore Docker secrets
+docker-compose.override.yml
+.dockerignore
+
+# Ignore Kubernetes secrets
+**/k8s/secrets/**
+**/kubernetes/secrets/**
+*.kubeconfig
+
+# Ignore SSL certificates
+ssl/
+certs/
+certificates/
+
+# Ignore payment and financial data
+**/payment/**
+**/billing/**
+**/stripe/**
+**/paypal/**
+
+# Ignore user data
+**/user-data/**
+**/personal-data/**
+
+# Ignore session files
+**/sessions/**
+*.session
+
+# Ignore JWT secrets
+**/jwt/**
+jwt.json
+jwt-secret.txt
+
+# Ignore OAuth credentials
+**/oauth/**
+oauth-credentials.json

@@ -452,7 +452,7 @@ Please review and take appropriate action.
       'other': 'General quality issues with the response',
     };
     
-    return feedback.feedbackType && reasons[feedback.feedbackType] ? reasons[feedback.feedbackType] : reasons['other'];
+    return feedback.feedbackType && feedback.feedbackType in reasons ? reasons[feedback.feedbackType] : reasons['other'];
   }
 
   private generateImprovedPrompt(originalPrompt: string, analysis: any): string {

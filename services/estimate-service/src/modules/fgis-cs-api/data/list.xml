@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list>
+  <standardversion>https://data.gov.ru/metodicheskie-rekomendacii-po-publikacii-otkrytyh-dannyh-versiya-30</standardversion>
+  <meta>
+    <item>
+      <identifier>7707082071-careers</identifier>
+      <title>Реестр сайтов с ссылками на карьеры и места складирования золошлаковых отходов</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-careers/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-fsnb2020</identifier>
+      <title>ФСНБ-2020</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-fsnb2020/meta.xml</link>
+      <format>xml</format>
+    </item>
+    <item>
+      <identifier> 7707082071-fsnb2022</identifier>
+      <title>ФСНБ-2022</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/ 7707082071-fsnb2022/meta.xml</link>
+      <format>xml</format>
+    </item>
+    <item>
+      <identifier>7707082071-ksr</identifier>
+      <title>Классификатор строительных ресурсов</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-ksr/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-OplataTruda</identifier>
+      <title>Среднемесячные размеры оплаты труда</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-OplataTruda/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-PriceZones</identifier>
+      <title>Ценовые зоны</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-PriceZones/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-pssralmaz</identifier>
+      <title>ПССР. Алмазодобывающая промышленность</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-pssralmaz/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-pssratom</identifier>
+      <title>ПССР. Атомная энергия</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-pssratom/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-pssravtodor</identifier>
+      <title>ПССР. Автомобильные дороги и искусственные сооружения</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-pssravtodor/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-pssrcosmos</identifier>
+      <title>ПССР. Ракетно-космическая промышленность</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-pssrcosmos/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-pssrelectroenergo</identifier>
+      <title>ПССР. Электроэнергетика</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-pssrelectroenergo/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-pssrneft</identifier>
+      <title>ПССР. Транспорт нефти и нефтепродуктов</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-pssrneft/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-pssrzheldor</identifier>
+      <title>ПССР. Железнодорожный транспорт</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-pssrzheldor/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-spsrp</identifier>
+      <title>СПСРП</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-spsrp/meta.csv</link>
+      <format>csv</format>
+    </item>
+    <item>
+      <identifier>7707082071-TechGroups</identifier>
+      <title>База технологических групп</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-TechGroups/meta.xml</link>
+      <format>xml</format>
+    </item>
+    <item>
+      <identifier>7707082071-TechGroupsPart</identifier>
+      <title>Технологические группы по техническим частям</title>
+      <link>https://fgiscs.minstroyrf.ru/api/opendata/7707082071-TechGroupsPart/meta.csv</link>
+      <format>csv</format>
+    </item>
+  </meta>
+</list>

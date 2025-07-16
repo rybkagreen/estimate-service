@@ -25,7 +25,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     evictions: 0,
     size: 0,
   };
-  private cleanupInterval: NodeJS.Timer | null = null;
+  private cleanupInterval: NodeJS.Timeout | null = null;
   private isRedisAvailable = false;
 
   constructor(private readonly configService: ConfigService) {
@@ -37,8 +37,9 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
     if (this.configService.get('REDIS_HOST')) {
       try {
         // Dynamically import Redis to avoid errors if not installed
-        const { createClient } = await import('redis').catch(() => null);
-        if (createClient) {
+        const redisModule = await import('redis').catch(() => null);
+        if (redisModule && redisModule.createClient) {
+          const { createClient } = redisModule;
           this.redisClient = createClient({
             socket: {
               host: this.configService.get('REDIS_HOST', 'localhost'),

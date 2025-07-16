@@ -1,4 +1,4 @@
-import { ConfidenceLevel } from '../../../types/shared-contracts';
+import { ConfidenceLevel } from '../types/confidence.types';
 
 export interface AiProviderConfig {
   provider: 'deepseek-r1' | 'anthropic' | 'local';
