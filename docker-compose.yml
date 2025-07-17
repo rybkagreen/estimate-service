@@ -1,94 +1,75 @@
-
-services:
-  python-app:
-    image: continuumio/miniconda3:latest
-    working_dir: /app
-    volumes:
-      - ./python:/app
-    command: tail -f /dev/null
-    environment:
-      - PYTHONUNBUFFERED=1
-    ports:
-      - "8000:8000"
-    # Пример использования conda-forge в Dockerfile или через команду:
-    # command: ["conda", "install", "-c", "conda-forge", "<your-packages>"]
+﻿services:
   postgres:
     image: postgres:15-alpine
+    container_name: estimate-service-postgres
     environment:
       POSTGRES_DB: estimate_service
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - estimate-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  estimate-service:
-    build:
-      context: ./services/estimate-service
+  redis:
+    image: redis:7-alpine
+    container_name: estimate-service-redis
     ports:
-      - "3022:3022"
+      - "6380:6379"
+    networks:
+      - estimate-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Development workspace container
+  workspace:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: estimate-service-workspace
+    ports:
+      - "3000:3000"  # Frontend
+      - "3022:3022"  # Estimate Service
+      - "3001:3001"  # Data Collector
+      - "3002:3002"  # AI Assistant
+      - "3003:3003"  # Knowledge Base
+      - "3333:3333"  # MCP Server
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/estimate_service
-      PORT: 3022
-    depends_on:
-      - postgres
-    volumes:
-      - ./services/estimate-service:/app
-      - /app/node_modules
-
-  data-collector:
-    build:
-      context: ./services/data-collector
-    ports:
-      - "3001:3001"
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/estimate_service
-      PORT: 3001
-    depends_on:
-      - postgres
-    volumes:
-      - ./services/data-collector:/app
-      - /app/node_modules
-
-  estimate-frontend:
-    build:
-      context: ./apps/estimate-frontend
-    ports:
-      - "3000:3000"
-    environment:
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       NODE_ENV: development
-    volumes:
-      - ./apps/estimate-frontend:/app
-      - /app/node_modules
-
-
-  ai-assistant:
-    build:
-      context: ./services/ai-assistant
-    ports:
-      - "3002:3002"
-    environment:
-      NODE_ENV: development
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      DEEPSEEK_API_KEY: sk-aeaf60f610ee429892a113b1f4e20960
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
-      - ./services/ai-assistant:/app
+      - .:/app
       - /app/node_modules
-
-  knowledge-base:
-    build:
-      context: ./services/knowledge-base
-    ports:
-      - "3003:3003"
-    environment:
-      NODE_ENV: development
-    depends_on:
-      - postgres
-    volumes:
-      - ./services/knowledge-base:/app
-      - /app/node_modules
+    networks:
+      - estimate-network
+    command: tail -f /dev/null
+    stdin_open: true
+    tty: true
 
 volumes:
   postgres_data:
     driver: local
+
+networks:
+  estimate-network:
+    driver: bridge

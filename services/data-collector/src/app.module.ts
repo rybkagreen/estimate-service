@@ -16,12 +16,17 @@ import { FerModule } from './modules/fer/fer.module';
 import { FsbcModule } from './modules/fsbc/fsbc.module';
 import { GesnModule } from './modules/gesn/gesn.module';
 import { TerModule } from './modules/ter/ter.module';
+import { TsnModule } from './modules/tsn/tsn.module';
+import { FsscModule } from './modules/fssc/fssc.module';
 
 // Автоматизация
 import { AutomationModule } from './automation/automation.module';
 
 // Анализ
 import { HistoricalAnalysisModule } from './modules/historical-analysis/historical-analysis.module';
+
+// Unified API
+import { NormativeApiModule } from './modules/normative-api/normative-api.module';
 
 @Module({
   imports: [
@@ -49,9 +54,14 @@ import { HistoricalAnalysisModule } from './modules/historical-analysis/historic
     TerModule,
     GesnModule,
     FsbcModule,
+    TsnModule,
+    FsscModule,
 
     // Автоматизация
     AutomationModule,
+
+    // Unified Normative API
+    NormativeApiModule,
   ],
 })
 export class AppModule {}

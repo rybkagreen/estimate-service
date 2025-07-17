@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  bim-cad-integration:
+    build:
+      context: ../..
+      dockerfile: services/bim-cad-integration/Dockerfile
+    container_name: bim-cad-integration
+    ports:
+      - "3025:3025"
+    environment:
+      - NODE_ENV=development
+      - PORT=3025
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/estimate_service
+      - REDIS_URL=redis://redis:6379
+      - UPLOAD_PATH=/app/uploads
+      - TESSERACT_LANG=rus+eng
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - estimate-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: bim-cad-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=estimate_service
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - estimate-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: bim-cad-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6380:6379"
+    networks:
+      - estimate-network
+
+  # Optional: Python service for Revit processing
+  python-revit-service:
+    image: python:3.11-slim
+    container_name: python-revit-service
+    working_dir: /app
+    volumes:
+      - ./python-revit:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python app.py
+    ports:
+      - "5000:5000"
+    networks:
+      - estimate-network
+    profiles:
+      - revit
+
+volumes:
+  postgres-data:
+  redis-data:
+
+networks:
+  estimate-network:
+    driver: bridge

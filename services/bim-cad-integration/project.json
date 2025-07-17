@@ -1,0 +1,52 @@
+{
+  "name": "bim-cad-integration",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "services/bim-cad-integration/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/nest:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/services/bim-cad-integration",
+        "main": "services/bim-cad-integration/src/main.ts",
+        "tsConfig": "services/bim-cad-integration/tsconfig.app.json",
+        "assets": ["services/bim-cad-integration/src/assets"]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "services/bim-cad-integration/src/environments/environment.ts",
+              "with": "services/bim-cad-integration/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/nest:node",
+      "options": {
+        "buildTarget": "bim-cad-integration:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["services/bim-cad-integration/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/services/bim-cad-integration"],
+      "options": {
+        "jestConfig": "services/bim-cad-integration/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+﻿version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: estimate_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - estimate-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    networks:
+      - estimate-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Single development container with all services
+  dev-all:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"  # Frontend
+      - "3022:3022"  # Estimate Service
+      - "3001:3001"  # Data Collector
+      - "3002:3002"  # AI Assistant
+      - "3003:3003"  # Knowledge Base
+      - "3333:3333"  # MCP Server
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/estimate_service
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      DEEPSEEK_API_KEY: sk-aeaf60f610ee429892a113b1f4e20960
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - estimate-network
+    command: /bin/sh -c "npx prisma generate && npm run dev:frontend"
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  estimate-network:
+    driver: bridge

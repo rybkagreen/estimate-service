@@ -1,0 +1,24 @@
+# Development Dockerfile for Nx monorepo
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY nx.json ./
+COPY tsconfig*.json ./
+
+# Install all dependencies (including dev dependencies for building)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Expose common ports
+EXPOSE 3000 3001 3002 3003 3004 3022
+
+# Default command - can be overridden in docker-compose
+CMD ["npm", "run", "dev:all"]

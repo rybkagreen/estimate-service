@@ -1,0 +1,65 @@
+{
+  "name": "marketplace-integration",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "services/marketplace-integration/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/services/marketplace-integration",
+        "main": "services/marketplace-integration/src/main.ts",
+        "tsConfig": "services/marketplace-integration/tsconfig.app.json",
+        "assets": ["services/marketplace-integration/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "services/marketplace-integration/webpack.config.js",
+        "generatePackageJson": true
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "marketplace-integration:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "marketplace-integration:build:development"
+        },
+        "production": {
+          "buildTarget": "marketplace-integration:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["services/marketplace-integration/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "services/marketplace-integration/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

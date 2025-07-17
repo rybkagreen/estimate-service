@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  estimate-service:
+    env_file:
+      - .env
+  
+  data-collector:
+    env_file:
+      - .env
+  
+  ai-assistant:
+    env_file:
+      - .env
+  
+  knowledge-base:
+    env_file:
+      - .env
+  
+  estimate-frontend:
+    env_file:
+      - .env

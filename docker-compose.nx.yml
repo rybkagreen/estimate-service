@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: estimate_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - estimate-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - estimate-network
+
+  estimate-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3022:3022"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/estimate_service
+      REDIS_URL: redis://redis:6379
+      PORT: 3022
+      NODE_ENV: production
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - estimate-network
+
+  # For other services, we need to create multi-stage Dockerfiles or build them separately
+  # Since they have issues, let's focus on the main service for now
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  estimate-network:
+    driver: bridge

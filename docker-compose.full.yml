@@ -1,0 +1,164 @@
+﻿version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: estimate_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - estimate-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    networks:
+      - estimate-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Estimate Service - Main Backend
+  estimate-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3022:3022"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/estimate_service
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      NODE_ENV: development
+      PORT: 3022
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      DEEPSEEK_API_KEY: sk-aeaf60f610ee429892a113b1f4e20960
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./services/estimate-service:/app/services/estimate-service
+      - ./libs:/app/libs
+      - ./prisma:/app/prisma
+      - /app/node_modules
+    networks:
+      - estimate-network
+    command: npx nx serve estimate-service
+
+  # Data Collector Service
+  data-collector:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/estimate_service
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: development
+      PORT: 3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./services/data-collector:/app/services/data-collector
+      - ./libs:/app/libs
+      - /app/node_modules
+    networks:
+      - estimate-network
+    command: npx nx serve data-collector
+
+  # AI Assistant Service
+  ai-assistant:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3002:3002"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/estimate_service
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: development
+      PORT: 3002
+      DEEPSEEK_API_KEY: sk-aeaf60f610ee429892a113b1f4e20960
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./services/ai-assistant:/app/services/ai-assistant
+      - ./libs:/app/libs
+      - /app/node_modules
+    networks:
+      - estimate-network
+    command: npx nx serve ai-assistant
+
+  # Knowledge Base Service
+  knowledge-base:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3003:3003"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/estimate_service
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: development
+      PORT: 3003
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./services/knowledge-base:/app/services/knowledge-base
+      - ./libs:/app/libs
+      - /app/node_modules
+    networks:
+      - estimate-network
+    command: npx nx serve knowledge-base
+
+  # Frontend
+  estimate-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      VITE_API_URL: http://localhost:3022/api
+    volumes:
+      - ./apps/estimate-frontend:/app/apps/estimate-frontend
+      - ./libs:/app/libs
+      - /app/node_modules
+    networks:
+      - estimate-network
+    command: npx nx serve estimate-frontend
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  estimate-network:
+    driver: bridge

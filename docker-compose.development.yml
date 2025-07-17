@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: estimate_service
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - estimate-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    networks:
+      - estimate-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Development container that runs all services
+  nx-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"  # Frontend
+      - "3022:3022"  # Estimate Service
+      - "3001:3001"  # Data Collector
+      - "3002:3002"  # AI Assistant
+      - "3003:3003"  # Knowledge Base
+      - "3004:3004"  # Other services
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/estimate_service
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      # Mount source code for hot reload
+      - ./apps:/app/apps
+      - ./services:/app/services
+      - ./libs:/app/libs
+      - ./prisma:/app/prisma
+      # Prevent node_modules from being overwritten
+      - /app/node_modules
+    networks:
+      - estimate-network
+    command: npm run dev:backend  # Start with backend, can be changed
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  estimate-network:
+    driver: bridge
