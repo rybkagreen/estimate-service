@@ -1,7 +1,7 @@
 generator client {
-provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   output          = "../node_modules/.prisma/client"
-  previewFeatures = ["fullTextIndex", "fullTextSearch", "referentialActions"]
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -10,12 +10,12 @@ datasource db {
 }
 
 model GesnItem {
-  id           String        @id @default(cuid())
-  code         String        @db.VarChar(50)
+  id           String    @id @default(cuid())
+  code         String    @db.VarChar(50)
   name         String
-  unit         String        @db.VarChar(50)
-  laborHours   Decimal       @db.Decimal(10, 3)
-  machineHours Decimal       @db.Decimal(10, 3)
+  unit         String    @db.VarChar(50)
+  laborHours   Decimal   @db.Decimal(10, 3)
+  machineHours Decimal   @db.Decimal(10, 3)
   chapter      String?
   section      String?
   complexity   String?
@@ -23,234 +23,370 @@ model GesnItem {
   regionCode   String?
   validFrom    DateTime
   validTo      DateTime?
-  isActive     Boolean       @default(true)
-  version      String        @default("1.0")
+  isActive     Boolean   @default(true)
+  version      String    @default("1.0")
   source       String?
   metadata     Json?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  materials    GesnMaterial[]
+  materials GesnMaterial[]
 
-  @@index([code, regionCode, validFrom], name: "gesn_items_code_region_code_valid_from_key", unique: true)
+  @@unique([code, regionCode, validFrom], name: "gesn_items_code_region_code_valid_from_key")
   @@map("gesn_items")
 }
 
 model GesnMaterial {
-  id            String  @id @default(cuid())
-  gesnItemId    String
-  materialCode  String  @db.VarChar(50)
-  materialName  String
-  unit          String  @db.VarChar(50)
-  consumption   Decimal @db.Decimal(15, 6)
-  wasteCoefficient Decimal @default(1.0)
-  metadata      Json?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String   @id @default(cuid())
+  gesnItemId       String
+  materialCode     String   @db.VarChar(50)
+  materialName     String
+  unit             String   @db.VarChar(50)
+  consumption      Decimal  @db.Decimal(15, 6)
+  wasteCoefficient Decimal  @default(1.0)
+  metadata         Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  gesnItem      GesnItem @relation(fields: [gesnItemId], references: [id], onDelete: Cascade)
+  gesnItem GesnItem @relation(fields: [gesnItemId], references: [id], onDelete: Cascade)
 
   @@map("gesn_materials")
 }
 
 model FerItem {
-  id            String   @id @default(cuid())
-  code          String   @db.VarChar(50)
-  name          String
-  unit          String   @db.VarChar(50)
-  basePrice     Decimal  @db.Decimal(12, 2)
-  laborCost     Decimal  @db.Decimal(12, 2)
-  machineCost   Decimal  @db.Decimal(12, 2)
-  materialCost  Decimal  @db.Decimal(12, 2)
-  overheadCost  Decimal  @db.Decimal(12, 2)
-  profitCost    Decimal  @db.Decimal(12, 2)
-  chapter       String?
-  section       String?
-  subsection    String?
-  validFrom     DateTime
-  validTo       DateTime?
-  isActive      Boolean  @default(true)
-  version       String   @default("1.0")
-  source        String?
-  metadata      Json?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String    @id @default(cuid())
+  code         String    @db.VarChar(50)
+  name         String
+  unit         String    @db.VarChar(50)
+  basePrice    Decimal   @db.Decimal(12, 2)
+  laborCost    Decimal   @db.Decimal(12, 2)
+  machineCost  Decimal   @db.Decimal(12, 2)
+  materialCost Decimal   @db.Decimal(12, 2)
+  overheadCost Decimal   @db.Decimal(12, 2)
+  profitCost   Decimal   @db.Decimal(12, 2)
+  chapter      String?
+  section      String?
+  subsection   String?
+  validFrom    DateTime
+  validTo      DateTime?
+  isActive     Boolean   @default(true)
+  version      String    @default("1.0")
+  source       String?
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  @@index([code, validFrom], name: "fer_items_code_valid_from_key", unique: true)
+  @@unique([code, validFrom], name: "fer_items_code_valid_from_key")
   @@map("fer_items")
 }
 
 model TerItem {
-  id            String   @id @default(cuid())
-  code          String   @db.VarChar(50)
-  name          String
-  unit          String   @db.VarChar(50)
-  basePrice     Decimal  @db.Decimal(12, 2)
-  laborCost     Decimal  @db.Decimal(12, 2)
-  machineCost   Decimal  @db.Decimal(12, 2)
-  materialCost  Decimal  @db.Decimal(12, 2)
-  overheadCost  Decimal  @db.Decimal(12, 2)
-  profitCost    Decimal  @db.Decimal(12, 2)
-  regionCode    String   @db.VarChar(10)
-  regionName    String
-  chapter       String?
-  section       String?
-  subsection    String?
-  validFrom     DateTime
-  validTo       DateTime?
-  isActive      Boolean  @default(true)
-  version       String   @default("1.0")
-  source        String?
-  metadata      Json?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String    @id @default(cuid())
+  code         String    @db.VarChar(50)
+  name         String
+  unit         String    @db.VarChar(50)
+  basePrice    Decimal   @db.Decimal(12, 2)
+  laborCost    Decimal   @db.Decimal(12, 2)
+  machineCost  Decimal   @db.Decimal(12, 2)
+  materialCost Decimal   @db.Decimal(12, 2)
+  overheadCost Decimal   @db.Decimal(12, 2)
+  profitCost   Decimal   @db.Decimal(12, 2)
+  regionCode   String    @db.VarChar(10)
+  regionName   String
+  chapter      String?
+  section      String?
+  subsection   String?
+  validFrom    DateTime
+  validTo      DateTime?
+  isActive     Boolean   @default(true)
+  version      String    @default("1.0")
+  source       String?
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  @@index([code, regionCode, validFrom], name: "ter_items_code_region_code_valid_from_key", unique: true)
+  @@unique([code, regionCode, validFrom], name: "ter_items_code_region_code_valid_from_key")
   @@map("ter_items")
 }
 
 model TsnItem {
-  id                 String   @id @default(cuid())
-  code               String   @db.VarChar(50)
-  name               String
-  description        String?
-  normativeType      String   @db.VarChar(50)
-  regionCode         String   @db.VarChar(10)
-  regionName         String
-  applicationArea    String?
-  calculationBase    String?
-  coefficient        Decimal  @db.Decimal(6, 3)
-  formula            String?
-  conditions         String?
-  validFrom          DateTime
-  validTo            DateTime?
-  isActive           Boolean  @default(true)
-  version            String   @default("1.0")
-  approvedBy         String?
-  approvalDate       DateTime?
-  documentNumber     String?
-  metadata           Json?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  id              String    @id @default(cuid())
+  code            String    @db.VarChar(50)
+  name            String
+  description     String?
+  normativeType   String    @db.VarChar(50)
+  regionCode      String    @db.VarChar(10)
+  regionName      String
+  applicationArea String?
+  calculationBase String?
+  coefficient     Decimal   @db.Decimal(6, 3)
+  formula         String?
+  conditions      String?
+  validFrom       DateTime
+  validTo         DateTime?
+  isActive        Boolean   @default(true)
+  version         String    @default("1.0")
+  approvedBy      String?
+  approvalDate    DateTime?
+  documentNumber  String?
+  metadata        Json?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  @@index([code, regionCode, validFrom], name: "tsn_items_code_region_code_valid_from_key", unique: true)
+  @@unique([code, regionCode, validFrom], name: "tsn_items_code_region_code_valid_from_key")
   @@map("tsn_items")
 }
 
 model FsscItem {
-  id                  String   @id @default(cuid())
-  code                String   @db.VarChar(50)
-  name                String
-  unit                String   @db.VarChar(50)
-  basePrice           Decimal  @db.Decimal(12, 2)
-  priceWithoutVAT     Decimal  @db.Decimal(12, 2)
-  transportationCost  Decimal? @db.Decimal(12, 2)
-  storageCost         Decimal? @db.Decimal(12, 2)
-  materialGroup       String?
-  materialType        String?
-  manufacturer        String?
-  gstTu               String?
-  characteristics     String?
-  validFrom           DateTime
-  validTo             DateTime?
-  isActive            Boolean  @default(true)
-  version             String   @default("1.0")
-  source              String?
-  metadata            Json?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                 String    @id @default(cuid())
+  code               String    @db.VarChar(50)
+  name               String
+  unit               String    @db.VarChar(50)
+  basePrice          Decimal   @db.Decimal(12, 2)
+  priceWithoutVAT    Decimal   @db.Decimal(12, 2)
+  transportationCost Decimal?  @db.Decimal(12, 2)
+  storageCost        Decimal?  @db.Decimal(12, 2)
+  materialGroup      String?
+  materialType       String?
+  manufacturer       String?
+  gstTu              String?
+  characteristics    String?
+  validFrom          DateTime
+  validTo            DateTime?
+  isActive           Boolean   @default(true)
+  version            String    @default("1.0")
+  source             String?
+  metadata           Json?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  @@index([code, validFrom], name: "fssc_items_code_valid_from_key", unique: true)
+  @@unique([code, validFrom], name: "fssc_items_code_valid_from_key")
   @@map("fssc_items")
 }
 
 model TsscItem {
-  id                  String   @id @default(cuid())
-  code                String   @db.VarChar(50)
-  name                String
-  unit                String   @db.VarChar(50)
-  basePrice           Decimal  @db.Decimal(12, 2)
-  priceWithoutVAT     Decimal  @db.Decimal(12, 2)
-  transportationCost  Decimal? @db.Decimal(12, 2)
-  storageCost         Decimal? @db.Decimal(12, 2)
-  regionCode          String   @db.VarChar(10)
-  regionName          String
-  materialGroup       String?
-  materialType        String?
-  localManufacturer   String?
-  deliveryConditions  String?
-  gstTu               String?
-  characteristics     String?
-  validFrom           DateTime
-  validTo             DateTime?
-  isActive            Boolean  @default(true)
-  version             String   @default("1.0")
-  source              String?
-  metadata            Json?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                 String    @id @default(cuid())
+  code               String    @db.VarChar(50)
+  name               String
+  unit               String    @db.VarChar(50)
+  basePrice          Decimal   @db.Decimal(12, 2)
+  priceWithoutVAT    Decimal   @db.Decimal(12, 2)
+  transportationCost Decimal?  @db.Decimal(12, 2)
+  storageCost        Decimal?  @db.Decimal(12, 2)
+  regionCode         String    @db.VarChar(10)
+  regionName         String
+  materialGroup      String?
+  materialType       String?
+  localManufacturer  String?
+  deliveryConditions String?
+  gstTu              String?
+  characteristics    String?
+  validFrom          DateTime
+  validTo            DateTime?
+  isActive           Boolean   @default(true)
+  version            String    @default("1.0")
+  source             String?
+  metadata           Json?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  @@index([code, regionCode, validFrom], name: "tssc_items_code_region_code_valid_from_key", unique: true)
+  @@unique([code, regionCode, validFrom], name: "tssc_items_code_region_code_valid_from_key")
   @@map("tssc_items")
 }
 
 model IndexCoefficient {
-  id                String   @id @default(cuid())
-  coefficientType   String   @db.VarChar(50)
-  basePeriod        String   @db.VarChar(20)
-  targetPeriod      String   @db.VarChar(20)
-  regionCode        String?  @db.VarChar(10)
+  id                String    @id @default(cuid())
+  coefficientType   String    @db.VarChar(50)
+  basePeriod        String    @db.VarChar(20)
+  targetPeriod      String    @db.VarChar(20)
+  regionCode        String?   @db.VarChar(10)
   regionName        String?
   constructionType  String?
-  coefficientValue  Decimal  @db.Decimal(8, 4)
+  coefficientValue  Decimal   @db.Decimal(8, 4)
   calculationMethod String?
   approvedBy        String?
   approvalDate      DateTime?
   documentNumber    String?
   validFrom         DateTime
   validTo           DateTime?
-  isActive          Boolean  @default(true)
+  isActive          Boolean   @default(true)
   metadata          Json?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  @@index([coefficientType, basePeriod, targetPeriod, regionCode, constructionType], name: "index_coefficients_type_periods_region_key", unique: true)
+  @@unique([coefficientType, basePeriod, targetPeriod, regionCode, constructionType], name: "index_coefficients_type_periods_region_key")
   @@map("index_coefficients")
 }
 
 model OverheadProfitNorm {
-  id                  String   @id @default(cuid())
-  workType            String
-  constructionType    String?
-  overheadNorm        Decimal  @db.Decimal(6, 2)
-  profitNorm          Decimal  @db.Decimal(6, 2)
-  calculationBase     String?
-  regionCode          String?  @db.VarChar(10)
-  conditions          String?
-  documentReference   String?
-  validFrom           DateTime
-  validTo             DateTime?
-  isActive            Boolean  @default(true)
-  metadata            Json?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                String    @id @default(cuid())
+  workType          String
+  constructionType  String?
+  overheadNorm      Decimal   @db.Decimal(6, 2)
+  profitNorm        Decimal   @db.Decimal(6, 2)
+  calculationBase   String?
+  regionCode        String?   @db.VarChar(10)
+  conditions        String?
+  documentReference String?
+  validFrom         DateTime
+  validTo           DateTime?
+  isActive          Boolean   @default(true)
+  metadata          Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   @@map("overhead_profit_norms")
 }
 
 // Additional models for history and relations
 model NormativeHistory {
-  id         String @id @default(cuid())
-  tableName  String @db.VarChar(50)
-  recordId   String
-  changeType String @db.VarChar(20)
-  oldValues  Json?
-  newValues  Json?
-  changedBy  String?
+  id           String   @id @default(cuid())
+  tableName    String   @db.VarChar(50)
+  recordId     String
+  changeType   String   @db.VarChar(20)
+  oldValues    Json?
+  newValues    Json?
+  changedBy    String?
   changeReason String?
-  createdAt  DateTime @default(now())
+  createdAt    DateTime @default(now())
 
   @@map("normative_history")
+}
+
+// FGIS models for construction resources
+model ConstructionResource {
+  id          String   @id @default(cuid())
+  code        String   @unique @db.VarChar(50)
+  name        String
+  description String?
+  category    String?
+  unit        String   @db.VarChar(50)
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("construction_resources")
+}
+
+model PriceZone {
+  id          String   @id @default(cuid())
+  regionCode  String   @db.VarChar(10)
+  regionName  String
+  zoneCode    String   @db.VarChar(10)
+  zoneName    String
+  coefficient Decimal  @db.Decimal(6, 3)
+  description String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([regionCode, zoneCode])
+  @@map("price_zones")
+}
+
+model LaborCost {
+  id          String   @id @default(cuid())
+  regionCode  String   @db.VarChar(10)
+  regionName  String
+  year        Int
+  month       Int
+  category    String
+  costPerHour Decimal  @db.Decimal(12, 2)
+  currency    String   @default("RUB")
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([regionCode, year, month, category])
+  @@map("labor_costs")
+}
+
+model PriceBase {
+  id        String   @id @default(cuid())
+  code      String   @unique @db.VarChar(50)
+  name      String
+  category  String?
+  unit      String   @db.VarChar(50)
+  basePrice Decimal  @db.Decimal(12, 2)
+  currency  String   @default("RUB")
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("price_bases")
+}
+
+model GESN {
+  id         String   @id @default(cuid())
+  code       String   @unique @db.VarChar(50)
+  name       String
+  type       String
+  unit       String   @db.VarChar(50)
+  laborHours Decimal  @db.Decimal(10, 3)
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("gesn")
+}
+
+model Material {
+  id        String   @id @default(cuid())
+  code      String   @unique @db.VarChar(50)
+  name      String
+  category  String?
+  unit      String   @db.VarChar(50)
+  price     Decimal  @db.Decimal(12, 2)
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("materials")
+}
+
+model Machine {
+  id         String   @id @default(cuid())
+  code       String   @unique @db.VarChar(50)
+  name       String
+  category   String?
+  hourlyRate Decimal  @db.Decimal(12, 2)
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("machines")
+}
+
+model TechGroup {
+  id         String   @id @default(cuid())
+  code       String   @unique @db.VarChar(50)
+  name       String
+  parentCode String?
+  level      Int      @default(1)
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("tech_groups")
+}
+
+model TaskKnowledge {
+  id        Int      @id @default(autoincrement())
+  taskType  String   @unique
+  context   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GeneralKnowledge {
+  id          Int      @id @default(autoincrement())
+  key         String
+  value       Json
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([key])
 }
 
 // Pre-existing models

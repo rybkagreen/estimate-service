@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { FgisDataType } from './constants/fgis-cs.constants';
+import { RedisService } from '../../shared/cache/redis.service';
 
 // Временные заглушки для зависимостей, которые нужно установить
 const xml2js = { Parser: class Parser { parseStringPromise(data: any) { return Promise.resolve({}); } } };
@@ -13,7 +14,7 @@ export class FgisCSParserService {
   private readonly logger = new Logger(FgisCSParserService.name);
   private readonly xmlParser: xml2js.Parser;
 
-  constructor() {
+constructor(private readonly redisService: RedisService) {
     this.xmlParser = new xml2js.Parser({
       explicitArray: false,
       mergeAttrs: true,
@@ -23,7 +24,20 @@ export class FgisCSParserService {
   }
 
   /**
-   * Парсинг списка наборов данных
+// Кэширование региональных данных
+async cacheRegionalData(data: any, type: FgisDataType): Promise<void> {
+  const cacheKey = `regional:data:${type}`;
+  await this.redisService.set(cacheKey, JSON.stringify(data), { ttl: 3600 }); // Cache for 1 hour
+}
+
+// Получение кэшированных данных
+async getCachedRegionalData(type: FgisDataType): Promise<any | null> {
+  const cacheKey = `regional:data:${type}`;
+  const cachedData = await this.redisService.get(cacheKey);
+  return cachedData ? JSON.parse(cachedData) : null;
+}
+
+// Парсинг списка наборов данных
    */
   async parseDatasetList(xmlData: string): Promise<any[]> {
     try {

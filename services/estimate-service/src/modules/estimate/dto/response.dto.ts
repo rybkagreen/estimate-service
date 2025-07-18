@@ -25,10 +25,10 @@ export class UserInfoDto {
   email: string;
 
   @ApiPropertyOptional({ description: 'Имя пользователя' })
-  firstName?: string;
+  firstName?: string | null;
 
   @ApiPropertyOptional({ description: 'Фамилия пользователя' })
-  lastName?: string;
+  lastName?: string | null;
 }
 
 // Project info for responses
@@ -46,10 +46,10 @@ export class ProjectInfoDto {
   status: string;
 
   @ApiPropertyOptional({ description: 'Локация проекта' })
-  location?: string;
+  location?: string | null;
 
   @ApiPropertyOptional({ description: 'Код региона' })
-  regionCode?: string;
+  regionCode?: string | null;
 }
 
 // Estimate response DTO
@@ -61,7 +61,7 @@ export class EstimateResponseDto {
   name: string;
 
   @ApiPropertyOptional({ description: 'Описание сметы' })
-  description?: string;
+  description?: string | null;
 
   @ApiProperty({ description: 'ID проекта' })
   projectId: string;
@@ -106,19 +106,19 @@ export class EstimateResponseDto {
   createdBy?: UserInfoDto;
 
   @ApiPropertyOptional({ description: 'ID утверждающего' })
-  approvedById?: string;
+  approvedById?: string | null;
 
   @ApiPropertyOptional({ description: 'Информация об утверждающем' })
-  approvedBy?: UserInfoDto;
+  approvedBy?: UserInfoDto | null;
 
   @ApiPropertyOptional({ description: 'Дата утверждения' })
-  approvedAt?: Date;
+  approvedAt?: Date | null;
 
   @ApiProperty({ description: 'Версия сметы' })
   version: number;
 
   @ApiPropertyOptional({ description: 'ID родительской сметы' })
-  parentId?: string;
+  parentId?: string | null;
 
   @ApiPropertyOptional({ description: 'Позиции сметы' })
   items?: EstimateItem[];

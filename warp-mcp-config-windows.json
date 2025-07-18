@@ -1,0 +1,48 @@
+{
+  "mcpServers": {
+    "estimate-service-local": {
+      "command": "node",
+      "args": [
+        "mcp-server/dist-simple/index-local-simple.js"
+      ],
+      "cwd": "D:\\develop\\Repository\\estimate-service",
+      "env": {
+        "NODE_ENV": "development",
+        "DEEPSEEK_API_KEY": "sk-aeaf60f610ee429892a113b1f4e20960",
+        "DEEPSEEK_MODEL": "deepseek-chat",
+        "DEEPSEEK_BASE_URL": "https://api.deepseek.com/v1",
+        "DEEPSEEK_MAX_TOKENS": "4000",
+        "DEEPSEEK_TEMPERATURE": "0.3",
+        "DEEPSEEK_TIMEOUT": "30000",
+        "PROJECT_ROOT_PATH": "D:\\develop\\Repository\\estimate-service",
+        "SERVICE_PATH": "D:\\develop\\Repository\\estimate-service\\services\\estimate-service",
+        "DOCS_PATH": "D:\\develop\\Repository\\estimate-service\\docs",
+        "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/estimate_service",
+        "LOG_LEVEL": "debug",
+        "NODE_OPTIONS": "--max-old-space-size=4096"
+      }
+    },
+    "estimate-service-http": {
+      "command": "node",
+      "args": [
+        "mcp-server/dist-simple/index-http.js"
+      ],
+      "cwd": "D:\\develop\\Repository\\estimate-service",
+      "env": {
+        "NODE_ENV": "development",
+        "PORT": "3456",
+        "DEEPSEEK_API_KEY": "sk-aeaf60f610ee429892a113b1f4e20960",
+        "DEEPSEEK_MODEL": "deepseek-chat",
+        "DEEPSEEK_BASE_URL": "https://api.deepseek.com/v1",
+        "DEEPSEEK_MAX_TOKENS": "4000",
+        "DEEPSEEK_TEMPERATURE": "0.3",
+        "PROJECT_ROOT_PATH": "D:\\develop\\Repository\\estimate-service",
+        "SERVICE_PATH": "D:\\develop\\Repository\\estimate-service\\services\\estimate-service",
+        "DOCS_PATH": "D:\\develop\\Repository\\estimate-service\\docs",
+        "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/estimate_service",
+        "LOG_LEVEL": "info",
+        "NODE_OPTIONS": "--max-old-space-size=4096"
+      }
+    }
+  }
+}

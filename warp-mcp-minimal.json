@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "estimate-local": {
+      "command": "node",
+      "args": ["D:\\develop\\Repository\\estimate-service\\mcp-server\\dist-simple\\index-local-simple.js"],
+      "env": {
+        "NODE_ENV": "development",
+        "DEEPSEEK_API_KEY": "sk-aeaf60f610ee429892a113b1f4e20960",
+        "PROJECT_ROOT_PATH": "D:\\develop\\Repository\\estimate-service",
+        "LOG_LEVEL": "debug"
+      }
+    },
+    "estimate-http": {
+      "command": "node",
+      "args": ["D:\\develop\\Repository\\estimate-service\\mcp-server\\dist-simple\\index-http.js"],
+      "env": {
+        "NODE_ENV": "development",
+        "PORT": "3456",
+        "DEEPSEEK_API_KEY": "sk-aeaf60f610ee429892a113b1f4e20960",
+        "PROJECT_ROOT_PATH": "D:\\develop\\Repository\\estimate-service",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}

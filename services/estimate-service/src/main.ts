@@ -4,6 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compression from 'compression';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { initSentry } from './common/sentry/sentry.config';
+import { SentryInterceptor } from './common/sentry/sentry.interceptor';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -12,32 +14,44 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
 
+  // Инициализация Sentry
+  const configService = app.get(ConfigService);
+
+  initSentry(configService);
+
+  // Глобальный Sentry interceptor
+  app.useGlobalInterceptors(new SentryInterceptor());
+
   // Security middleware
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+        },
       },
-    },
-    crossOriginEmbedderPolicy: false,
-  }));
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
 
   // Compression
   app.use(compression());
 
   // Global validation pipe with detailed error messages
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-    disableErrorMessages: process.env['NODE_ENV'] === 'production',
-    transformOptions: {
-      enableImplicitConversion: true,
-    },
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      disableErrorMessages: process.env['NODE_ENV'] === 'production',
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
 
   // CORS configuration
   app.enableCors({
@@ -70,6 +84,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('api/docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
@@ -88,7 +103,7 @@ async function bootstrap() {
   logger.log(`🚀 Режим: ${process.env['NODE_ENV'] || 'development'}`);
 }
 
-bootstrap().catch((error) => {
+bootstrap().catch(error => {
   Logger.error('❌ Ошибка запуска приложения', error);
   process.exit(1);
 });

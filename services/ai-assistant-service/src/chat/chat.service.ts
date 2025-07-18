@@ -14,6 +14,52 @@ export class ChatService {
     private readonly prisma: PrismaService,
   ) {}
 
+  async createSession(userId: string): Promise<any> {
+    // Generate session id, here it's a simple UUID.
+    const sessionId = uuidv4();
+
+    // Create a new chat session object.
+    const newSession = {
+      id: sessionId,
+      userId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    // Saving chat session logic can be implemented here.
+    // For example, using Prisma:
+    // await this.prisma.chatSession.create({ data: newSession });
+
+    this.logger.log(`Created new chat session for user: ${userId} with id: ${sessionId}`);
+
+    return newSession;
+  }
+
+  async sendMessage(sessionId: string, message: string): Promise<any> {
+    try {
+      // Get userId from session (this is a simplified version)
+      // In production, you'd need to retrieve this from a session store
+      const userId = 'websocket-user'; // This should be retrieved from session
+
+      const response = await this.processMessage({
+        sessionId,
+        message,
+        userId,
+      });
+
+      return {
+        id: uuidv4(),
+        sessionId,
+        role: 'assistant',
+        content: response.response,
+        createdAt: new Date(),
+      };
+    } catch (error) {
+      this.logger.error('Error sending message:', error);
+      throw error;
+    }
+  }
+
   async processMessage(params: {
     sessionId?: string;
     message: string;

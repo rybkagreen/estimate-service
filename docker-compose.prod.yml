@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "3022:3022"
+    deploy:
+      replicas: 4
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: $PROD_DB_PASSWORD
+
+  redis:
+    image: redis:7-alpine
+
+  monitoring:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+
+volumes:
+  pgdata:
+

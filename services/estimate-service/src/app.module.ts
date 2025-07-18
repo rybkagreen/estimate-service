@@ -21,6 +21,7 @@ import { PredictionModule } from './modules/prediction/prediction.module';
 import { ProjectModule } from './modules/project/project.module';
 import { TemplatesModule } from './modules/templates/templates.module';
 import { ValidationModule } from './modules/validation/validation.module';
+import { FgisModule } from './modules/fgis/fgis.module';
 
 // Shared modules
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
@@ -76,6 +77,7 @@ import { StreamingModule } from './shared/streaming/streaming.module';
     ValidationModule,
     DashboardModule,
     ProjectModule,
+    FgisModule,
   ],
   providers: [
     {

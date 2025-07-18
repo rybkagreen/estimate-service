@@ -17,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request } from 'express';
+import { SendMessageDto, AnalyzeEstimateDto, GenerateEstimateDto } from './dto';
 
 @ApiTags('AI Chat')
 @Controller('api/v1/ai/chat')
@@ -84,26 +85,4 @@ export class ChatController {
   ) {
     return this.chatService.getSuggestions(context, type);
   }
-}
-
-// DTOs
-export class SendMessageDto {
-  sessionId?: string;
-  message: string;
-  context?: any;
-}
-
-export class AnalyzeEstimateDto {
-  estimateContent: string;
-  documentType?: 'смета' | 'акт' | 'договор' | 'спецификация';
-  regionCode?: string;
-  year?: number;
-}
-
-export class GenerateEstimateDto {
-  projectDescription: string;
-  workTypes: string[];
-  area?: number;
-  region?: string;
-  priceLevel?: 'базовый' | 'текущий';
 }

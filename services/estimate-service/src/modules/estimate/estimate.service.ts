@@ -6,6 +6,7 @@ import { CircuitBreakerService } from '../../shared/circuit-breaker/circuit-brea
 import { EstimateStreamingService } from '../../shared/streaming/streaming.service';
 import { CreateEstimateDto, UpdateEstimateDto, EstimateFilterDto } from './dto';
 import { EstimateStatus, Prisma } from '@prisma/client';
+import { transformDecimalFields } from '../../common/utils/decimal.utils';
 
 /**
  * Сервис для работы со сметами
@@ -102,7 +103,7 @@ export class EstimateService {
           const total = await this.prisma.estimate.count({ where });
 
           // Сортировка
-          const orderBy: Prisma.EstimateOrderByWithRelationInput = {};
+          const orderBy: any = {};
           orderBy[filter.sortBy || 'createdAt'] = filter.sortOrder || 'desc';
 
           // Пагинация
@@ -150,7 +151,9 @@ export class EstimateService {
           });
 
           return {
-            data: estimates,
+            data: estimates.map(estimate =>
+              transformDecimalFields(estimate, ['laborCostPerHour', 'materialCost', 'laborCost', 'overheadCost', 'profitCost', 'totalCost'])
+            ),
             total,
             page,
             pageSize,
@@ -227,7 +230,7 @@ export class EstimateService {
             throw new NotFoundException(`Смета с ID ${id} не найдена`);
           }
 
-          return estimate;
+          return transformDecimalFields(estimate, ['laborCostPerHour', 'materialCost', 'laborCost', 'overheadCost', 'profitCost', 'totalCost']);
         } catch (error) {
           if (error instanceof NotFoundException) {
             throw error;
@@ -303,7 +306,7 @@ export class EstimateService {
       // Очищаем кэш списка смет
       await this.enhancedCacheService.delByTag('estimates:list:*');
 
-      return estimate;
+      return transformDecimalFields(estimate, ['laborCostPerHour', 'materialCost', 'laborCost', 'overheadCost', 'profitCost', 'totalCost']);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

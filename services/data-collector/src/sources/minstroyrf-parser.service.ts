@@ -7,6 +7,7 @@ import * as cheerio from 'cheerio';
 
 import { ValidationService } from '../services/validation.service';
 import { FileDownloadService } from '../services/file-download.service';
+import { ExcelParser } from '@ez-eco/shared-parsers';
 import {
   DataSource,
   SourceMetadata,
@@ -180,24 +181,12 @@ export class MinstroyParserService {
         this.generateFileName(document.title, document.url),
       );
 
-      // Парсим в зависимости от типа файла
-      const extension = this.getFileExtension(filePath.fileName || '');
-      let items: ParsedWorkItem[] = [];
-
-      switch (extension) {
-        case '.xlsx':
-        case '.xls':
-          items = await this.parseExcelDocument(filePath.filePath || '');
-          break;
-        case '.pdf':
-          items = await this.parsePdfDocument(filePath.filePath || '');
-          break;
-        case '.xml':
-          items = await this.parseXmlDocument(filePath.filePath || '');
-          break;
-        default:
-          throw new Error(`Неподдерживаемый формат файла: ${extension}`);
+// Парсим в зависимости от типа файла
+      const parser = new ExcelParser();
+      if (!parser.supports(extension)) {
+        throw new Error(`Неподдерживаемый формат файла: ${extension}`);
       }
+      items = parser.parse(filePath.filePath || '');
 
       // Валидация и очистка данных
       for (const item of items) {

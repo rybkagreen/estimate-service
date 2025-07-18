@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "estimate-local": {
+      "command": "node",
+      "args": [
+        "mcp-server/dist-simple/index-local-simple.js"
+      ],
+      "cwd": "D:\\develop\\Repository\\estimate-service",
+      "env": {
+        "NODE_ENV": "development",
+        "DEEPSEEK_API_KEY": "sk-aeaf60f610ee429892a113b1f4e20960",
+        "PROJECT_ROOT_PATH": "D:\\develop\\Repository\\estimate-service",
+        "LOG_LEVEL": "error",
+        "DISABLE_FILE_LOGGING": "true"
+      }
+    }
+  }
+}

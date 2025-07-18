@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { aiService, AIMessage } from '../services/aiServiceNew';
+import { aiService, AIMessage } from '../services/aiService';
 
 const AIAssistant: React.FC = () => {
   const [messages, setMessages] = useState<AIMessage[]>([]);

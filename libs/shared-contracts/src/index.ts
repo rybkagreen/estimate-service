@@ -19,6 +19,9 @@ export * from './grand-smeta.types';
 // Re-export from estimate types
 export * from './estimate.types';
 
+// Re-export from FSBC types
+export * from './fsbc.types';
+
 // Vector DB and search types
 export interface VectorSearchRequest {
   query: string;

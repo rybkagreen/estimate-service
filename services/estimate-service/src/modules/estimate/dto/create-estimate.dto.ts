@@ -64,7 +64,7 @@ export class CreateEstimateDto {
   @IsValidQuantity()
   quantity?: number;
 
-  @ApiPropertyOptional({ description: 'Метаданные сметы', type: 'object' })
+  @ApiPropertyOptional({ description: 'Метаданные сметы' })
   @IsOptional()
   metadata?: Record<string, any>;
 }

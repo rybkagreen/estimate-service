@@ -132,7 +132,7 @@ export class EstimateExtendedService {
       this.validateStatusTransition(estimate.status, status);
 
       // Подготавливаем данные для обновления
-      const updateData: Prisma.EstimateUpdateInput = { status };
+      const updateData: any = { status };
 
       // Если статус меняется на APPROVED, записываем утверждающего и дату
       if (status === EstimateStatus.APPROVED) {
@@ -198,7 +198,7 @@ export class EstimateExtendedService {
           totalCost: original.totalCost,
           createdById: userId,
           parentId: original.id,
-          metadata: original.metadata,
+          metadata: original.metadata || undefined,
           // Копируем позиции
           items: {
             create: original.items.map(item => ({
@@ -213,7 +213,7 @@ export class EstimateExtendedService {
               category: item.category,
               sortOrder: item.sortOrder,
               groupName: item.groupName,
-              metadata: item.metadata,
+              metadata: item.metadata || undefined,
             })),
           },
         },

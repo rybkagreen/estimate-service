@@ -4,7 +4,10 @@
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { ConfigService } from '@nestjs/config';
+import { chunk } from 'lodash';
+import { RegionalCoefficientsService } from '@ez-eco/shared-regional';
+import { FsbcWorkItemSchema } from '@ez-eco/shared-contracts';
 import { PrismaService } from '../prisma/prisma.service';
 import { FileDownloadService } from '../services/file-download.service';
 import { FileParserService } from '../services/file-parser.service';

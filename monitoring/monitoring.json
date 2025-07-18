@@ -1,0 +1,6 @@
+{
+  "sentry": "https://sentry.yourdomain.com",
+  "datadog": "https://app.datadoghq.com",
+  "grafana": "https://grafana.yourdomain.com",
+  "logz": "https://app.logz.io"
+}

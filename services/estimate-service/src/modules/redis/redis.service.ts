@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 
@@ -9,6 +9,7 @@ import Redis from 'ioredis';
 @Injectable()
 export class RedisService {
   private readonly logger = new Logger(RedisService.name);
+
   private readonly ttl: number;
 
   constructor(
@@ -16,6 +17,7 @@ export class RedisService {
     private readonly configService: ConfigService,
   ) {
     const config = this.configService.get('redis');
+
     this.ttl = config.ttl;
   }
 
@@ -25,11 +27,13 @@ export class RedisService {
   async get<T = any>(key: string): Promise<T | null> {
     try {
       const value = await this.redis.get(key);
+
       if (!value) return null;
-      
+
       return JSON.parse(value);
     } catch (error) {
       this.logger.error(`Error getting key ${key}:`, error);
+
       return null;
     }
   }
@@ -41,16 +45,17 @@ export class RedisService {
     try {
       const serialized = JSON.stringify(value);
       const expiry = ttl || this.ttl;
-      
+
       if (expiry > 0) {
         await this.redis.setex(key, expiry, serialized);
       } else {
         await this.redis.set(key, serialized);
       }
-      
+
       return true;
     } catch (error) {
       this.logger.error(`Error setting key ${key}:`, error);
+
       return false;
     }
   }
@@ -61,9 +66,11 @@ export class RedisService {
   async delete(key: string): Promise<boolean> {
     try {
       const result = await this.redis.del(key);
+
       return result === 1;
     } catch (error) {
       this.logger.error(`Error deleting key ${key}:`, error);
+
       return false;
     }
   }
@@ -74,12 +81,15 @@ export class RedisService {
   async deletePattern(pattern: string): Promise<number> {
     try {
       const keys = await this.redis.keys(pattern);
+
       if (keys.length === 0) return 0;
-      
+
       const result = await this.redis.del(...keys);
+
       return result;
     } catch (error) {
       this.logger.error(`Error deleting pattern ${pattern}:`, error);
+
       return 0;
     }
   }
@@ -90,9 +100,11 @@ export class RedisService {
   async exists(key: string): Promise<boolean> {
     try {
       const result = await this.redis.exists(key);
+
       return result === 1;
     } catch (error) {
       this.logger.error(`Error checking key ${key}:`, error);
+
       return false;
     }
   }
@@ -103,9 +115,11 @@ export class RedisService {
   async expire(key: string, seconds: number): Promise<boolean> {
     try {
       const result = await this.redis.expire(key, seconds);
+
       return result === 1;
     } catch (error) {
       this.logger.error(`Error setting expiry for key ${key}:`, error);
+
       return false;
     }
   }
@@ -118,6 +132,7 @@ export class RedisService {
       return await this.redis.ttl(key);
     } catch (error) {
       this.logger.error(`Error getting TTL for key ${key}:`, error);
+
       return -1;
     }
   }
@@ -154,6 +169,7 @@ export class RedisService {
       return await this.redis.hget(key, field);
     } catch (error) {
       this.logger.error(`Error getting hash field ${key}.${field}:`, error);
+
       return null;
     }
   }
@@ -161,9 +177,11 @@ export class RedisService {
   async hset(key: string, field: string, value: string): Promise<boolean> {
     try {
       await this.redis.hset(key, field, value);
+
       return true;
     } catch (error) {
       this.logger.error(`Error setting hash field ${key}.${field}:`, error);
+
       return false;
     }
   }
@@ -173,6 +191,7 @@ export class RedisService {
       return await this.redis.hgetall(key);
     } catch (error) {
       this.logger.error(`Error getting hash ${key}:`, error);
+
       return {};
     }
   }
@@ -194,6 +213,7 @@ export class RedisService {
       return await this.redis.rpop(key);
     } catch (error) {
       this.logger.error(`Error popping from list ${key}:`, error);
+
       return null;
     }
   }
@@ -203,6 +223,7 @@ export class RedisService {
       return await this.redis.lrange(key, start, stop);
     } catch (error) {
       this.logger.error(`Error getting list range ${key}:`, error);
+
       return [];
     }
   }
@@ -233,6 +254,7 @@ export class RedisService {
       return await this.redis.smembers(key);
     } catch (error) {
       this.logger.error(`Error getting set members ${key}:`, error);
+
       return [];
     }
   }
@@ -240,9 +262,11 @@ export class RedisService {
   async sismember(key: string, member: string): Promise<boolean> {
     try {
       const result = await this.redis.sismember(key, member);
+
       return result === 1;
     } catch (error) {
       this.logger.error(`Error checking set membership ${key}:`, error);
+
       return false;
     }
   }
@@ -294,6 +318,42 @@ export class RedisService {
     } catch (error) {
       this.logger.error('Error closing Redis connection:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Выполнить транзакцию из нескольких команд
+   */
+  async transaction(commands: [string, ...any[]][]): Promise<any[] | null> {
+    try {
+      const pipeline = this.redis.multi();
+
+      commands.forEach(([cmd, ...args]) => {
+        (pipeline as any)[cmd](...args);
+      });
+      const result = await pipeline.exec();
+
+      return result.map(([err, res]) => {
+        if (err) {
+          throw err;
+        }
+
+        return res;
+      });
+    } catch (error) {
+      if (error instanceof Redis.ReplyError) {
+        this.logger.error(`Redis transaction error [${error.code}]: ${error.message}`, error);
+        throw new Error(`RedisTransactionError: ${error.message}`);
+      } else if (error instanceof Redis.ConnectionTimeoutError) {
+        this.logger.error('Redis connection timeout during transaction', error);
+        throw new Error('RedisConnectionError: Redis connection timeout');
+      } else if (error instanceof Redis.MaxRetriesPerRequestError) {
+        this.logger.error('Redis max retries exceeded during transaction', error);
+        throw new Error('RedisConnectionError: Redis max connections exceeded');
+      } else {
+        this.logger.error(`Error executing transaction:`, error);
+        throw error;
+      }
     }
   }
 }

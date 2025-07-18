@@ -38,7 +38,7 @@ export class CacheService implements OnModuleInit, OnModuleDestroy {
       try {
         // Dynamically import Redis to avoid errors if not installed
         const redisModule = await import('redis').catch(() => null);
-        if (redisModule && redisModule.createClient) {
+        if (redisModule && typeof redisModule.createClient === 'function') {
           const { createClient } = redisModule;
           this.redisClient = createClient({
             socket: {

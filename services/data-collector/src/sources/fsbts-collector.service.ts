@@ -9,6 +9,7 @@ import { MinstroyParserService } from './minstroyrf-parser.service';
 import { RegionalDataService } from './regional-data.service';
 import { NormativesParserService } from './normatives-parser.service';
 import { MarketPricesService } from './market-prices.service';
+import { ExcelParser } from '@ez-eco/shared-parsers';
 
 import {
   CollectionResult,

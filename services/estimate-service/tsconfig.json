@@ -1,23 +1,20 @@
 {
-  "extends": "../../tsconfig.nestjs-services.json",
   "compilerOptions": {
-    "composite": true,
+    "baseUrl": ".",
     "paths": {
-      "@app/*": [
-        "src/*"
-      ],
-      "@ez-eco/shared-contracts": [
-        "../../libs/shared-contracts/src/index.ts"
-      ]
+      "@ez-eco/shared-contracts": ["../../../../libs/shared-contracts/src"]
     }
   },
+  "extends": "../../../tsconfig.base.json",
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "test/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "**/*.spec.ts",
-    "**/*.test.ts"
+    "build",
+    ".next",
+    "coverage"
   ]
 }
